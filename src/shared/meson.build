@@ -24,8 +24,6 @@ shared_sources = files('''
         conf-parser.h
         dev-setup.c
         dev-setup.h
-        dissect-image.c
-        dissect-image.h
         dns-domain.c
         dns-domain.h
         dropin.c
@@ -54,8 +52,6 @@ shared_sources = files('''
         install.h
         loop-util.c
         loop-util.h
-        machine-image.c
-        machine-image.h
         machine-pool.c
         machine-pool.h
         module-util.h
