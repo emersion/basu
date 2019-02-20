@@ -15,14 +15,6 @@ _systemd_headers = '''
 # https://github.com/mesonbuild/meson/issues/1633
 systemd_headers = files(_systemd_headers)
 
-_not_installed_headers = '''
-        sd-dhcp6-client.h
-        sd-dhcp6-lease.h
-        sd-dhcp-client.h
-        sd-dhcp-lease.h
-        sd-dhcp-server.h
-'''.split()
-
 install_headers(
         systemd_headers,
         '_sd-common.h',
@@ -53,7 +45,7 @@ if cxx.found()
         endif
 endif
 
-foreach header : _systemd_headers + _not_installed_headers + ['../libudev/libudev.h']
+foreach header : _systemd_headers + ['../libudev/libudev.h']
         foreach opt : opts
                 name = ''.join(['cc-', header.split('/')[-1], ':'] + opt)
                 if want_tests != 'false'
