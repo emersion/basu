@@ -50,7 +50,6 @@ libsystemd_sources = files('''
         sd-bus/bus-type.c
         sd-bus/bus-type.h
         sd-bus/sd-bus.c
-        sd-path/sd-path.c
 '''.split()) + id128_sources + sd_daemon_c + sd_event_c + sd_login_c
 
 disable_mempool_c = files('disable-mempool.c')
