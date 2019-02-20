@@ -50,10 +50,6 @@ libsystemd_sources = files('''
         sd-bus/bus-type.c
         sd-bus/bus-type.h
         sd-bus/sd-bus.c
-        sd-hwdb/hwdb-internal.h
-        sd-hwdb/hwdb-util.c
-        sd-hwdb/hwdb-util.h
-        sd-hwdb/sd-hwdb.c
         sd-network/network-util.c
         sd-network/network-util.h
         sd-network/sd-network.c
