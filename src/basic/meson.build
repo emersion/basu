@@ -95,8 +95,6 @@ basic_sources = files('''
         io-util.c
         io-util.h
         ioprio.h
-        journal-importer.c
-        journal-importer.h
         json-internal.h
         json.c
         json.h
