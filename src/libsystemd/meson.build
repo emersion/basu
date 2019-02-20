@@ -50,15 +50,6 @@ libsystemd_sources = files('''
         sd-bus/bus-type.c
         sd-bus/bus-type.h
         sd-bus/sd-bus.c
-        sd-device/device-enumerator-private.h
-        sd-device/device-enumerator.c
-        sd-device/device-internal.h
-        sd-device/device-monitor-private.h
-        sd-device/device-monitor.c
-        sd-device/device-private.c
-        sd-device/device-private.h
-        sd-device/device-util.h
-        sd-device/sd-device.c
         sd-hwdb/hwdb-internal.h
         sd-hwdb/hwdb-util.c
         sd-hwdb/hwdb-util.h
