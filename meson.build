@@ -1315,7 +1315,6 @@ includes = include_directories(
   'src/libsystemd/sd-device',
   'src/libsystemd/sd-hwdb',
   'src/libsystemd/sd-id128',
-  'src/libsystemd/sd-netlink',
   'src/libsystemd/sd-network',
 )
 
