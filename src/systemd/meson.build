@@ -8,7 +8,6 @@ _systemd_headers = '''
         sd-event.h
         sd-id128.h
         sd-journal.h
-        sd-login.h
         sd-messages.h
 '''.split()
 
