@@ -23,9 +23,7 @@ _not_installed_headers = '''
         sd-dhcp-server.h
         sd-ipv4acd.h
         sd-ipv4ll.h
-        sd-ndisc.h
         sd-netlink.h
-        sd-radv.h
 '''.split()
 
 install_headers(
