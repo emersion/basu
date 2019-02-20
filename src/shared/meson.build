@@ -18,8 +18,6 @@ shared_sources = files('''
         bus-unit-util.h
         bus-util.c
         bus-util.h
-        cgroup-show.c
-        cgroup-show.h
         clean-ipc.c
         clean-ipc.h
         condition.c
@@ -56,10 +54,6 @@ shared_sources = files('''
         install-printf.h
         install.c
         install.h
-        journal-util.c
-        journal-util.h
-        logs-show.c
-        logs-show.h
         loop-util.c
         loop-util.h
         machine-image.c

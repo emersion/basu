@@ -1311,7 +1311,6 @@ includes = include_directories(
   'src/basic',
   'src/shared',
   'src/systemd',
-  'src/journal',
   'src/libsystemd/sd-bus',
   'src/libsystemd/sd-device',
   'src/libsystemd/sd-hwdb',
@@ -1325,14 +1324,6 @@ add_project_arguments('-include', 'config.h', language : 'c')
 subdir('src/basic')
 subdir('src/shared')
 subdir('src/libsystemd')
-subdir('src/journal')
-
-libjournal_core = static_library(
-        'journal-core',
-        libjournal_core_sources,
-        journald_gperf_c,
-        include_directories : includes,
-        install : false)
 
 libsystemd_sym_path = '@0@/@1@'.format(meson.current_source_dir(), libsystemd_sym)
 libsystemd = shared_library(
@@ -1344,8 +1335,7 @@ libsystemd = shared_library(
                      '-Wl,--version-script=' + libsystemd_sym_path],
         link_with : [libbasic,
                      libbasic_gcrypt],
-        link_whole : [libsystemd_static,
-                      libjournal_client],
+        link_whole : libsystemd_static,
         dependencies : [threads,
                         librt,
                         libxz,
@@ -1362,7 +1352,6 @@ exe = executable('busctl',
                  link_with : [libshared_static,
                               libbasic,
                               libbasic_gcrypt,
-                              libsystemd_static,
-                              libjournal_client],
+                              libsystemd_static],
                  install_rpath : rootlibexecdir,
                  install : true)
