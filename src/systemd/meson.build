@@ -6,7 +6,6 @@ _systemd_headers = '''
         sd-bus-vtable.h
         sd-daemon.h
         sd-event.h
-        sd-hwdb.h
         sd-id128.h
         sd-journal.h
         sd-login.h
