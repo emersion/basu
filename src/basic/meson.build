@@ -22,8 +22,6 @@ basic_sources = files('''
         blkid-util.h
         blockdev-util.c
         blockdev-util.h
-        bpf-program.c
-        bpf-program.h
         btrfs-ctree.h
         btrfs-util.c
         btrfs-util.h
