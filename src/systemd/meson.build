@@ -21,7 +21,6 @@ _not_installed_headers = '''
         sd-dhcp-client.h
         sd-dhcp-lease.h
         sd-dhcp-server.h
-        sd-ipv4acd.h
 '''.split()
 
 install_headers(
