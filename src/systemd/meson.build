@@ -29,7 +29,6 @@ _not_installed_headers = '''
         sd-network.h
         sd-path.h
         sd-radv.h
-        sd-utf8.h
 '''.split()
 
 install_headers(
