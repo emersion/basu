@@ -1313,7 +1313,6 @@ includes = include_directories(
   'src/systemd',
   'src/libsystemd/sd-bus',
   'src/libsystemd/sd-id128',
-  'src/libsystemd/sd-network',
 )
 
 add_project_arguments('-include', 'config.h', language : 'c')

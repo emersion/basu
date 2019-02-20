@@ -50,9 +50,6 @@ libsystemd_sources = files('''
         sd-bus/bus-type.c
         sd-bus/bus-type.h
         sd-bus/sd-bus.c
-        sd-network/network-util.c
-        sd-network/network-util.h
-        sd-network/sd-network.c
         sd-path/sd-path.c
 '''.split()) + id128_sources + sd_daemon_c + sd_event_c + sd_login_c
 

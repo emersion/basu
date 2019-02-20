@@ -26,7 +26,6 @@ _not_installed_headers = '''
         sd-lldp.h
         sd-ndisc.h
         sd-netlink.h
-        sd-network.h
         sd-path.h
         sd-radv.h
 '''.split()
