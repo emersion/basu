@@ -1,24 +1,12 @@
 # SPDX-License-Identifier: LGPL-2.1+
 
 basic_sources = files('''
-        MurmurHash2.c
-        MurmurHash2.h
-        af-list.c
-        af-list.h
         alloc-util.c
         alloc-util.h
         architecture.c
         architecture.h
-        arphrd-list.c
-        arphrd-list.h
-        async.c
-        async.h
         audit-util.c
         audit-util.h
-        barrier.c
-        barrier.h
-        bitmap.c
-        bitmap.h
         blkid-util.h
         blockdev-util.c
         blockdev-util.h
@@ -28,8 +16,6 @@ basic_sources = files('''
         build.h
         bus-label.c
         bus-label.h
-        calendarspec.c
-        calendarspec.h
         cap-list.c
         cap-list.h
         capability-util.c
@@ -38,14 +24,10 @@ basic_sources = files('''
         cgroup-util.h
         chattr-util.c
         chattr-util.h
-        clock-util.c
-        clock-util.h
         conf-files.c
         conf-files.h
         copy.c
         copy.h
-        cpu-set-util.c
-        cpu-set-util.h
         crypt-util.c
         crypt-util.h
         def.h
@@ -59,22 +41,12 @@ basic_sources = files('''
         errno-list.h
         escape.c
         escape.h
-        ether-addr-util.c
-        ether-addr-util.h
-        exec-util.c
-        exec-util.h
-        exit-status.c
-        exit-status.h
         extract-word.c
         extract-word.h
         fd-util.c
         fd-util.h
-        fileio-label.c
-        fileio-label.h
         fileio.c
         fileio.h
-        format-table.c
-        format-table.h
         format-util.h
         fs-util.c
         fs-util.h
@@ -90,8 +62,6 @@ basic_sources = files('''
         hexdecoct.h
         hostname-util.c
         hostname-util.h
-        in-addr-util.c
-        in-addr-util.h
         io-util.c
         io-util.h
         ioprio.h
@@ -105,8 +75,6 @@ basic_sources = files('''
         list.h
         locale-util.c
         locale-util.h
-        lockfile-util.c
-        lockfile-util.h
         log.c
         log.h
         login-util.c
@@ -123,12 +91,8 @@ basic_sources = files('''
         mount-util.c
         mount-util.h
         nss-util.h
-        ordered-set.c
-        ordered-set.h
         pager.c
         pager.h
-        os-util.c
-        os-util.h
         parse-util.c
         parse-util.h
         path-util.c
@@ -143,27 +107,17 @@ basic_sources = files('''
         procfs-util.h
         random-util.c
         random-util.h
-        ratelimit.c
-        ratelimit.h
         raw-clone.h
         raw-reboot.h
-        reboot-util.c
-        reboot-util.h
         refcnt.h
-        replace-var.c
-        replace-var.h
         rlimit-util.c
         rlimit-util.h
         rm-rf.c
         rm-rf.h
-        securebits-util.c
-        securebits-util.h
         securebits.h
         selinux-util.c
         selinux-util.h
         set.h
-        sigbus.c
-        sigbus.h
         signal-util.c
         signal-util.h
         siphash24.c
@@ -171,8 +125,6 @@ basic_sources = files('''
         smack-util.c
         smack-util.h
         socket-label.c
-        socket-protocol-list.c
-        socket-protocol-list.h
         socket-util.c
         socket-util.h
         sparse-endian.h
@@ -180,16 +132,12 @@ basic_sources = files('''
         stat-util.c
         stat-util.h
         stdio-util.h
-        strbuf.c
-        strbuf.h
         string-table.c
         string-table.h
         string-util.c
         string-util.h
         strv.c
         strv.h
-        strxcpyx.c
-        strxcpyx.h
         syslog-util.c
         syslog-util.h
         terminal-util.c
@@ -212,8 +160,6 @@ basic_sources = files('''
         verbs.h
         virt.c
         virt.h
-        web-util.c
-        web-util.h
         xattr-util.c
         xattr-util.h
         xml.c
@@ -300,9 +246,6 @@ foreach item : [['af',     af_list_txt,     'af',         ''],
 endforeach
 
 basic_sources += [missing_h] + generated_gperf_headers
-basic_gcrypt_sources = files(
-        'gcrypt-util.c',
-        'gcrypt-util.h')
 
 libbasic = static_library(
         'basic',
@@ -316,12 +259,3 @@ libbasic = static_library(
                         libm],
         c_args : ['-fvisibility=default'],
         install : false)
-
-# A convenience library that is separate from libbasic to avoid
-# unnecessary linking to libgcrypt.
-libbasic_gcrypt = static_library(
-        'basic-gcrypt',
-        basic_gcrypt_sources,
-        include_directories : includes,
-        dependencies : [libgcrypt],
-        c_args : ['-fvisibility=default'])
