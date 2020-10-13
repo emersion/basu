@@ -15,7 +15,6 @@
 #include "log.h"
 #include "macro.h"
 #include "missing.h"
-#include "mkdir.h"
 #include "selinux-util.h"
 #include "socket-util.h"
 #include "umask-util.h"
@@ -97,9 +96,6 @@ int socket_address_listen(
 
         p = socket_address_get_path(a);
         if (p) {
-                /* Create parents */
-                (void) mkdir_parents_label(p, directory_mode);
-
                 /* Enforce the right access mode for the socket */
                 RUN_WITH_UMASK(~socket_mode) {
                         r = mac_selinux_bind(fd, &a->sockaddr.sa, a->size);

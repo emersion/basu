@@ -18,7 +18,6 @@
 #include "log.h"
 #include "macro.h"
 #include "missing.h"
-#include "mkdir.h"
 #include "parse-util.h"
 #include "path-util.h"
 #include "process-util.h"
@@ -299,9 +298,6 @@ int touch_file(const char *path, bool parents, usec_t stamp, uid_t uid, gid_t gi
          * itself which is updated, not its target
          *
          * Returns the first error we encounter, but tries to apply as much as possible. */
-
-        if (parents)
-                (void) mkdir_parents(path, 0755);
 
         /* Initially, we try to open the node with O_PATH, so that we get a reference to the node. This is useful in
          * case the path refers to an existing device or socket node, as we can open it successfully in all cases, and

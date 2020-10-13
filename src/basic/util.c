@@ -17,11 +17,9 @@
 #include <unistd.h>
 
 #include "alloc-util.h"
-#include "btrfs-util.h"
 #include "build.h"
 #include "cgroup-util.h"
 #include "def.h"
-#include "device-nodes.h"
 #include "dirent-util.h"
 #include "env-util.h"
 #include "fd-util.h"
