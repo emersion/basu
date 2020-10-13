@@ -10,7 +10,7 @@
 #include "bus-message.h"
 #include "bus-util.h"
 #include "capability-util.h"
-#include "cgroup-util.h"
+#include "def.h"
 #include "fd-util.h"
 #include "fileio.h"
 #include "format-util.h"
@@ -372,157 +372,27 @@ _public_ int sd_bus_creds_get_cgroup(sd_bus_creds *c, const char **ret) {
 }
 
 _public_ int sd_bus_creds_get_unit(sd_bus_creds *c, const char **ret) {
-        int r;
-
-        assert_return(c, -EINVAL);
-        assert_return(ret, -EINVAL);
-
-        if (!(c->mask & SD_BUS_CREDS_UNIT))
-                return -ENODATA;
-
-        assert(c->cgroup);
-
-        if (!c->unit) {
-                const char *shifted;
-
-                r = cg_shift_path(c->cgroup, c->cgroup_root, &shifted);
-                if (r < 0)
-                        return r;
-
-                r = cg_path_get_unit(shifted, (char**) &c->unit);
-                if (r < 0)
-                        return r;
-        }
-
-        *ret = c->unit;
-        return 0;
+        return -ENOSYS;
 }
 
 _public_ int sd_bus_creds_get_user_unit(sd_bus_creds *c, const char **ret) {
-        int r;
-
-        assert_return(c, -EINVAL);
-        assert_return(ret, -EINVAL);
-
-        if (!(c->mask & SD_BUS_CREDS_USER_UNIT))
-                return -ENODATA;
-
-        assert(c->cgroup);
-
-        if (!c->user_unit) {
-                const char *shifted;
-
-                r = cg_shift_path(c->cgroup, c->cgroup_root, &shifted);
-                if (r < 0)
-                        return r;
-
-                r = cg_path_get_user_unit(shifted, (char**) &c->user_unit);
-                if (r < 0)
-                        return r;
-        }
-
-        *ret = c->user_unit;
-        return 0;
+        return -ENOSYS;
 }
 
 _public_ int sd_bus_creds_get_slice(sd_bus_creds *c, const char **ret) {
-        int r;
-
-        assert_return(c, -EINVAL);
-        assert_return(ret, -EINVAL);
-
-        if (!(c->mask & SD_BUS_CREDS_SLICE))
-                return -ENODATA;
-
-        assert(c->cgroup);
-
-        if (!c->slice) {
-                const char *shifted;
-
-                r = cg_shift_path(c->cgroup, c->cgroup_root, &shifted);
-                if (r < 0)
-                        return r;
-
-                r = cg_path_get_slice(shifted, (char**) &c->slice);
-                if (r < 0)
-                        return r;
-        }
-
-        *ret = c->slice;
-        return 0;
+        return -ENOSYS;
 }
 
 _public_ int sd_bus_creds_get_user_slice(sd_bus_creds *c, const char **ret) {
-        int r;
-
-        assert_return(c, -EINVAL);
-        assert_return(ret, -EINVAL);
-
-        if (!(c->mask & SD_BUS_CREDS_USER_SLICE))
-                return -ENODATA;
-
-        assert(c->cgroup);
-
-        if (!c->user_slice) {
-                const char *shifted;
-
-                r = cg_shift_path(c->cgroup, c->cgroup_root, &shifted);
-                if (r < 0)
-                        return r;
-
-                r = cg_path_get_user_slice(shifted, (char**) &c->user_slice);
-                if (r < 0)
-                        return r;
-        }
-
-        *ret = c->user_slice;
-        return 0;
+        return -ENOSYS;
 }
 
 _public_ int sd_bus_creds_get_session(sd_bus_creds *c, const char **ret) {
-        int r;
-
-        assert_return(c, -EINVAL);
-        assert_return(ret, -EINVAL);
-
-        if (!(c->mask & SD_BUS_CREDS_SESSION))
-                return -ENODATA;
-
-        assert(c->cgroup);
-
-        if (!c->session) {
-                const char *shifted;
-
-                r = cg_shift_path(c->cgroup, c->cgroup_root, &shifted);
-                if (r < 0)
-                        return r;
-
-                r = cg_path_get_session(shifted, (char**) &c->session);
-                if (r < 0)
-                        return r;
-        }
-
-        *ret = c->session;
-        return 0;
+        return -ENOSYS;
 }
 
 _public_ int sd_bus_creds_get_owner_uid(sd_bus_creds *c, uid_t *uid) {
-        const char *shifted;
-        int r;
-
-        assert_return(c, -EINVAL);
-        assert_return(uid, -EINVAL);
-
-        if (!(c->mask & SD_BUS_CREDS_OWNER_UID))
-                return -ENODATA;
-
-        assert(c->cgroup);
-
-        r = cg_shift_path(c->cgroup, c->cgroup_root, &shifted);
-        if (r < 0)
-                return r;
-
-        return cg_path_get_owner_uid(shifted, uid);
+        return -ENOSYS;
 }
 
 _public_ int sd_bus_creds_get_cmdline(sd_bus_creds *c, char ***cmdline) {
@@ -1033,18 +903,10 @@ int bus_creds_add_more(sd_bus_creds *c, uint64_t mask, pid_t pid, pid_t tid) {
 
         if (missing & (SD_BUS_CREDS_CGROUP|SD_BUS_CREDS_UNIT|SD_BUS_CREDS_USER_UNIT|SD_BUS_CREDS_SLICE|SD_BUS_CREDS_USER_SLICE|SD_BUS_CREDS_SESSION|SD_BUS_CREDS_OWNER_UID)) {
 
-                if (!c->cgroup) {
-                        r = cg_pid_get_path(NULL, pid, &c->cgroup);
-                        if (r < 0) {
-                                if (!IN_SET(r, -EPERM, -EACCES))
-                                        return r;
-                        }
-                }
-
                 if (!c->cgroup_root) {
-                        r = cg_get_root_path(&c->cgroup_root);
-                        if (r < 0)
-                                return r;
+                        c->cgroup_root = strdup("/");
+                        if (c->cgroup_root == NULL)
+                                return -ENOMEM;
                 }
 
                 if (c->cgroup)

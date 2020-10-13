@@ -23,7 +23,6 @@
 #include "bus-message.h"
 #include "bus-util.h"
 #include "cap-list.h"
-#include "cgroup-util.h"
 #include "def.h"
 #include "escape.h"
 #include "fd-util.h"
@@ -32,6 +31,7 @@
 #include "proc-cmdline.h"
 #include "stdio-util.h"
 #include "strv.h"
+#include "set.h"
 #include "user-util.h"
 
 static int name_owner_change_callback(sd_bus_message *m, void *userdata, sd_bus_error *ret_error) {
@@ -742,15 +742,7 @@ static int bus_print_property(const char *name, const char *expected_value, sd_b
 
                         bus_print_property_value(name, expected_value, value, "%s", s);
 
-                } else if ((STR_IN_SET(name, "CPUWeight", "StartupCPUWeight", "IOWeight", "StartupIOWeight") && u == CGROUP_WEIGHT_INVALID) ||
-                           (STR_IN_SET(name, "CPUShares", "StartupCPUShares") && u == CGROUP_CPU_SHARES_INVALID) ||
-                           (STR_IN_SET(name, "BlockIOWeight", "StartupBlockIOWeight") && u == CGROUP_BLKIO_WEIGHT_INVALID) ||
-                           (STR_IN_SET(name, "MemoryCurrent", "TasksCurrent") && u == (uint64_t) -1) ||
-                           (endswith(name, "NSec") && u == (uint64_t) -1))
-
-                        bus_print_property_value(name, expected_value, value, "%s", "[not set]");
-
-                else if ((STR_IN_SET(name, "MemoryLow", "MemoryHigh", "MemoryMax", "MemorySwapMax", "MemoryLimit") && u == CGROUP_LIMIT_MAX) ||
+                } else if ((STR_IN_SET(name, "MemoryLow", "MemoryHigh", "MemoryMax", "MemorySwapMax", "MemoryLimit")) ||
                          (STR_IN_SET(name, "TasksMax", "DefaultTasksMax") && u == (uint64_t) -1) ||
                          (startswith(name, "Limit") && u == (uint64_t) -1) ||
                          (startswith(name, "DefaultLimit") && u == (uint64_t) -1))

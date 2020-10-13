@@ -26,7 +26,6 @@
 #include "bus-track.h"
 #include "bus-type.h"
 #include "bus-util.h"
-#include "cgroup-util.h"
 #include "def.h"
 #include "fd-util.h"
 #include "hexdecoct.h"
@@ -97,16 +96,9 @@ static sd_bus **bus_choose_default(int (**bus_open)(sd_bus **)) {
 
         /* Finally, if nothing is set use the cached connection for
          * the right scope */
-
-        if (cg_pid_get_owner_uid(0, NULL) >= 0) {
-                if (bus_open)
-                        *bus_open = sd_bus_open_user;
-                return &default_user_bus;
-        } else {
-                if (bus_open)
-                        *bus_open = sd_bus_open_system;
-                return &default_system_bus;
-        }
+        if (bus_open)
+                *bus_open = sd_bus_open_system;
+        return &default_system_bus;
 }
 
 sd_bus *bus_resolve(sd_bus *bus) {
@@ -1217,10 +1209,7 @@ _public_ int sd_bus_open_with_description(sd_bus **ret, const char *description)
 
         e = secure_getenv("DBUS_STARTER_ADDRESS");
         if (!e) {
-                if (cg_pid_get_owner_uid(0, NULL) >= 0)
-                        return sd_bus_open_user_with_description(ret, description);
-                else
-                        return sd_bus_open_system_with_description(ret, description);
+                return sd_bus_open_system_with_description(ret, description);
         }
 
         r = sd_bus_new(&b);
@@ -3930,21 +3919,14 @@ _public_ int sd_bus_get_description(sd_bus *bus, const char **description) {
 }
 
 int bus_get_root_path(sd_bus *bus) {
-        int r;
-
         if (bus->cgroup_root)
                 return 0;
 
-        r = cg_get_root_path(&bus->cgroup_root);
-        if (r == -ENOENT) {
-                bus->cgroup_root = strdup("/");
-                if (!bus->cgroup_root)
-                        return -ENOMEM;
+        bus->cgroup_root = strdup("/");
+        if (!bus->cgroup_root)
+                return -ENOMEM;
 
-                r = 0;
-        }
-
-        return r;
+        return 0;
 }
 
 _public_ int sd_bus_get_scope(sd_bus *bus, const char **scope) {

@@ -12,8 +12,6 @@ basic_sources = files('''
         cap-list.h
         capability-util.c
         capability-util.h
-        cgroup-util.c
-        cgroup-util.h
         copy.c
         copy.h
         def.h
