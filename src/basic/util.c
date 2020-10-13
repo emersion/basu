@@ -43,7 +43,6 @@
 #include "umask-util.h"
 #include "user-util.h"
 #include "util.h"
-#include "virt.h"
 
 int saved_argc = 0;
 char **saved_argv = NULL;
@@ -600,9 +599,6 @@ int str_verscmp(const char *s1, const char *s2) {
 /* Turn off core dumps but only if we're running outside of a container. */
 void disable_coredumps(void) {
         int r;
-
-        if (detect_container() > 0)
-                return;
 
         r = write_string_file("/proc/sys/kernel/core_pattern", "|/bin/false", WRITE_STRING_FILE_DISABLE_BUFFER);
         if (r < 0)

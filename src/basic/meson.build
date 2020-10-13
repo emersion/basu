@@ -126,8 +126,6 @@ basic_sources = files('''
         util.h
         verbs.c
         verbs.h
-        virt.c
-        virt.h
         xml.c
         xml.h
 '''.split())
