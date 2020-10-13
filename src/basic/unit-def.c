@@ -4,7 +4,6 @@
 #include "bus-label.h"
 #include "string-table.h"
 #include "unit-def.h"
-#include "unit-name.h"
 
 char *unit_dbus_path_from_name(const char *name) {
         _cleanup_free_ char *e = NULL;
@@ -59,13 +58,7 @@ const char* unit_dbus_interface_from_type(UnitType t) {
 }
 
 const char *unit_dbus_interface_from_name(const char *name) {
-        UnitType t;
-
-        t = unit_name_to_type(name);
-        if (t < 0)
-                return NULL;
-
-        return unit_dbus_interface_from_type(t);
+        return NULL;
 }
 
 static const char* const unit_type_table[_UNIT_TYPE_MAX] = {
