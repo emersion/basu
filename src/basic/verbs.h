@@ -16,6 +16,4 @@ typedef struct {
         int (* const dispatch)(int argc, char *argv[], void *userdata);
 } Verb;
 
-bool running_in_chroot_or_offline(void);
-
 int dispatch_verb(int argc, char *argv[], const Verb verbs[], void *userdata);

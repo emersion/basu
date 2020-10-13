@@ -14,7 +14,6 @@
 #include "special.h"
 #include "string-util.h"
 #include "util.h"
-#include "virt.h"
 
 int proc_cmdline(char **ret) {
         const char *e;
@@ -33,10 +32,7 @@ int proc_cmdline(char **ret) {
                 return 0;
         }
 
-        if (detect_container() > 0)
-                return get_process_cmdline(1, 0, false, ret);
-        else
-                return read_one_line_file("/proc/cmdline", ret);
+        return read_one_line_file("/proc/cmdline", ret);
 }
 
 int proc_cmdline_parse_given(const char *line, proc_cmdline_parse_t parse_item, void *data, unsigned flags) {
