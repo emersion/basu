@@ -85,8 +85,6 @@ basic_sources = files('''
         refcnt.h
         rlimit-util.c
         rlimit-util.h
-        selinux-util.c
-        selinux-util.h
         set.h
         signal-util.c
         signal-util.h

@@ -15,7 +15,6 @@
 #include "log.h"
 #include "macro.h"
 #include "missing.h"
-#include "selinux-util.h"
 #include "socket-util.h"
 #include "umask-util.h"
 
@@ -45,17 +44,9 @@ int socket_address_listen(
         if (socket_address_family(a) == AF_INET6 && !socket_ipv6_is_supported())
                 return -EAFNOSUPPORT;
 
-        if (label) {
-                r = mac_selinux_create_socket_prepare(label);
-                if (r < 0)
-                        return r;
-        }
-
         fd = socket(socket_address_family(a), a->type | flags, a->protocol);
         r = fd < 0 ? -errno : 0;
 
-        if (label)
-                mac_selinux_create_socket_clear();
 
         if (r < 0)
                 return r;
@@ -98,14 +89,14 @@ int socket_address_listen(
         if (p) {
                 /* Enforce the right access mode for the socket */
                 RUN_WITH_UMASK(~socket_mode) {
-                        r = mac_selinux_bind(fd, &a->sockaddr.sa, a->size);
+                        r = bind(fd, &a->sockaddr.sa, a->size);
                         if (r == -EADDRINUSE) {
                                 /* Unlink and try again */
 
                                 if (unlink(p) < 0)
                                         return r; /* didn't work, return original error */
 
-                                r = mac_selinux_bind(fd, &a->sockaddr.sa, a->size);
+                                r = bind(fd, &a->sockaddr.sa, a->size);
                         }
                         if (r < 0)
                                 return r;
