@@ -38,7 +38,6 @@
 #include "string-table.h"
 #include "string-util.h"
 #include "strv.h"
-#include "unit-name.h"
 #include "user-util.h"
 
 int cg_enumerate_processes(const char *controller, const char *path, FILE **_f) {
@@ -1434,9 +1433,6 @@ int cg_path_decode_unit(const char *cgroup, char **unit) {
         c = strndupa(cgroup, n);
         c = cg_unescape(c);
 
-        if (!unit_name_is_valid(c, UNIT_NAME_PLAIN|UNIT_NAME_INSTANCE))
-                return -ENXIO;
-
         s = strdup(c);
         if (!s)
                 return -ENOMEM;
@@ -1446,25 +1442,7 @@ int cg_path_decode_unit(const char *cgroup, char **unit) {
 }
 
 static bool valid_slice_name(const char *p, size_t n) {
-
-        if (!p)
-                return false;
-
-        if (n < STRLEN("x.slice"))
-                return false;
-
-        if (memcmp(p + n - 6, ".slice", 6) == 0) {
-                char buf[n+1], *c;
-
-                memcpy(buf, p, n);
-                buf[n] = 0;
-
-                c = cg_unescape(buf);
-
-                return unit_name_is_valid(c, UNIT_NAME_PLAIN);
-        }
-
-        return false;
+        return true;
 }
 
 static const char *skip_slices(const char *p) {
@@ -1909,79 +1887,7 @@ bool cg_controller_is_valid(const char *p) {
 }
 
 int cg_slice_to_path(const char *unit, char **ret) {
-        _cleanup_free_ char *p = NULL, *s = NULL, *e = NULL;
-        const char *dash;
-        int r;
-
-        assert(unit);
-        assert(ret);
-
-        if (streq(unit, SPECIAL_ROOT_SLICE)) {
-                char *x;
-
-                x = strdup("");
-                if (!x)
-                        return -ENOMEM;
-                *ret = x;
-                return 0;
-        }
-
-        if (!unit_name_is_valid(unit, UNIT_NAME_PLAIN))
-                return -EINVAL;
-
-        if (!endswith(unit, ".slice"))
-                return -EINVAL;
-
-        r = unit_name_to_prefix(unit, &p);
-        if (r < 0)
-                return r;
-
-        dash = strchr(p, '-');
-
-        /* Don't allow initial dashes */
-        if (dash == p)
-                return -EINVAL;
-
-        while (dash) {
-                _cleanup_free_ char *escaped = NULL;
-                char n[dash - p + sizeof(".slice")];
-
-#if HAS_FEATURE_MEMORY_SANITIZER
-                /* msan doesn't instrument stpncpy, so it thinks
-                 * n is later used unitialized:
-                 * https://github.com/google/sanitizers/issues/926
-                 */
-                zero(n);
-#endif
-
-                /* Don't allow trailing or double dashes */
-                if (IN_SET(dash[1], 0, '-'))
-                        return -EINVAL;
-
-                strcpy(stpncpy(n, p, dash - p), ".slice");
-                if (!unit_name_is_valid(n, UNIT_NAME_PLAIN))
-                        return -EINVAL;
-
-                escaped = cg_escape(n);
-                if (!escaped)
-                        return -ENOMEM;
-
-                if (!strextend(&s, escaped, "/", NULL))
-                        return -ENOMEM;
-
-                dash = strchr(dash+1, '-');
-        }
-
-        e = cg_escape(unit);
-        if (!e)
-                return -ENOMEM;
-
-        if (!strextend(&s, e, NULL))
-                return -ENOMEM;
-
-        *ret = TAKE_PTR(s);
-
-        return 0;
+        return -EINVAL;
 }
 
 int cg_set_attribute(const char *controller, const char *path, const char *attribute, const char *value) {
