@@ -30,7 +30,6 @@
 #include "missing.h"
 #include "parse-util.h"
 #include "proc-cmdline.h"
-#include "rlimit-util.h"
 #include "stdio-util.h"
 #include "strv.h"
 #include "user-util.h"
@@ -1617,44 +1616,7 @@ int bus_property_get_rlimit(
                 sd_bus_message *reply,
                 void *userdata,
                 sd_bus_error *error) {
-
-        const char *is_soft;
-        struct rlimit *rl;
-        uint64_t u;
-        rlim_t x;
-
-        assert(bus);
-        assert(reply);
-        assert(userdata);
-
-        is_soft = endswith(property, "Soft");
-
-        rl = *(struct rlimit**) userdata;
-        if (rl)
-                x = is_soft ? rl->rlim_cur : rl->rlim_max;
-        else {
-                struct rlimit buf = {};
-                const char *s, *p;
-                int z;
-
-                /* Chop off "Soft" suffix */
-                s = is_soft ? strndupa(property, is_soft - property) : property;
-
-                /* Skip over any prefix, such as "Default" */
-                assert_se(p = strstr(s, "Limit"));
-
-                z = rlimit_from_string(p + 5);
-                assert(z >= 0);
-
-                (void) getrlimit(z, &buf);
-                x = is_soft ? buf.rlim_cur : buf.rlim_max;
-        }
-
-        /* rlim_t might have different sizes, let's map RLIMIT_INFINITY to (uint64_t) -1, so that it is the same on all
-         * archs */
-        u = x == RLIM_INFINITY ? (uint64_t) -1 : (uint64_t) x;
-
-        return sd_bus_message_append(reply, "t", u);
+        return -1;
 }
 
 int bus_track_add_name_many(sd_bus_track *t, char **l) {
