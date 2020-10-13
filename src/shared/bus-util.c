@@ -28,8 +28,6 @@
 #include "escape.h"
 #include "fd-util.h"
 #include "missing.h"
-#include "mount-util.h"
-#include "nsflags.h"
 #include "parse-util.h"
 #include "proc-cmdline.h"
 #include "rlimit-util.h"
@@ -735,33 +733,6 @@ static int bus_print_property(const char *name, const char *expected_value, sd_b
 
                         (void) format_timespan(timespan, sizeof(timespan), u, 0);
                         bus_print_property_value(name, expected_value, value, "%s", timespan);
-
-                } else if (streq(name, "RestrictNamespaces")) {
-                        _cleanup_free_ char *s = NULL;
-                        const char *result;
-
-                        if ((u & NAMESPACE_FLAGS_ALL) == 0)
-                                result = "yes";
-                        else if ((u & NAMESPACE_FLAGS_ALL) == NAMESPACE_FLAGS_ALL)
-                                result = "no";
-                        else {
-                                r = namespace_flags_to_string(u, &s);
-                                if (r < 0)
-                                        return r;
-
-                                result = s;
-                        }
-
-                        bus_print_property_value(name, expected_value, value, "%s", result);
-
-                } else if (streq(name, "MountFlags")) {
-                        const char *result;
-
-                        result = mount_propagation_flags_to_string(u);
-                        if (!result)
-                                return -EINVAL;
-
-                        bus_print_property_value(name, expected_value, value, "%s", result);
 
                 } else if (STR_IN_SET(name, "CapabilityBoundingSet", "AmbientCapabilities")) {
                         _cleanup_free_ char *s = NULL;

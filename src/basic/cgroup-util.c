@@ -25,10 +25,8 @@
 #include "format-util.h"
 #include "fs-util.h"
 #include "log.h"
-#include "login-util.h"
 #include "macro.h"
 #include "missing.h"
-#include "mkdir.h"
 #include "parse-util.h"
 #include "path-util.h"
 #include "proc-cmdline.h"
@@ -759,16 +757,6 @@ int cg_create(const char *controller, const char *path) {
         int r;
 
         r = cg_get_path_and_check(controller, path, NULL, &fs);
-        if (r < 0)
-                return r;
-
-        r = mkdir_parents(fs, 0755);
-        if (r < 0)
-                return r;
-
-        r = mkdir_errno_wrapper(fs, 0755);
-        if (r == -EEXIST)
-                return 0;
         if (r < 0)
                 return r;
 
@@ -1555,14 +1543,6 @@ static const char *skip_session(const char *p) {
                 memcpy(buf, p + 8, n - 8 - 6);
                 buf[n - 8 - 6] = 0;
 
-                /* Note that session scopes never need unescaping,
-                 * since they cannot conflict with the kernel's own
-                 * names, hence we don't need to call cg_unescape()
-                 * here. */
-
-                if (!session_id_valid(buf))
-                        return false;
-
                 p += n;
                 p += strspn(p, "/");
                 return p;
@@ -1700,9 +1680,6 @@ int cg_path_get_session(const char *path, char **session) {
                 return -ENXIO;
 
         *end = 0;
-        if (!session_id_valid(start))
-                return -ENXIO;
-
         if (session) {
                 char *rr;
 

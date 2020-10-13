@@ -1,27 +1,11 @@
 # SPDX-License-Identifier: LGPL-2.1+
 
 shared_sources = files('''
-        apparmor-util.c
-        apparmor-util.h
         bus-util.c
         bus-util.h
-        condition.c
-        condition.h
-        efivars.c
-        efivars.h
         enable-mempool.c
-        fdset.c
-        fdset.h
-        ima-util.c
-        ima-util.h
-        nsflags.c
-        nsflags.h
-        serialize.c
-        serialize.h
         tests.c
         tests.h
-        tomoyo-util.c
-        tomoyo-util.h
 '''.split())
 
 if get_option('tests') != 'false'

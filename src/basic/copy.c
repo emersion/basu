@@ -14,8 +14,6 @@
 #include <unistd.h>
 
 #include "alloc-util.h"
-#include "btrfs-util.h"
-#include "chattr-util.h"
 #include "copy.h"
 #include "dirent-util.h"
 #include "fd-util.h"
@@ -24,13 +22,11 @@
 #include "io-util.h"
 #include "macro.h"
 #include "missing.h"
-#include "mount-util.h"
 #include "string-util.h"
 #include "strv.h"
 #include "time-util.h"
 #include "umask-util.h"
 #include "user-util.h"
-#include "xattr-util.h"
 
 #define COPY_BUFFER_SIZE (16U*1024U)
 
@@ -111,61 +107,6 @@ int copy_bytes_full(
                 *ret_remains = NULL;
         if (ret_remains_size)
                 *ret_remains_size = 0;
-
-        /* Try btrfs reflinks first. This only works on regular, seekable files, hence let's check the file offsets of
-         * source and destination first. */
-        if ((copy_flags & COPY_REFLINK)) {
-                off_t foffset;
-
-                foffset = lseek(fdf, 0, SEEK_CUR);
-                if (foffset >= 0) {
-                        off_t toffset;
-
-                        toffset = lseek(fdt, 0, SEEK_CUR);
-                        if (toffset >= 0) {
-
-                                if (foffset == 0 && toffset == 0 && max_bytes == UINT64_MAX)
-                                        r = btrfs_reflink(fdf, fdt); /* full file reflink */
-                                else
-                                        r = btrfs_clone_range(fdf, foffset, fdt, toffset, max_bytes == UINT64_MAX ? 0 : max_bytes); /* partial reflink */
-                                if (r >= 0) {
-                                        off_t t;
-
-                                        /* This worked, yay! Now — to be fully correct — let's adjust the file pointers */
-                                        if (max_bytes == UINT64_MAX) {
-
-                                                /* We cloned to the end of the source file, let's position the read
-                                                 * pointer there, and query it at the same time. */
-                                                t = lseek(fdf, 0, SEEK_END);
-                                                if (t < 0)
-                                                        return -errno;
-                                                if (t < foffset)
-                                                        return -ESPIPE;
-
-                                                /* Let's adjust the destination file write pointer by the same number
-                                                 * of bytes. */
-                                                t = lseek(fdt, toffset + (t - foffset), SEEK_SET);
-                                                if (t < 0)
-                                                        return -errno;
-
-                                                return 0; /* we copied the whole thing, hence hit EOF, return 0 */
-                                        } else {
-                                                t = lseek(fdf, foffset + max_bytes, SEEK_SET);
-                                                if (t < 0)
-                                                        return -errno;
-
-                                                t = lseek(fdt, toffset + max_bytes, SEEK_SET);
-                                                if (t < 0)
-                                                        return -errno;
-
-                                                return 1; /* we copied only some number of bytes, which worked, but this means we didn't hit EOF, return 1 */
-                                        }
-                                }
-
-                                log_debug_errno(r, "Reflinking didn't work, falling back to non-reflink copying: %m");
-                        }
-                }
-        }
 
         for (;;) {
                 ssize_t n;
@@ -398,7 +339,6 @@ static int fd_copy_regular(
         ts[0] = st->st_atim;
         ts[1] = st->st_mtim;
         (void) futimens(fdt, ts);
-        (void) copy_xattr(fdf, fdt);
 
         q = close(fdt);
         fdt = -1;
@@ -558,12 +498,6 @@ static int fd_copy_directory(
                         if (FLAGS_SET(copy_flags, COPY_SAME_MOUNT)) {
                                 if (buf.st_dev != original_device)
                                         continue;
-
-                                r = fd_is_mount_point(dirfd(d), de->d_name, 0);
-                                if (r < 0)
-                                        return r;
-                                if (r > 0)
-                                        continue;
                         }
 
                         q = fd_copy_directory(dirfd(d), de->d_name, &buf, fdt, de->d_name, original_device, depth_left-1, override_uid, override_gid, copy_flags);
@@ -599,7 +533,6 @@ static int fd_copy_directory(
                 if (fchmod(fdt, st->st_mode & 07777) < 0)
                         r = -errno;
 
-                (void) copy_xattr(dirfd(d), fdt);
                 (void) futimens(fdt, ut);
         }
 
@@ -677,7 +610,6 @@ int copy_file_fd(const char *from, int fdt, CopyFlags copy_flags) {
         r = copy_bytes(fdf, fdt, (uint64_t) -1, copy_flags);
 
         (void) copy_times(fdf, fdt);
-        (void) copy_xattr(fdf, fdt);
 
         return r;
 }
@@ -693,9 +625,6 @@ int copy_file(const char *from, const char *to, int flags, mode_t mode, unsigned
                 if (fdt < 0)
                         return -errno;
         }
-
-        if (chattr_flags != 0)
-                (void) chattr_fd(fdt, chattr_flags, (unsigned) -1, NULL);
 
         r = copy_file_fd(from, fdt, copy_flags);
         if (r < 0) {
@@ -742,9 +671,6 @@ int copy_file_atomic(const char *from, const char *to, mode_t mode, unsigned cha
                         return fdt;
         }
 
-        if (chattr_flags != 0)
-                (void) chattr_fd(fdt, chattr_flags, (unsigned) -1, NULL);
-
         r = copy_file_fd(from, fdt, copy_flags);
         if (r < 0)
                 return r;
@@ -768,7 +694,6 @@ int copy_file_atomic(const char *from, const char *to, mode_t mode, unsigned cha
 int copy_times(int fdf, int fdt) {
         struct timespec ut[2];
         struct stat st;
-        usec_t crtime = 0;
 
         assert(fdf >= 0);
         assert(fdt >= 0);
@@ -782,71 +707,6 @@ int copy_times(int fdf, int fdt) {
         if (futimens(fdt, ut) < 0)
                 return -errno;
 
-        if (fd_getcrtime(fdf, &crtime) >= 0)
-                (void) fd_setcrtime(fdt, crtime);
-
         return 0;
 }
 
-int copy_xattr(int fdf, int fdt) {
-        _cleanup_free_ char *bufa = NULL, *bufb = NULL;
-        size_t sza = 100, szb = 100;
-        ssize_t n;
-        int ret = 0;
-        const char *p;
-
-        for (;;) {
-                bufa = malloc(sza);
-                if (!bufa)
-                        return -ENOMEM;
-
-                n = flistxattr(fdf, bufa, sza);
-                if (n == 0)
-                        return 0;
-                if (n > 0)
-                        break;
-                if (errno != ERANGE)
-                        return -errno;
-
-                sza *= 2;
-
-                bufa = mfree(bufa);
-        }
-
-        p = bufa;
-        while (n > 0) {
-                size_t l;
-
-                l = strlen(p);
-                assert(l < (size_t) n);
-
-                if (startswith(p, "user.")) {
-                        ssize_t m;
-
-                        if (!bufb) {
-                                bufb = malloc(szb);
-                                if (!bufb)
-                                        return -ENOMEM;
-                        }
-
-                        m = fgetxattr(fdf, p, bufb, szb);
-                        if (m < 0) {
-                                if (errno == ERANGE) {
-                                        szb *= 2;
-                                        bufb = mfree(bufb);
-                                        continue;
-                                }
-
-                                return -errno;
-                        }
-
-                        if (fsetxattr(fdt, p, bufb, m, 0) < 0)
-                                ret = -errno;
-                }
-
-                p += l + 1;
-                n -= l + 1;
-        }
-
-        return ret;
-}

@@ -25,4 +25,3 @@ static inline int copy_bytes(int fdf, int fdt, uint64_t max_bytes, CopyFlags cop
         return copy_bytes_full(fdf, fdt, max_bytes, copy_flags, NULL, NULL);
 }
 int copy_times(int fdf, int fdt);
-int copy_xattr(int fdf, int fdt);

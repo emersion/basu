@@ -7,12 +7,6 @@ basic_sources = files('''
         architecture.h
         audit-util.c
         audit-util.h
-        blkid-util.h
-        blockdev-util.c
-        blockdev-util.h
-        btrfs-ctree.h
-        btrfs-util.c
-        btrfs-util.h
         build.h
         bus-label.c
         bus-label.h
@@ -22,17 +16,9 @@ basic_sources = files('''
         capability-util.h
         cgroup-util.c
         cgroup-util.h
-        chattr-util.c
-        chattr-util.h
-        conf-files.c
-        conf-files.h
         copy.c
         copy.h
-        crypt-util.c
-        crypt-util.h
         def.h
-        device-nodes.c
-        device-nodes.h
         dirent-util.c
         dirent-util.h
         env-util.c
@@ -70,27 +56,17 @@ basic_sources = files('''
         json.h
         khash.c
         khash.h
-        label.c
-        label.h
         list.h
         locale-util.c
         locale-util.h
         log.c
         log.h
-        login-util.c
-        login-util.h
         macro.h
         memfd-util.c
         memfd-util.h
         mempool.c
         mempool.h
         missing_syscall.h
-        mkdir-label.c
-        mkdir.c
-        mkdir.h
-        mount-util.c
-        mount-util.h
-        nss-util.h
         pager.c
         pager.h
         parse-util.c
@@ -108,13 +84,9 @@ basic_sources = files('''
         random-util.c
         random-util.h
         raw-clone.h
-        raw-reboot.h
         refcnt.h
         rlimit-util.c
         rlimit-util.h
-        rm-rf.c
-        rm-rf.h
-        securebits.h
         selinux-util.c
         selinux-util.h
         set.h
@@ -122,8 +94,6 @@ basic_sources = files('''
         signal-util.h
         siphash24.c
         siphash24.h
-        smack-util.c
-        smack-util.h
         socket-label.c
         socket-util.c
         socket-util.h
@@ -160,8 +130,6 @@ basic_sources = files('''
         verbs.h
         virt.c
         virt.h
-        xattr-util.c
-        xattr-util.h
         xml.c
         xml.h
 '''.split())
