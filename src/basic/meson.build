@@ -3,8 +3,6 @@
 basic_sources = files('''
         alloc-util.c
         alloc-util.h
-        architecture.c
-        architecture.h
         audit-util.c
         audit-util.h
         build.h
