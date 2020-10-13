@@ -514,7 +514,6 @@ global:
 
 LIBSYSTEMD_233 {
 global:
-        sd_id128_get_machine_app_specific;
         sd_is_socket_sockaddr;
 } LIBSYSTEMD_232;
 
@@ -648,8 +647,6 @@ global:
 
         sd_hwdb_seek;
         sd_hwdb_enumerate;
-
-        sd_id128_get_boot_app_specific;
 
         sd_device_monitor_new;
         sd_device_monitor_ref;

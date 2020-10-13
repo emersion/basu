@@ -52,8 +52,6 @@ basic_sources = files('''
         json-internal.h
         json.c
         json.h
-        khash.c
-        khash.h
         list.h
         locale-util.c
         locale-util.h
