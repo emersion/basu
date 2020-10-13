@@ -83,8 +83,6 @@ basic_sources = files('''
         random-util.h
         raw-clone.h
         refcnt.h
-        rlimit-util.c
-        rlimit-util.h
         set.h
         signal-util.c
         signal-util.h
