@@ -16,10 +16,6 @@
 #include <uchar.h>
 #include <unistd.h>
 
-#if WANT_LINUX_STAT_H
-#include <linux/stat.h>
-#endif
-
 #if HAVE_AUDIT
 #include <libaudit.h>
 #endif
@@ -651,33 +647,6 @@ struct input_mask {
 #define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
 #endif
 
-#if !HAVE_FRA_UID_RANGE
-#define FRA_UNSPEC 0
-#define FRA_DST 1
-#define FRA_SRC 2
-#define FRA_IIFNAME 3
-#define FRA_GOTO 4
-#define FRA_UNUSED2 5
-#define FRA_PRIORITY 6
-#define FRA_UNUSED3 7
-#define FRA_UNUSED4 8
-#define FRA_UNUSED5 9
-#define FRA_FWMARK 10
-#define FRA_FLOW 11
-#define FRA_TUN_ID 12
-#define FRA_SUPPRESS_IFGROUP 13
-#define FRA_SUPPRESS_PREFIXLEN 14
-#define FRA_TABLE 15
-#define FRA_FWMASK 16
-#define FRA_OIFNAME 17
-#define FRA_PAD 18
-#define FRA_L3MDEV 19
-#define FRA_UID_RANGE 20
-#define __FRA_MAX 12
-
-#define FRA_MAX (__FRA_MAX - 1)
-#endif
-
 #if !HAVE_IFLA_BRPORT_PROXYARP
 #define IFLA_BRPORT_PROXYARP 10
 #endif
@@ -939,88 +908,8 @@ typedef int32_t key_serial_t;
 #define PR_CAP_AMBIENT_CLEAR_ALL 4
 #endif
 
-/* The following two defines are actually available in the kernel headers for longer, but we define them here anyway,
- * since that makes it easier to use them in conjunction with the glibc net/if.h header which conflicts with
- * linux/if.h. */
-#ifndef IF_OPER_UNKNOWN
-#define IF_OPER_UNKNOWN 0
-#endif
-
-#ifndef IF_OPER_UP
-#define IF_OPER_UP 6
-
-#if ! HAVE_CHAR32_T
-#define char32_t uint32_t
-#endif
-
-#if ! HAVE_CHAR16_T
-#define char16_t uint16_t
-#endif
-
-#ifndef ETHERTYPE_LLDP
-#define ETHERTYPE_LLDP 0x88cc
-#endif
-
-#ifndef IFA_F_MCAUTOJOIN
-#define IFA_F_MCAUTOJOIN 0x400
-#endif
-
-#if ! HAVE_STRUCT_ETHTOOL_LINK_SETTINGS
-
-#define ETHTOOL_GLINKSETTINGS   0x0000004c /* Get ethtool_link_settings */
-#define ETHTOOL_SLINKSETTINGS   0x0000004d /* Set ethtool_link_settings */
-
-struct ethtool_link_settings {
-        __u32   cmd;
-        __u32   speed;
-        __u8    duplex;
-        __u8    port;
-        __u8    phy_address;
-        __u8    autoneg;
-        __u8    mdio_support;
-        __u8    eth_tp_mdix;
-        __u8    eth_tp_mdix_ctrl;
-        __s8    link_mode_masks_nwords;
-        __u32   reserved[8];
-        __u32   link_mode_masks[0];
-        /* layout of link_mode_masks fields:
-         * __u32 map_supported[link_mode_masks_nwords];
-         * __u32 map_advertising[link_mode_masks_nwords];
-         * __u32 map_lp_advertising[link_mode_masks_nwords];
-         */
-};
-
-#endif
-
-#if ! HAVE_STRUCT_FIB_RULE_UID_RANGE
-
-struct fib_rule_uid_range {
-        __u32 start;
-        __u32 end;
-};
-
-#endif
-
-#endif
-
-#ifndef SOL_ALG
-#define SOL_ALG 279
-#endif
-
 #ifndef AF_VSOCK
 #define AF_VSOCK 40
-#endif
-
-#ifndef EXT4_IOC_RESIZE_FS
-#  define EXT4_IOC_RESIZE_FS              _IOW('f', 16, __u64)
-#endif
-
-#ifndef NSFS_MAGIC
-#define NSFS_MAGIC 0x6e736673
-#endif
-
-#ifndef NS_GET_NSTYPE
-#define NS_GET_NSTYPE _IO(0xb7, 0x3)
 #endif
 
 #ifndef FALLOC_FL_KEEP_SIZE
@@ -1033,45 +922,6 @@ struct fib_rule_uid_range {
 
 #ifndef PF_KTHREAD
 #define PF_KTHREAD 0x00200000
-#endif
-
-#if ! HAVE_STRUCT_STATX
-struct statx_timestamp {
-        int64_t tv_sec;
-        uint32_t tv_nsec;
-        uint32_t __reserved;
-};
-struct statx {
-        uint32_t stx_mask;
-        uint32_t stx_blksize;
-        uint64_t stx_attributes;
-        uint32_t stx_nlink;
-        uint32_t stx_uid;
-        uint32_t stx_gid;
-        uint16_t stx_mode;
-        uint16_t __spare0[1];
-        uint64_t stx_ino;
-        uint64_t stx_size;
-        uint64_t stx_blocks;
-        uint64_t stx_attributes_mask;
-        struct statx_timestamp stx_atime;
-        struct statx_timestamp stx_btime;
-        struct statx_timestamp stx_ctime;
-        struct statx_timestamp stx_mtime;
-        uint32_t stx_rdev_major;
-        uint32_t stx_rdev_minor;
-        uint32_t stx_dev_major;
-        uint32_t stx_dev_minor;
-        uint64_t __spare2[14];
-};
-#endif
-
-#ifndef STATX_BTIME
-#define STATX_BTIME 0x00000800U
-#endif
-
-#ifndef AT_STATX_DONT_SYNC
-#define AT_STATX_DONT_SYNC 0x4000
 #endif
 
 /* The maximum thread/process name length including trailing NUL byte. This mimics the kernel definition of the same

@@ -380,36 +380,18 @@ conf.set('SIZEOF_RLIM_T', cc.sizeof('rlim_t', prefix : '#include <sys/resource.h
 
 decl_headers = '''
 #include <uchar.h>
-#include <linux/ethtool.h>
-#include <linux/fib_rules.h>
 #include <sys/stat.h>
 '''
 
 foreach decl : ['char16_t',
                 'char32_t',
-                'struct ethtool_link_settings',
-                'struct fib_rule_uid_range',
-                'struct statx',
                ]
 
         # We get -1 if the size cannot be determined
         have = cc.sizeof(decl, prefix : decl_headers, args : '-D_GNU_SOURCE') > 0
 
-        if decl == 'struct statx'
-                if have
-                        want_linux_stat_h = false
-                else
-                        have = cc.sizeof(decl,
-                                         prefix : decl_headers + '#include <linux/stat.h>',
-                                         args : '-D_GNU_SOURCE') > 0
-                        want_linux_stat_h = have
-                endif
-        endif
-
         conf.set10('HAVE_' + decl.underscorify().to_upper(), have)
 endforeach
-
-conf.set10('WANT_LINUX_STAT_H', want_linux_stat_h)
 
 foreach decl : [['IFLA_INET6_ADDR_GEN_MODE',         'linux/if_link.h'],
                 ['IN6_ADDR_GEN_MODE_STABLE_PRIVACY', 'linux/if_link.h'],
@@ -433,7 +415,6 @@ foreach decl : [['IFLA_INET6_ADDR_GEN_MODE',         'linux/if_link.h'],
                 ['IPVLAN_F_PRIVATE',                 'linux/if_link.h'],
                 ['NDA_IFINDEX',                      'linux/neighbour.h'],
                 ['IFA_FLAGS',                        'linux/if_addr.h'],
-                ['FRA_UID_RANGE',                    'linux/fib_rules.h'],
                 ['LO_FLAGS_PARTSCAN',                'linux/loop.h'],
                 ['VXCAN_INFO_PEER',                  'linux/can/vxcan.h'],
                 ['FOU_ATTR_REMCSUM_NOPARTIAL',       'linux/fou.h'],
