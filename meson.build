@@ -527,7 +527,6 @@ if not cc.has_header('sys/capability.h')
         error('POSIX caps headers not found')
 endif
 foreach header : ['crypt.h',
-                  'linux/fou.h',
                   'linux/memfd.h',
                   'linux/vm_sockets.h',
                   'sys/auxv.h',
