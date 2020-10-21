@@ -32,11 +32,7 @@
 #include "utf8.h"
 #include "util.h"
 
-#if ENABLE_IDN
-#  define IDN_FLAGS NI_IDN
-#else
-#  define IDN_FLAGS 0
-#endif
+#define IDN_FLAGS 0
 
 static const char* const socket_address_type_table[] = {
         [SOCK_STREAM] = "Stream",
@@ -1150,40 +1146,6 @@ int receive_one_fd(int transport_fd, int flags) {
          * a positive value if data was received through the iov. */
         assert(k < 0);
         return (int) k;
-}
-
-ssize_t next_datagram_size_fd(int fd) {
-        ssize_t l;
-        int k;
-
-        /* This is a bit like FIONREAD/SIOCINQ, however a bit more powerful. The difference being: recv(MSG_PEEK) will
-         * actually cause the next datagram in the queue to be validated regarding checksums, which FIONREAD doesn't
-         * do. This difference is actually of major importance as we need to be sure that the size returned here
-         * actually matches what we will read with recvmsg() next, as otherwise we might end up allocating a buffer of
-         * the wrong size. */
-
-        l = recv(fd, NULL, 0, MSG_PEEK|MSG_TRUNC);
-        if (l < 0) {
-                if (IN_SET(errno, EOPNOTSUPP, EFAULT))
-                        goto fallback;
-
-                return -errno;
-        }
-        if (l == 0)
-                goto fallback;
-
-        return l;
-
-fallback:
-        k = 0;
-
-        /* Some sockets (AF_PACKET) do not support null-sized recv() with MSG_TRUNC set, let's fall back to FIONREAD
-         * for them. Checksums don't matter for raw sockets anyway, hence this should be fine. */
-
-        if (ioctl(fd, FIONREAD, &k) < 0)
-                return -errno;
-
-        return (ssize_t) k;
 }
 
 int flush_accept(int fd) {

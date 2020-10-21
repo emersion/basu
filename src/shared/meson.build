@@ -18,16 +18,7 @@ libshared_deps = [threads,
                   librt,
                   libcap,
                   libacl,
-                  libcryptsetup,
-                  libgcrypt,
-                  libiptc,
-                  libkmod,
-                  libseccomp,
-                  libselinux,
-                  libidn,
-                  libxz,
-                  liblz4,
-                  libblkid]
+                  libselinux]
 
 libshared_sym_path = '@0@/libshared.sym'.format(meson.current_source_dir())
 

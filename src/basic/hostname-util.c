@@ -30,21 +30,6 @@ bool hostname_is_set(void) {
         return true;
 }
 
-char* gethostname_malloc(void) {
-        struct utsname u;
-
-        /* This call tries to return something useful, either the actual hostname
-         * or it makes something up. The only reason it might fail is OOM.
-         * It might even return "localhost" if that's set. */
-
-        assert_se(uname(&u) >= 0);
-
-        if (isempty(u.nodename) || streq(u.nodename, "(none)"))
-                return strdup(FALLBACK_HOSTNAME);
-
-        return strdup(u.nodename);
-}
-
 int gethostname_strict(char **ret) {
         struct utsname u;
         char *k;
@@ -180,9 +165,6 @@ bool is_gateway_hostname(const char *hostname) {
 
         return
                 strcaseeq(hostname, "_gateway") || strcaseeq(hostname, "_gateway.")
-#if ENABLE_COMPAT_GATEWAY_HOSTNAME
-                || strcaseeq(hostname, "gateway") || strcaseeq(hostname, "gateway.")
-#endif
                 ;
 }
 

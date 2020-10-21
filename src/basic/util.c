@@ -17,7 +17,6 @@
 #include <unistd.h>
 
 #include "alloc-util.h"
-#include "build.h"
 #include "def.h"
 #include "dirent-util.h"
 #include "env-util.h"
@@ -434,8 +433,7 @@ uint64_t system_tasks_max_scale(uint64_t v, uint64_t max) {
 }
 
 int version(void) {
-        puts(PACKAGE_STRING "\n"
-             SYSTEMD_FEATURES);
+        puts(PACKAGE_STRING "\n");
         return 0;
 }
 

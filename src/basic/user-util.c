@@ -786,19 +786,6 @@ int putgrent_sane(const struct group *gr, FILE *stream) {
         return 0;
 }
 
-#if ENABLE_GSHADOW
-int putsgent_sane(const struct sgrp *sg, FILE *stream) {
-        assert(sg);
-        assert(stream);
-
-        errno = 0;
-        if (putsgent(sg, stream) != 0)
-                return errno > 0 ? -errno : -EIO;
-
-        return 0;
-}
-#endif
-
 int fgetpwent_sane(FILE *stream, struct passwd **pw) {
         struct passwd *p;
 
@@ -843,20 +830,3 @@ int fgetgrent_sane(FILE *stream, struct group **gr) {
         *gr = g;
         return !!g;
 }
-
-#if ENABLE_GSHADOW
-int fgetsgent_sane(FILE *stream, struct sgrp **sg) {
-        struct sgrp *s;
-
-        assert(sg);
-        assert(stream);
-
-        errno = 0;
-        s = fgetsgent(stream);
-        if (!s && errno != ENOENT)
-                return errno > 0 ? -errno : -EIO;
-
-        *sg = s;
-        return !!s;
-}
-#endif

@@ -150,8 +150,6 @@ int send_one_fd_sa(int transport_fd,
 ssize_t receive_one_fd_iov(int transport_fd, struct iovec *iov, size_t iovlen, int flags, int *ret_fd);
 int receive_one_fd(int transport_fd, int flags);
 
-ssize_t next_datagram_size_fd(int fd);
-
 int flush_accept(int fd);
 
 #define CMSG_FOREACH(cmsg, mh)                                          \

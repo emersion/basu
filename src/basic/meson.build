@@ -5,7 +5,6 @@ basic_sources = files('''
         alloc-util.h
         audit-util.c
         audit-util.h
-        build.h
         bus-label.c
         bus-label.h
         cap-list.c
@@ -207,8 +206,6 @@ libbasic = static_library(
         include_directories : includes,
         dependencies : [threads,
                         libcap,
-                        libblkid,
-                        libmount,
                         libselinux,
                         libm],
         c_args : ['-fvisibility=default'],
