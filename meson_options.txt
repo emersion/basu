@@ -149,79 +149,15 @@ option('pamconfdir', type : 'string',
 option('docdir', type : 'string',
        description : 'documentation directory')
 
-option('fallback-hostname', type : 'string', value : 'localhost',
-       description : 'the hostname used if none configured')
-option('compat-gateway-hostname', type : 'boolean', value : 'false',
-       description : 'allow "gateway" as the symbolic name for default gateway')
-option('default-hierarchy', type : 'combo',
-       choices : ['legacy', 'hybrid', 'unified'], value : 'hybrid',
-       description : 'default cgroup hierarchy')
-option('time-epoch', type : 'integer', value : '-1',
-       description : 'time epoch for time clients')
-option('system-uid-max', type : 'integer', value : '-1',
-       description : 'maximum system UID')
-option('system-gid-max', type : 'integer', value : '-1',
-       description : 'maximum system GID')
-option('dynamic-uid-min', type : 'integer', value : 0x0000EF00,
-       description : 'minimum dynamic UID')
-option('dynamic-uid-max', type : 'integer', value : 0x0000FFEF,
-       description : 'maximum dynamic UID')
-option('container-uid-base-min', type : 'integer', value : 0x00080000,
-       description : 'minimum container UID base')
-option('container-uid-base-max', type : 'integer', value : 0x6FFF0000,
-       description : 'maximum container UID base')
-option('tty-gid', type : 'integer', value : 5,
-       description : 'the numeric GID of the "tty" group')
-option('users-gid', type : 'integer', value : '-1',
-       description : 'the numeric GID of the "users" group')
-option('adm-group', type : 'boolean',
-       description : 'the ACL for adm group should be added')
-option('wheel-group', type : 'boolean',
-       description : 'the ACL for wheel group should be added')
 option('nobody-user', type : 'string',
        description : 'The name of the nobody user (the one with UID 65534)',
        value : 'nobody')
 option('nobody-group', type : 'string',
        description : 'The name of the nobody group (the one with GID 65534)',
        value : 'nobody')
-option('dev-kvm-mode', type : 'string', value : '0666',
-       description : '/dev/kvm access mode')
-option('group-render-mode', type : 'string', value : '0666',
-       description : 'Access mode for devices owned by render group (e.g. /dev/dri/renderD*, /dev/kfd).')
-option('default-kill-user-processes', type : 'boolean',
-       description : 'the default value for KillUserProcesses= setting')
-option('gshadow', type : 'boolean',
-       description : 'support for shadow group')
-
-option('default-dnssec', type : 'combo',
-       description : 'default DNSSEC mode',
-       choices : ['yes', 'allow-downgrade', 'no'],
-       value : 'allow-downgrade')
-option('default-dns-over-tls', type : 'combo',
-       description : 'default DNS-over-TLS mode',
-       choices : ['opportunistic', 'no'],
-       value : 'no')
-option('dns-over-tls', type : 'combo', choices : ['auto', 'gnutls', 'openssl', 'true', 'false'],
-       description : 'DNS-over-TLS support')
-option('dns-servers', type : 'string',
-       description : 'space-separated list of default DNS servers',
-       value : '8.8.8.8 8.8.4.4 2001:4860:4860::8888 2001:4860:4860::8844')
-option('ntp-servers', type : 'string',
-       description : 'space-separated list of default NTP servers',
-       value : 'time1.google.com time2.google.com time3.google.com time4.google.com')
-option('support-url', type : 'string',
-       description : 'the support URL to show in catalog entries included in systemd',
-       value : 'https://lists.freedesktop.org/mailman/listinfo/systemd-devel')
-option('www-target', type : 'string',
-       description : 'the address and dir to upload docs too',
-       value : 'www.freedesktop.org:/srv/www.freedesktop.org/www/software/systemd')
 
 option('seccomp', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'SECCOMP support')
-option('selinux', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'SELinux support')
-option('apparmor', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'AppArmor support')
 option('smack', type : 'boolean',
        description : 'SMACK support')
 option('smack-run-label', type : 'string',
@@ -235,67 +171,10 @@ option('acl', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libacl support')
 option('audit', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libaudit support')
-option('blkid', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libblkid support')
-option('kmod', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'support for loadable modules')
-option('pam', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'PAM support')
-option('microhttpd', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libµhttpd support')
-option('libcryptsetup', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libcryptsetup support')
-option('libcurl', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libcurl support')
-option('idn', type : 'boolean',
-       description : 'use IDN when printing host names')
-option('libidn2', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libidn2 support')
-option('libidn', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libidn support')
-option('libiptc', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libiptc support')
-option('qrencode', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libqrencode support')
-option('gcrypt', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'gcrypt support')
-option('gnutls', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'gnutls support')
-option('openssl', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'openssl support')
-option('elfutils', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'elfutils support')
-option('zlib', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'zlib compression support')
-option('bzip2', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'bzip2 compression support')
-option('xz', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'xz compression support')
-option('lz4', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'lz4 compression support')
-option('xkbcommon', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'xkbcommon keymap support')
 option('pcre2', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'regexp matching support using pcre2')
-option('glib', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libglib support (for tests only)')
 option('dbus', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libdbus support (for tests only)')
-
-option('gnu-efi', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'gnu-efi support for sd-boot')
-option('efi-cc', type : 'array',
-       description : 'the compiler to use for EFI modules')
-option('efi-ld', type : 'string',
-       description : 'the linker to use for EFI modules')
-option('efi-libdir', type : 'string',
-       description : 'path to the EFI lib directory')
-option('efi-ldsdir', type : 'string',
-       description : 'path to the EFI lds directory')
-option('efi-includedir', type : 'string', value : '/usr/include/efi',
-       description : 'path to the EFI header directory')
-option('tpm-pcrindex', type : 'integer', value : 8,
-       description : 'TPM PCR register number to use')
 
 option('bashcompletiondir', type : 'string',
        description : 'directory for bash completion scripts ["no" disables]')

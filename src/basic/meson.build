@@ -206,7 +206,6 @@ libbasic = static_library(
         include_directories : includes,
         dependencies : [threads,
                         libcap,
-                        libselinux,
                         libm],
         c_args : ['-fvisibility=default'],
         install : false)

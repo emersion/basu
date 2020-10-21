@@ -494,44 +494,6 @@ awk = find_program('awk')
 m4 = find_program('m4')
 stat = find_program('stat')
 git = find_program('git', required : false)
-env = find_program('env')
-perl = find_program('perl', required : false)
-
-mkdir_p = 'mkdir -p $DESTDIR/@0@'
-
-# if -Dxxx-path option is found, use that. Otherwise, check in $PATH,
-# /usr/sbin, /sbin, and fall back to the default from middle column.
-progs = [['quotaon',    '/usr/sbin/quotaon'    ],
-         ['quotacheck', '/usr/sbin/quotacheck' ],
-         ['kmod',       '/usr/bin/kmod'        ],
-         ['kexec',      '/usr/sbin/kexec'      ],
-         ['sulogin',    '/usr/sbin/sulogin'    ],
-         ['mount',      '/usr/bin/mount',      'MOUNT_PATH'],
-         ['umount',     '/usr/bin/umount',     'UMOUNT_PATH'],
-         ['loadkeys',   '/usr/bin/loadkeys',   'KBD_LOADKEYS'],
-         ['setfont',    '/usr/bin/setfont',    'KBD_SETFONT'],
-        ]
-foreach prog : progs
-        path = get_option(prog[0] + '-path')
-        if path != ''
-                message('Using @1@ for @0@'.format(prog[0], path))
-        else
-                exe = find_program(prog[0],
-                                   '/usr/sbin/' + prog[0],
-                                   '/sbin/' + prog[0],
-                                   required: false)
-                path = exe.found() ? exe.path() : prog[1]
-        endif
-        name = prog.length() > 2 ? prog[2] : prog[0].to_upper()
-        conf.set_quoted(name, path)
-        substs.set(name, path)
-endforeach
-
-conf.set_quoted('TELINIT', get_option('telinit-path'))
-
-if run_command('ln', '--relative', '--help').returncode() != 0
-        error('ln does not support --relative (added in coreutils 8.16)')
-endif
 
 ############################################################
 
@@ -578,13 +540,6 @@ foreach header : ['crypt.h',
 endforeach
 
 ############################################################
-
-time_epoch = get_option('time-epoch')
-if time_epoch == -1
-        NEWS = files('README.md')
-        time_epoch = run_command(stat, '-c', '%Y', NEWS).stdout().to_int()
-endif
-conf.set('TIME_EPOCH', time_epoch)
 
 nobody_user = get_option('nobody-user')
 nobody_group = get_option('nobody-group')
@@ -671,29 +626,6 @@ if not libcap.found()
         # Compat with Ubuntu 14.04 which ships libcap w/o .pc file
         libcap = cc.find_library('cap')
 endif
-
-want_selinux = get_option('selinux')
-if want_selinux != 'false' and not fuzzer_build
-        libselinux = dependency('libselinux',
-                                version : '>= 2.1.9',
-                                required : want_selinux == 'true')
-        have = libselinux.found()
-else
-        have = false
-        libselinux = []
-endif
-conf.set10('HAVE_SELINUX', have)
-
-want_apparmor = get_option('apparmor')
-if want_apparmor != 'false' and not fuzzer_build
-        libapparmor = dependency('libapparmor',
-                                 required : want_apparmor == 'true')
-        have = libapparmor.found()
-else
-        have = false
-        libapparmor = []
-endif
-conf.set10('HAVE_APPARMOR', have)
 
 smack_run_label = get_option('smack-run-label')
 if smack_run_label != ''

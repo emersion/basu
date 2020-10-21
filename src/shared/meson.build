@@ -17,8 +17,7 @@ libshared_name = 'systemd-shared-@0@'.format(meson.project_version())
 libshared_deps = [threads,
                   librt,
                   libcap,
-                  libacl,
-                  libselinux]
+                  libacl]
 
 libshared_sym_path = '@0@/libshared.sym'.format(meson.current_source_dir())
 
