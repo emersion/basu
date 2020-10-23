@@ -451,16 +451,6 @@ if want_polkit != 'false' and not fuzzer_build
 endif
 conf.set10('ENABLE_POLKIT', install_polkit)
 
-want_acl = get_option('acl')
-if want_acl != 'false' and not fuzzer_build
-        libacl = cc.find_library('acl', required : want_acl == 'true')
-        have = libacl.found()
-else
-        have = false
-        libacl = []
-endif
-conf.set10('HAVE_ACL', have)
-
 want_audit = get_option('audit')
 if want_audit != 'false' and not fuzzer_build
         libaudit = dependency('audit', required : want_audit == 'true')
