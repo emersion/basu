@@ -55,8 +55,6 @@ sysvrcnd_path = get_option('sysvrcnd-path')
 conf.set10('HAVE_SYSV_COMPAT', sysvinit_path != '' and sysvrcnd_path != '',
            description : 'SysV init scripts and rcN.d links are supported')
 
-conf.set10('BUMP_PROC_SYS_FS_FILE_MAX', get_option('bump-proc-sys-fs-file-max'))
-conf.set10('BUMP_PROC_SYS_FS_NR_OPEN',  get_option('bump-proc-sys-fs-nr-open'))
 conf.set('HIGH_RLIMIT_NOFILE',          256*1024)
 
 # join_paths ignore the preceding arguments if an absolute component is
@@ -68,10 +66,7 @@ if not prefixdir.startswith('/')
 endif
 bindir = join_paths(prefixdir, get_option('bindir'))
 libdir = join_paths(prefixdir, get_option('libdir'))
-sysconfdir = join_paths(prefixdir, get_option('sysconfdir'))
 includedir = join_paths(prefixdir, get_option('includedir'))
-datadir = join_paths(prefixdir, get_option('datadir'))
-localstatedir = join_paths('/', get_option('localstatedir'))
 
 rootbindir = join_paths(rootprefixdir, 'bin')
 rootsbindir = join_paths(rootprefixdir, split_bin ? 'sbin' : 'bin')
@@ -83,179 +78,22 @@ if rootlibdir == ''
 endif
 
 # Dirs of external packages
-pkgconfigdatadir = get_option('pkgconfigdatadir') == '' ? join_paths(datadir, 'pkgconfig') : get_option('pkgconfigdatadir')
 pkgconfiglibdir = get_option('pkgconfiglibdir') == '' ? join_paths(libdir, 'pkgconfig') : get_option('pkgconfiglibdir')
-polkitpolicydir = join_paths(datadir, 'polkit-1/actions')
-polkitrulesdir = join_paths(datadir, 'polkit-1/rules.d')
-polkitpkladir = join_paths(localstatedir, 'lib/polkit-1/localauthority/10-vendor.d')
-varlogdir = join_paths(localstatedir, 'log')
-xinitrcdir = join_paths(sysconfdir, 'X11/xinit/xinitrc.d')
-rpmmacrosdir = get_option('rpmmacrosdir')
-if rpmmacrosdir != 'no'
-        rpmmacrosdir = join_paths(prefixdir, rpmmacrosdir)
-endif
-modprobedir = join_paths(rootprefixdir, 'lib/modprobe.d')
 
 # Our own paths
-pkgdatadir = join_paths(datadir, 'systemd')
-environmentdir = join_paths(prefixdir, 'lib/environment.d')
-pkgsysconfdir = join_paths(sysconfdir, 'systemd')
-userunitdir = join_paths(prefixdir, 'lib/systemd/user')
-userpresetdir = join_paths(prefixdir, 'lib/systemd/user-preset')
-tmpfilesdir = join_paths(prefixdir, 'lib/tmpfiles.d')
-sysusersdir = join_paths(prefixdir, 'lib/sysusers.d')
-sysctldir = join_paths(prefixdir, 'lib/sysctl.d')
-binfmtdir = join_paths(prefixdir, 'lib/binfmt.d')
-modulesloaddir = join_paths(prefixdir, 'lib/modules-load.d')
-networkdir = join_paths(rootprefixdir, 'lib/systemd/network')
-pkgincludedir = join_paths(includedir, 'systemd')
-systemgeneratordir = join_paths(rootlibexecdir, 'system-generators')
-usergeneratordir = join_paths(prefixdir, 'lib/systemd/user-generators')
-systemenvgeneratordir = join_paths(prefixdir, 'lib/systemd/system-environment-generators')
-userenvgeneratordir = join_paths(prefixdir, 'lib/systemd/user-environment-generators')
-systemshutdowndir = join_paths(rootlibexecdir, 'system-shutdown')
-systemsleepdir = join_paths(rootlibexecdir, 'system-sleep')
-systemunitdir = join_paths(rootprefixdir, 'lib/systemd/system')
-systempresetdir = join_paths(rootprefixdir, 'lib/systemd/system-preset')
-udevlibexecdir = join_paths(rootprefixdir, 'lib/udev')
-udevhomedir = udevlibexecdir
-udevrulesdir = join_paths(udevlibexecdir, 'rules.d')
-udevhwdbdir = join_paths(udevlibexecdir, 'hwdb.d')
 catalogdir = join_paths(prefixdir, 'lib/systemd/catalog')
-kernelinstalldir = join_paths(prefixdir, 'lib/kernel/install.d')
-factorydir = join_paths(datadir, 'factory')
-bootlibdir = join_paths(prefixdir, 'lib/systemd/boot/efi')
 testsdir = join_paths(prefixdir, 'lib/systemd/tests')
-systemdstatedir = join_paths(localstatedir, 'lib/systemd')
-catalogstatedir = join_paths(systemdstatedir, 'catalog')
-randomseeddir = join_paths(localstatedir, 'lib/systemd')
-profiledir = join_paths(rootlibexecdir, 'portable', 'profile')
-
-docdir = get_option('docdir')
-if docdir == ''
-        docdir = join_paths(datadir, 'doc/systemd')
-endif
-
-dbuspolicydir = get_option('dbuspolicydir')
-if dbuspolicydir == ''
-        dbuspolicydir = join_paths(datadir, 'dbus-1/system.d')
-endif
-
-dbussessionservicedir = get_option('dbussessionservicedir')
-if dbussessionservicedir == ''
-        dbussessionservicedir = join_paths(datadir, 'dbus-1/services')
-endif
-
-dbussystemservicedir = get_option('dbussystemservicedir')
-if dbussystemservicedir == ''
-        dbussystemservicedir = join_paths(datadir, 'dbus-1/system-services')
-endif
-
-pamlibdir = get_option('pamlibdir')
-if pamlibdir == ''
-        pamlibdir = join_paths(rootlibdir, 'security')
-endif
-
-pamconfdir = get_option('pamconfdir')
-if pamconfdir == ''
-        pamconfdir = join_paths(sysconfdir, 'pam.d')
-endif
-
-memory_accounting_default = get_option('memory-accounting-default')
-
-conf.set_quoted('PKGSYSCONFDIR',                              pkgsysconfdir)
-conf.set_quoted('SYSTEM_CONFIG_UNIT_PATH',                    join_paths(pkgsysconfdir, 'system'))
-conf.set_quoted('SYSTEM_DATA_UNIT_PATH',                      systemunitdir)
-conf.set_quoted('SYSTEM_SYSVINIT_PATH',                       sysvinit_path)
-conf.set_quoted('SYSTEM_SYSVRCND_PATH',                       sysvrcnd_path)
-conf.set_quoted('RC_LOCAL_SCRIPT_PATH_START',                 get_option('rc-local'))
-conf.set_quoted('RC_LOCAL_SCRIPT_PATH_STOP',                  get_option('halt-local'))
 
 conf.set('ANSI_OK_COLOR',                                     'ANSI_' + get_option('ok-color').underscorify().to_upper())
 
-conf.set_quoted('USER_CONFIG_UNIT_PATH',                      join_paths(pkgsysconfdir, 'user'))
-conf.set_quoted('USER_DATA_UNIT_PATH',                        userunitdir)
-conf.set_quoted('CERTIFICATE_ROOT',                           get_option('certificate-root'))
-conf.set_quoted('CATALOG_DATABASE',                           join_paths(catalogstatedir, 'database'))
-conf.set_quoted('SYSTEMD_CGROUP_AGENT_PATH',                  join_paths(rootlibexecdir, 'systemd-cgroups-agent'))
-conf.set_quoted('SYSTEMD_BINARY_PATH',                        join_paths(rootlibexecdir, 'systemd'))
-conf.set_quoted('SYSTEMD_FSCK_PATH',                          join_paths(rootlibexecdir, 'systemd-fsck'))
-conf.set_quoted('SYSTEMD_MAKEFS_PATH',                        join_paths(rootlibexecdir, 'systemd-makefs'))
-conf.set_quoted('SYSTEMD_GROWFS_PATH',                        join_paths(rootlibexecdir, 'systemd-growfs'))
-conf.set_quoted('SYSTEMD_SHUTDOWN_BINARY_PATH',               join_paths(rootlibexecdir, 'systemd-shutdown'))
-conf.set_quoted('SYSTEMD_SLEEP_BINARY_PATH',                  join_paths(rootlibexecdir, 'systemd-sleep'))
-conf.set_quoted('SYSTEMCTL_BINARY_PATH',                      join_paths(rootbindir, 'systemctl'))
-conf.set_quoted('SYSTEMD_TTY_ASK_PASSWORD_AGENT_BINARY_PATH', join_paths(rootbindir, 'systemd-tty-ask-password-agent'))
-conf.set_quoted('SYSTEMD_STDIO_BRIDGE_BINARY_PATH',           join_paths(bindir, 'systemd-stdio-bridge'))
-conf.set_quoted('ROOTPREFIX',                                 rootprefixdir)
-conf.set_quoted('RANDOM_SEED_DIR',                            randomseeddir)
-conf.set_quoted('RANDOM_SEED',                                join_paths(randomseeddir, 'random-seed'))
-conf.set_quoted('SYSTEMD_CRYPTSETUP_PATH',                    join_paths(rootlibexecdir, 'systemd-cryptsetup'))
-conf.set_quoted('SYSTEM_GENERATOR_PATH',                      systemgeneratordir)
-conf.set_quoted('USER_GENERATOR_PATH',                        usergeneratordir)
-conf.set_quoted('SYSTEM_ENV_GENERATOR_PATH',                  systemenvgeneratordir)
-conf.set_quoted('USER_ENV_GENERATOR_PATH',                    userenvgeneratordir)
-conf.set_quoted('SYSTEM_SHUTDOWN_PATH',                       systemshutdowndir)
-conf.set_quoted('SYSTEM_SLEEP_PATH',                          systemsleepdir)
-conf.set_quoted('SYSTEMD_KBD_MODEL_MAP',                      join_paths(pkgdatadir, 'kbd-model-map'))
-conf.set_quoted('SYSTEMD_LANGUAGE_FALLBACK_MAP',              join_paths(pkgdatadir, 'language-fallback-map'))
 conf.set_quoted('SYSTEMD_TEST_DATA',                          join_paths(testsdir, 'testdata'))
 conf.set_quoted('SYSTEMD_CATALOG_DIR',                        catalogdir)
-conf.set_quoted('UDEVLIBEXECDIR',                             udevlibexecdir)
-conf.set_quoted('POLKIT_AGENT_BINARY_PATH',                   join_paths(bindir, 'pkttyagent'))
-conf.set_quoted('LIBDIR',                                     libdir)
-conf.set_quoted('ROOTLIBDIR',                                 rootlibdir)
-conf.set_quoted('ROOTLIBEXECDIR',                             rootlibexecdir)
-conf.set_quoted('BOOTLIBDIR',                                 bootlibdir)
-conf.set_quoted('SYSTEMD_PULL_PATH',                          join_paths(rootlibexecdir, 'systemd-pull'))
-conf.set_quoted('SYSTEMD_IMPORT_PATH',                        join_paths(rootlibexecdir, 'systemd-import'))
-conf.set_quoted('SYSTEMD_EXPORT_PATH',                        join_paths(rootlibexecdir, 'systemd-export'))
-conf.set_quoted('VENDOR_KEYRING_PATH',                        join_paths(rootlibexecdir, 'import-pubring.gpg'))
-conf.set_quoted('USER_KEYRING_PATH',                          join_paths(pkgsysconfdir, 'import-pubring.gpg'))
-conf.set_quoted('DOCUMENT_ROOT',                              join_paths(pkgdatadir, 'gatewayd'))
-conf.set10('MEMORY_ACCOUNTING_DEFAULT',                       memory_accounting_default)
-conf.set_quoted('MEMORY_ACCOUNTING_DEFAULT_YES_NO',           memory_accounting_default ? 'yes' : 'no')
 
 substs.set('prefix',                                          prefixdir)
 substs.set('exec_prefix',                                     prefixdir)
 substs.set('libdir',                                          libdir)
 substs.set('rootlibdir',                                      rootlibdir)
 substs.set('includedir',                                      includedir)
-substs.set('pkgsysconfdir',                                   pkgsysconfdir)
-substs.set('bindir',                                          bindir)
-substs.set('rootbindir',                                      rootbindir)
-substs.set('rootlibexecdir',                                  rootlibexecdir)
-substs.set('systemunitdir',                                   systemunitdir)
-substs.set('userunitdir',                                     userunitdir)
-substs.set('systempresetdir',                                 systempresetdir)
-substs.set('userpresetdir',                                   userpresetdir)
-substs.set('udevhwdbdir',                                     udevhwdbdir)
-substs.set('udevrulesdir',                                    udevrulesdir)
-substs.set('udevlibexecdir',                                  udevlibexecdir)
-substs.set('environmentdir',                                  environmentdir)
-substs.set('catalogdir',                                      catalogdir)
-substs.set('tmpfilesdir',                                     tmpfilesdir)
-substs.set('sysusersdir',                                     sysusersdir)
-substs.set('sysctldir',                                       sysctldir)
-substs.set('binfmtdir',                                       binfmtdir)
-substs.set('modulesloaddir',                                  modulesloaddir)
-substs.set('modprobedir',                                     modprobedir)
-substs.set('systemgeneratordir',                              systemgeneratordir)
-substs.set('usergeneratordir',                                usergeneratordir)
-substs.set('systemenvgeneratordir',                           systemenvgeneratordir)
-substs.set('userenvgeneratordir',                             userenvgeneratordir)
-substs.set('systemshutdowndir',                               systemshutdowndir)
-substs.set('systemsleepdir',                                  systemsleepdir)
-substs.set('VARLOGDIR',                                       varlogdir)
-substs.set('CERTIFICATEROOT',                                 get_option('certificate-root'))
-substs.set('SYSTEMCTL',                                       join_paths(rootbindir, 'systemctl'))
-substs.set('RANDOM_SEED',                                     join_paths(randomseeddir, 'random-seed'))
-substs.set('SYSTEM_SYSVINIT_PATH',                            sysvinit_path)
-substs.set('SYSTEM_SYSVRCND_PATH',                            sysvrcnd_path)
-substs.set('RC_LOCAL_SCRIPT_PATH_START',                      get_option('rc-local'))
-substs.set('RC_LOCAL_SCRIPT_PATH_STOP',                       get_option('halt-local'))
-substs.set('MEMORY_ACCOUNTING_DEFAULT',                       memory_accounting_default ? 'yes' : 'no')
-substs.set('HIGH_RLIMIT_NOFILE',                              conf.get('HIGH_RLIMIT_NOFILE'))
 
 #####################################################################
 
@@ -472,9 +310,6 @@ endif
 
 sed = find_program('sed')
 awk = find_program('awk')
-m4 = find_program('m4')
-stat = find_program('stat')
-git = find_program('git', required : false)
 
 ############################################################
 
@@ -577,18 +412,14 @@ substs.set('NOBODY_GROUP_NAME', nobody_group)
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 
 enable_debug_hashmap = false
-enable_debug_mmap_cache = false
 foreach name : get_option('debug-extra')
         if name == 'hashmap'
                 enable_debug_hashmap = true
-        elif name == 'mmap-cache'
-                enable_debug_mmap_cache = true
         else
                 message('unknown debug option "@0@", ignoring'.format(name))
         endif
 endforeach
 conf.set10('ENABLE_DEBUG_HASHMAP', enable_debug_hashmap)
-conf.set10('ENABLE_DEBUG_MMAP_CACHE', enable_debug_mmap_cache)
 
 conf.set10('VALGRIND', get_option('valgrind'))
 conf.set10('LOG_TRACE', get_option('log-trace'))
@@ -598,18 +429,11 @@ conf.set10('LOG_TRACE', get_option('log-trace'))
 threads = dependency('threads')
 librt = cc.find_library('rt')
 libm = cc.find_library('m')
-libdl = cc.find_library('dl')
-libcrypt = cc.find_library('crypt')
 
 libcap = dependency('libcap', required : false)
 if not libcap.found()
         # Compat with Ubuntu 14.04 which ships libcap w/o .pc file
         libcap = cc.find_library('cap')
-endif
-
-smack_run_label = get_option('smack-run-label')
-if smack_run_label != ''
-        conf.set_quoted('SMACK_RUN_LABEL', smack_run_label)
 endif
 
 want_polkit = get_option('polkit')
@@ -646,17 +470,6 @@ else
         libaudit = []
 endif
 conf.set10('HAVE_AUDIT', have)
-
-want_pcre2 = get_option('pcre2')
-if want_pcre2 != 'false'
-        libpcre2 = dependency('libpcre2-8',
-                              required : want_pcre2 == 'true')
-        have = libpcre2.found()
-else
-        have = false
-        libpcre2 = []
-endif
-conf.set10('HAVE_PCRE2', have)
 
 tests = []
 fuzzers = []
