@@ -255,8 +255,6 @@ foreach decl : [['IFLA_INET6_ADDR_GEN_MODE',         'linux/if_link.h'],
                 ['IFA_FLAGS',                        'linux/if_addr.h'],
                 ['LO_FLAGS_PARTSCAN',                'linux/loop.h'],
                 ['VXCAN_INFO_PEER',                  'linux/can/vxcan.h'],
-                ['FOU_ATTR_REMCSUM_NOPARTIAL',       'linux/fou.h'],
-                ['FOU_CMD_GET',                      'linux/fou.h'],
                ]
         prefix = decl.length() > 2 ? decl[2] : ''
         have = cc.has_header_symbol(decl[1], decl[0], prefix : prefix)
@@ -285,9 +283,6 @@ foreach ident : [
         ['copy_file_range',   '''#include <sys/syscall.h>
                                  #include <unistd.h>'''],
         ['bpf',               '''#include <sys/syscall.h>
-                                 #include <unistd.h>'''],
-        ['statx',             '''#include <sys/types.h>
-                                 #include <sys/stat.h>
                                  #include <unistd.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],
         ['reallocarray',      '''#include <malloc.h>'''],
