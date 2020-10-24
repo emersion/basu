@@ -84,8 +84,6 @@ basic_sources = files('''
         socket-label.c
         socket-util.c
         socket-util.h
-        sparse-endian.h
-        special.h
         stat-util.c
         stat-util.h
         stdio-util.h
@@ -103,8 +101,6 @@ basic_sources = files('''
         time-util.h
         umask-util.h
         unaligned.h
-        unit-def.c
-        unit-def.h
         user-util.c
         user-util.h
         utf8.c
