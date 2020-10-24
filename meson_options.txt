@@ -9,124 +9,18 @@ option('rootlibdir', type : 'string',
        description : '''[/usr]/lib/x86_64-linux-gnu or such''')
 option('rootprefix', type : 'string',
        description : '''override the root prefix''')
-option('link-udev-shared', type : 'boolean',
-       description : 'link systemd-udev and its helpers to libsystemd-shared.so')
-option('link-systemctl-shared', type: 'boolean',
-       description : 'link systemctl against libsystemd-shared.so')
-option('static-libsystemd', type : 'combo',
-       choices : ['false', 'true', 'pic', 'no-pic'],
-       description : '''install a static library for libsystemd''')
-option('static-libudev', type : 'combo',
-       choices : ['false', 'true', 'pic', 'no-pic'],
-       description : '''install a static library for libudev''')
 
 option('sysvinit-path', type : 'string', value : '/etc/init.d',
        description : 'the directory where the SysV init scripts are located')
 option('sysvrcnd-path', type : 'string', value : '/etc/rc.d',
        description : 'the base directory for SysV rcN.d directories')
-option('telinit-path', type : 'string', value : '/lib/sysvinit/telinit',
-       description : 'path to telinit')
-option('rc-local', type : 'string',
-       value : '/etc/rc.local')
-option('halt-local', type : 'string',
-       value : '/usr/sbin/halt.local')
 
-option('quotaon-path', type : 'string', description : 'path to quotaon')
-option('quotacheck-path', type : 'string', description : 'path to quotacheck')
-option('kmod-path', type : 'string', description : 'path to kmod')
-option('kexec-path', type : 'string', description : 'path to kexec')
-option('sulogin-path', type : 'string', description : 'path to sulogin')
-option('mount-path', type : 'string', description : 'path to mount')
-option('umount-path', type : 'string', description : 'path to umount')
-option('loadkeys-path', type : 'string', description : 'path to loadkeys')
-option('setfont-path', type : 'string', description : 'path to setfont')
-
-option('debug-shell', type : 'string', value : '/bin/sh',
-       description : 'path to debug shell binary')
-option('debug-tty', type : 'string', value : '/dev/tty9',
-       description : 'specify the tty device for debug shell')
 option('debug-extra', type : 'array', choices : ['hashmap', 'mmap-cache'], value : [],
        description : 'enable extra debugging')
-option('memory-accounting-default', type : 'boolean',
-       description : 'enable MemoryAccounting= by default')
-option('bump-proc-sys-fs-file-max', type : 'boolean',
-       description : 'bump /proc/sys/fs/file-max to ULONG_MAX')
-option('bump-proc-sys-fs-nr-open', type : 'boolean',
-       description : 'bump /proc/sys/fs/nr_open to INT_MAX')
 option('valgrind', type : 'boolean', value : false,
        description : 'do extra operations to avoid valgrind warnings')
 option('log-trace', type : 'boolean', value : false,
        description : 'enable low level debug logging')
-
-option('utmp', type : 'boolean',
-       description : 'support for utmp/wtmp log handling')
-option('hibernate', type : 'boolean',
-       description : 'support for hibernation')
-option('ldconfig', type : 'boolean',
-       description : 'support for dynamic linker cache creation')
-option('resolve', type : 'boolean',
-       description : 'systemd-resolved stack')
-option('efi', type : 'boolean',
-       description : 'enable systemd-boot and bootctl')
-option('tpm', type : 'boolean',
-       description : 'TPM should be used to log events and extend the registers')
-option('environment-d', type : 'boolean',
-       description : 'support for environment.d')
-option('binfmt', type : 'boolean',
-       description : 'support for custom binary formats')
-option('coredump', type : 'boolean',
-       description : 'install the coredump handler')
-option('logind', type : 'boolean',
-       description : 'install the systemd-logind stack')
-option('hostnamed', type : 'boolean',
-       description : 'install the systemd-hostnamed stack')
-option('localed', type : 'boolean',
-       description : 'install the systemd-localed stack')
-option('machined', type : 'boolean',
-       description : 'install the systemd-machined stack')
-option('portabled', type : 'boolean',
-       description : 'install the systemd-portabled stack')
-option('networkd', type : 'boolean',
-       description : 'install the systemd-networkd stack')
-option('timedated', type : 'boolean',
-       description : 'install the systemd-timedated daemon')
-option('timesyncd', type : 'boolean',
-       description : 'install the systemd-timesyncd daemon')
-option('remote', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'support for "journal over the network"')
-option('nss-myhostname', type : 'boolean',
-       description : 'install nss-myhostname module')
-option('nss-mymachines', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'install nss-mymachines module')
-option('nss-resolve', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'install nss-resolve module')
-option('nss-systemd', type : 'boolean',
-       description : 'install nss-systemd module')
-option('firstboot', type : 'boolean',
-       description : 'support for firstboot mechanism')
-option('randomseed', type : 'boolean',
-       description : 'support for restoring random seed')
-option('backlight', type : 'boolean',
-       description : 'support for restoring backlight state')
-option('vconsole', type : 'boolean',
-       description : 'support for vconsole configuration')
-option('quotacheck', type : 'boolean',
-       description : 'support for the quotacheck tools')
-option('sysusers', type : 'boolean',
-       description : 'support for the sysusers configuration')
-option('tmpfiles', type : 'boolean',
-       description : 'support for tmpfiles.d')
-option('importd', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'install the systemd-importd daemon')
-option('hwdb', type : 'boolean',
-       description : 'support for the hardware database')
-option('rfkill', type : 'boolean',
-       description : 'support for the rfkill tools')
-option('man', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'build and install man pages')
-option('html', type : 'combo', choices : ['auto', 'true', 'false'],
-       value : 'false',
-       description : 'build and install html pages')
 
 option('certificate-root', type : 'string', value : '/etc/ssl',
        description : 'the prefix for TLS certificates')
@@ -156,30 +50,11 @@ option('nobody-group', type : 'string',
        description : 'The name of the nobody group (the one with GID 65534)',
        value : 'nobody')
 
-option('seccomp', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'SECCOMP support')
-option('smack', type : 'boolean',
-       description : 'SMACK support')
-option('smack-run-label', type : 'string',
-       description : 'run systemd --system itself with a specific SMACK label')
 option('polkit', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'polkit support')
-option('ima', type : 'boolean',
-       description : 'IMA support')
 
-option('acl', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libacl support')
 option('audit', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libaudit support')
-option('pcre2', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'regexp matching support using pcre2')
-option('dbus', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'libdbus support (for tests only)')
-
-option('bashcompletiondir', type : 'string',
-       description : 'directory for bash completion scripts ["no" disables]')
-option('zshcompletiondir', type : 'string',
-       description : 'directory for zsh completion scripts ["no" disables]')
 
 option('tests', type : 'combo', choices : ['true', 'unsafe', 'false'],
        description : 'enable extra tests with =unsafe')
@@ -196,7 +71,3 @@ option('ok-color', type: 'combo',
        value : 'green',
        description: 'color of the "OK" status message')
 
-option('oss-fuzz', type : 'boolean', value : 'false',
-       description : 'build against oss-fuzz')
-option('llvm-fuzz', type : 'boolean', value : 'false',
-       description : 'build against LLVM libFuzzer')
