@@ -35,7 +35,6 @@
 #include "pager.h"
 #include "parse-util.h"
 #include "path-util.h"
-#include "proc-cmdline.h"
 #include "process-util.h"
 #include "socket-util.h"
 #include "stat-util.h"
@@ -1233,8 +1232,7 @@ bool dev_console_colors_enabled(void) {
         if (b >= 0)
                 return b;
 
-        if (getenv_for_pid(1, "TERM", &s) <= 0)
-                (void) proc_cmdline_get_key("TERM", 0, &s);
+        getenv_for_pid(1, "TERM", &s);
 
         return !streq_ptr(s, "dumb");
 }

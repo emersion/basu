@@ -68,8 +68,6 @@ basic_sources = files('''
         path-util.h
         prioq.c
         prioq.h
-        proc-cmdline.c
-        proc-cmdline.h
         process-util.c
         process-util.h
         procfs-util.c

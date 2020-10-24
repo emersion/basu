@@ -26,7 +26,6 @@
 #include "macro.h"
 #include "missing.h"
 #include "parse-util.h"
-#include "proc-cmdline.h"
 #include "process-util.h"
 #include "signal-util.h"
 #include "socket-util.h"
@@ -1066,59 +1065,10 @@ int log_set_max_level_from_string_realm(LogRealm realm, const char *e) {
         return 0;
 }
 
-static int parse_proc_cmdline_item(const char *key, const char *value, void *data) {
-
-        /*
-         * The systemd.log_xyz= settings are parsed by all tools, and
-         * so is "debug".
-         *
-         * However, "quiet" is only parsed by PID 1, and only turns of
-         * status output to /dev/console, but does not alter the log
-         * level.
-         */
-
-        if (streq(key, "debug") && !value)
-                log_set_max_level(LOG_DEBUG);
-
-        else if (proc_cmdline_key_streq(key, "systemd.log_target")) {
-
-                if (proc_cmdline_value_missing(key, value))
-                        return 0;
-
-                if (log_set_target_from_string(value) < 0)
-                        log_warning("Failed to parse log target '%s'. Ignoring.", value);
-
-        } else if (proc_cmdline_key_streq(key, "systemd.log_level")) {
-
-                if (proc_cmdline_value_missing(key, value))
-                        return 0;
-
-                if (log_set_max_level_from_string(value) < 0)
-                        log_warning("Failed to parse log level '%s'. Ignoring.", value);
-
-        } else if (proc_cmdline_key_streq(key, "systemd.log_color")) {
-
-                if (log_show_color_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log color setting '%s'. Ignoring.", value);
-
-        } else if (proc_cmdline_key_streq(key, "systemd.log_location")) {
-
-                if (log_show_location_from_string(value ?: "1") < 0)
-                        log_warning("Failed to parse log location setting '%s'. Ignoring.", value);
-        }
-
-        return 0;
-}
-
 void log_parse_environment_realm(LogRealm realm) {
         /* Do not call from library code. */
 
         const char *e;
-
-        if (get_ctty_devnr(0, NULL) < 0)
-                /* Only try to read the command line in daemons.  We assume that anything that has a controlling tty is
-                   user stuff. */
-                (void) proc_cmdline_parse(parse_proc_cmdline_item, NULL, PROC_CMDLINE_STRIP_RD_PREFIX);
 
         e = getenv("SYSTEMD_LOG_TARGET");
         if (e && log_set_target_from_string(e) < 0)

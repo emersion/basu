@@ -28,7 +28,6 @@
 #include "fd-util.h"
 #include "missing.h"
 #include "parse-util.h"
-#include "proc-cmdline.h"
 #include "stdio-util.h"
 #include "strv.h"
 #include "set.h"
