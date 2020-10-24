@@ -1,0 +1,15 @@
+image: alpine/edge
+packages:
+  - gperf
+  - linux-headers
+  - libcap-dev
+  - meson
+sources:
+  - https://github.com/emersion/basu
+tasks:
+  - setup: |
+      cd basu
+      meson build/
+  - build: |
+      cd basu
+      ninja -C build
