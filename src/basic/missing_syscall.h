@@ -5,14 +5,6 @@
 
 #include <sys/types.h>
 
-#if !HAVE_PIVOT_ROOT
-static inline int missing_pivot_root(const char *new_root, const char *put_old) {
-        return syscall(__NR_pivot_root, new_root, put_old);
-}
-
-#  define pivot_root missing_pivot_root
-#endif
-
 /* ======================================================================= */
 
 #if !HAVE_MEMFD_CREATE
@@ -113,43 +105,6 @@ static inline pid_t missing_gettid(void) {
 }
 
 #  define gettid missing_gettid
-#endif
-
-/* ======================================================================= */
-
-#if !HAVE_NAME_TO_HANDLE_AT
-#  ifndef __NR_name_to_handle_at
-#    if defined(__x86_64__)
-#      define __NR_name_to_handle_at 303
-#    elif defined(__i386__)
-#      define __NR_name_to_handle_at 341
-#    elif defined(__arm__)
-#      define __NR_name_to_handle_at 370
-#    elif defined(__powerpc__)
-#      define __NR_name_to_handle_at 345
-#    elif defined(__arc__)
-#      define __NR_name_to_handle_at 264
-#    else
-#      error "__NR_name_to_handle_at is not defined"
-#    endif
-#  endif
-
-struct file_handle {
-        unsigned int handle_bytes;
-        int handle_type;
-        unsigned char f_handle[0];
-};
-
-static inline int missing_name_to_handle_at(int fd, const char *name, struct file_handle *handle, int *mnt_id, int flags) {
-#  ifdef __NR_name_to_handle_at
-        return syscall(__NR_name_to_handle_at, fd, name, handle, mnt_id, flags);
-#  else
-        errno = ENOSYS;
-        return -1;
-#  endif
-}
-
-#  define name_to_handle_at missing_name_to_handle_at
 #endif
 
 /* ======================================================================= */
@@ -322,43 +277,6 @@ static inline ssize_t missing_copy_file_range(int fd_in, loff_t *off_in,
 }
 
 #  define copy_file_range missing_copy_file_range
-#endif
-
-/* ======================================================================= */
-
-#if !HAVE_BPF
-#  ifndef __NR_bpf
-#    if defined __i386__
-#      define __NR_bpf 357
-#    elif defined __x86_64__
-#      define __NR_bpf 321
-#    elif defined __aarch64__
-#      define __NR_bpf 280
-#    elif defined __arm__
-#      define __NR_bpf 386
-#    elif defined __sparc__
-#      define __NR_bpf 349
-#    elif defined __s390__
-#      define __NR_bpf 351
-#    elif defined __tilegx__
-#      define __NR_bpf 280
-#    else
-#      warning "__NR_bpf not defined for your architecture"
-#    endif
-#  endif
-
-union bpf_attr;
-
-static inline int missing_bpf(int cmd, union bpf_attr *attr, size_t size) {
-#ifdef __NR_bpf
-        return (int) syscall(__NR_bpf, cmd, attr, size);
-#else
-        errno = ENOSYS;
-        return -1;
-#endif
-}
-
-#  define bpf missing_bpf
 #endif
 
 /* ======================================================================= */

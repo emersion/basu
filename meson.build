@@ -231,36 +231,6 @@ foreach decl : ['char16_t',
         conf.set10('HAVE_' + decl.underscorify().to_upper(), have)
 endforeach
 
-foreach decl : [['IFLA_INET6_ADDR_GEN_MODE',         'linux/if_link.h'],
-                ['IN6_ADDR_GEN_MODE_STABLE_PRIVACY', 'linux/if_link.h'],
-                ['IFLA_VRF_TABLE',                   'linux/if_link.h'],
-                ['IFLA_MACVLAN_FLAGS',               'linux/if_link.h'],
-                ['IFLA_IPVLAN_FLAGS',                'linux/if_link.h'],
-                ['IFLA_PHYS_PORT_ID',                'linux/if_link.h'],
-                ['IFLA_BOND_AD_ACTOR_SYSTEM',        'linux/if_link.h'],
-                ['IFLA_VLAN_PROTOCOL',               'linux/if_link.h'],
-                ['IFLA_VXLAN_REMCSUM_NOPARTIAL',     'linux/if_link.h'],
-                ['IFLA_VXLAN_GPE',                   'linux/if_link.h'],
-                ['IFLA_GENEVE_LABEL',                'linux/if_link.h'],
-                # if_tunnel.h is buggy and cannot be included on its own
-                ['IFLA_VTI_REMOTE',                  'linux/if_tunnel.h', '#include <net/if.h>'],
-                ['IFLA_IPTUN_ENCAP_DPORT',           'linux/if_tunnel.h', '#include <net/if.h>'],
-                ['IFLA_GRE_ENCAP_DPORT',             'linux/if_tunnel.h', '#include <net/if.h>'],
-                ['IFLA_BRIDGE_VLAN_INFO',            'linux/if_bridge.h'],
-                ['IFLA_BRPORT_PROXYARP',             'linux/if_link.h'],
-                ['IFLA_BRPORT_LEARNING_SYNC',        'linux/if_link.h'],
-                ['IFLA_BR_VLAN_DEFAULT_PVID',        'linux/if_link.h'],
-                ['IPVLAN_F_PRIVATE',                 'linux/if_link.h'],
-                ['NDA_IFINDEX',                      'linux/neighbour.h'],
-                ['IFA_FLAGS',                        'linux/if_addr.h'],
-                ['LO_FLAGS_PARTSCAN',                'linux/loop.h'],
-                ['VXCAN_INFO_PEER',                  'linux/can/vxcan.h'],
-               ]
-        prefix = decl.length() > 2 ? decl[2] : ''
-        have = cc.has_header_symbol(decl[1], decl[0], prefix : prefix)
-        conf.set10('HAVE_' + decl[0], have)
-endforeach
-
 foreach ident : ['secure_getenv', '__secure_getenv']
         conf.set10('HAVE_' + ident.to_upper(), cc.has_function(ident))
 endforeach
@@ -269,11 +239,6 @@ foreach ident : [
         ['memfd_create',      '''#include <sys/mman.h>'''],
         ['gettid',            '''#include <sys/types.h>
                                  #include <unistd.h>'''],
-        ['pivot_root',        '''#include <stdlib.h>
-                                 #include <unistd.h>'''],     # no known header declares pivot_root
-        ['name_to_handle_at', '''#include <sys/types.h>
-                                 #include <sys/stat.h>
-                                 #include <fcntl.h>'''],
         ['setns',             '''#include <sched.h>'''],
         ['renameat2',         '''#include <stdio.h>
                                  #include <fcntl.h>'''],
@@ -281,8 +246,6 @@ foreach ident : [
         ['keyctl',            '''#include <sys/types.h>
                                  #include <keyutils.h>'''],
         ['copy_file_range',   '''#include <sys/syscall.h>
-                                 #include <unistd.h>'''],
-        ['bpf',               '''#include <sys/syscall.h>
                                  #include <unistd.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],
         ['reallocarray',      '''#include <malloc.h>'''],

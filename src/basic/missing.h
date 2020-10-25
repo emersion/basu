@@ -70,12 +70,6 @@ struct sockaddr_vm {
 #define F_SEAL_WRITE    0x0008  /* prevent writes */
 #endif
 
-#ifndef F_OFD_GETLK
-#define F_OFD_GETLK     36
-#define F_OFD_SETLK     37
-#define F_OFD_SETLKW    38
-#endif
-
 #ifndef MFD_ALLOW_SEALING
 #define MFD_ALLOW_SEALING 0x0002U
 #endif
@@ -96,52 +90,12 @@ struct sockaddr_vm {
 #define OOM_SCORE_ADJ_MAX 1000
 #endif
 
-#ifndef AUDIT_SERVICE_START
-#define AUDIT_SERVICE_START 1130 /* Service (daemon) start */
-#endif
-
-#ifndef AUDIT_SERVICE_STOP
-#define AUDIT_SERVICE_STOP 1131 /* Service (daemon) stop */
-#endif
-
 #ifndef TIOCVHANGUP
 #define TIOCVHANGUP 0x5437
 #endif
 
 #ifndef IP_TRANSPARENT
 #define IP_TRANSPARENT 19
-#endif
-
-#ifndef SOL_NETLINK
-#define SOL_NETLINK 270
-#endif
-
-#ifndef NETLINK_LIST_MEMBERSHIPS
-#define NETLINK_LIST_MEMBERSHIPS 9
-#endif
-
-#ifndef SOL_SCTP
-#define SOL_SCTP 132
-#endif
-
-#ifndef GRND_NONBLOCK
-#define GRND_NONBLOCK 0x0001
-#endif
-
-#ifndef GRND_RANDOM
-#define GRND_RANDOM 0x0002
-#endif
-
-#ifndef FS_NOCOW_FL
-#define FS_NOCOW_FL 0x00800000
-#endif
-
-#ifndef CGROUP_SUPER_MAGIC
-#define CGROUP_SUPER_MAGIC 0x27e0eb
-#endif
-
-#ifndef CGROUP2_SUPER_MAGIC
-#define CGROUP2_SUPER_MAGIC 0x63677270
 #endif
 
 #ifndef CLONE_NEWCGROUP
@@ -152,76 +106,16 @@ struct sockaddr_vm {
 #define TMPFS_MAGIC 0x01021994
 #endif
 
-#ifndef MQUEUE_MAGIC
-#define MQUEUE_MAGIC 0x19800202
-#endif
-
-#ifndef SECURITYFS_MAGIC
-#define SECURITYFS_MAGIC 0x73636673
-#endif
-
-#ifndef TRACEFS_MAGIC
-#define TRACEFS_MAGIC 0x74726163
-#endif
-
-#ifndef BPF_FS_MAGIC
-#define BPF_FS_MAGIC 0xcafe4a11
-#endif
-
 #ifndef OCFS2_SUPER_MAGIC
 #define OCFS2_SUPER_MAGIC 0x7461636f
-#endif
-
-#ifndef MS_MOVE
-#define MS_MOVE 8192
 #endif
 
 #ifndef MS_REC
 #define MS_REC 16384
 #endif
 
-#ifndef MS_PRIVATE
-#define MS_PRIVATE      (1<<18)
-#endif
-
 #ifndef MS_REC
 #define MS_REC          (1<<19)
-#endif
-
-#ifndef MS_SHARED
-#define MS_SHARED       (1<<20)
-#endif
-
-#ifndef MS_RELATIME
-#define MS_RELATIME     (1<<21)
-#endif
-
-#ifndef MS_KERNMOUNT
-#define MS_KERNMOUNT    (1<<22)
-#endif
-
-#ifndef MS_I_VERSION
-#define MS_I_VERSION    (1<<23)
-#endif
-
-#ifndef MS_STRICTATIME
-#define MS_STRICTATIME  (1<<24)
-#endif
-
-#ifndef MS_LAZYTIME
-#define MS_LAZYTIME     (1<<25)
-#endif
-
-#ifndef SCM_SECURITY
-#define SCM_SECURITY 0x03
-#endif
-
-#ifndef PR_SET_NO_NEW_PRIVS
-#define PR_SET_NO_NEW_PRIVS 38
-#endif
-
-#ifndef PR_SET_CHILD_SUBREAPER
-#define PR_SET_CHILD_SUBREAPER 36
 #endif
 
 #ifndef PR_SET_MM_ARG_START
@@ -230,38 +124,6 @@ struct sockaddr_vm {
 
 #ifndef PR_SET_MM_ARG_END
 #define PR_SET_MM_ARG_END 9
-#endif
-
-#ifndef PR_SET_MM_ENV_START
-#define PR_SET_MM_ENV_START 10
-#endif
-
-#ifndef PR_SET_MM_ENV_END
-#define PR_SET_MM_ENV_END 11
-#endif
-
-#ifndef EFIVARFS_MAGIC
-#define EFIVARFS_MAGIC 0xde5e81e4
-#endif
-
-#ifndef SMACK_MAGIC
-#define SMACK_MAGIC 0x43415d53
-#endif
-
-#ifndef DM_DEFERRED_REMOVE
-#define DM_DEFERRED_REMOVE (1 << 17)
-#endif
-
-#ifndef MAX_HANDLE_SZ
-#define MAX_HANDLE_SZ 128
-#endif
-
-#if ! HAVE_SECURE_GETENV
-#  if HAVE___SECURE_GETENV
-#    define secure_getenv __secure_getenv
-#  else
-#    error "neither secure_getenv nor __secure_getenv are available"
-#  endif
 #endif
 
 #ifndef CIFS_MAGIC_NUMBER
@@ -278,29 +140,6 @@ struct sockaddr_vm {
 
 #ifndef SO_PEERGROUPS
 #  define SO_PEERGROUPS 59
-#endif
-
-#ifndef EVIOCREVOKE
-#  define EVIOCREVOKE _IOW('E', 0x91, int)
-#endif
-
-#ifndef EVIOCSMASK
-
-struct input_mask {
-        uint32_t type;
-        uint32_t codes_size;
-        uint64_t codes_ptr;
-};
-
-#define EVIOCSMASK _IOW('E', 0x93, struct input_mask)
-#endif
-
-#ifndef DRM_IOCTL_SET_MASTER
-#  define DRM_IOCTL_SET_MASTER _IO('d', 0x1e)
-#endif
-
-#ifndef DRM_IOCTL_DROP_MASTER
-#  define DRM_IOCTL_DROP_MASTER _IO('d', 0x1f)
 #endif
 
 /* The precise definition of __O_TMPFILE is arch specific; use the
@@ -327,476 +166,12 @@ struct input_mask {
 #define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #endif
 
-#if !HAVE_LO_FLAGS_PARTSCAN
-#define LO_FLAGS_PARTSCAN 8
-#endif
-
-#ifndef LOOP_CTL_REMOVE
-#define LOOP_CTL_REMOVE 0x4C81
-#endif
-
-#ifndef LOOP_CTL_GET_FREE
-#define LOOP_CTL_GET_FREE 0x4C82
-#endif
-
-#if !HAVE_IFLA_INET6_ADDR_GEN_MODE
-#define IFLA_INET6_UNSPEC 0
-#define IFLA_INET6_FLAGS 1
-#define IFLA_INET6_CONF 2
-#define IFLA_INET6_STATS 3
-#define IFLA_INET6_MCAST 4
-#define IFLA_INET6_CACHEINFO 5
-#define IFLA_INET6_ICMP6STATS 6
-#define IFLA_INET6_TOKEN 7
-#define IFLA_INET6_ADDR_GEN_MODE 8
-#define __IFLA_INET6_MAX 9
-
-#define IFLA_INET6_MAX (__IFLA_INET6_MAX - 1)
-
-#define IN6_ADDR_GEN_MODE_EUI64 0
-#define IN6_ADDR_GEN_MODE_NONE 1
-#endif
-
-#if !HAVE_IN6_ADDR_GEN_MODE_STABLE_PRIVACY
-#define IN6_ADDR_GEN_MODE_STABLE_PRIVACY 2
-#endif
-
-#if !HAVE_IFLA_MACVLAN_FLAGS
-#define IFLA_MACVLAN_UNSPEC 0
-#define IFLA_MACVLAN_MODE 1
-#define IFLA_MACVLAN_FLAGS 2
-#define __IFLA_MACVLAN_MAX 3
-
-#define IFLA_MACVLAN_MAX (__IFLA_MACVLAN_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_IPVLAN_FLAGS
-#define IFLA_IPVLAN_UNSPEC 0
-#define IFLA_IPVLAN_MODE 1
-#define IFLA_IPVLAN_FLAGS 2
-#define __IFLA_IPVLAN_MAX 3
-
-#define IFLA_IPVLAN_MAX (__IFLA_IPVLAN_MAX - 1)
-
-#define IPVLAN_MODE_L2 0
-#define IPVLAN_MODE_L3 1
-#define IPVLAN_MODE_L3S 2
-#define IPVLAN_MAX 2
-#endif
-
-#if !HAVE_IPVLAN_F_PRIVATE
-#define IPVLAN_F_PRIVATE 0x01
-#define IPVLAN_F_VEPA    0x02
-#define __IPVLAN_F_PRIVATE_MAX 3
-
-#define HAVE_IPVLAN_F_PRIVATE_MAX (__HAVE_IPVLAN_F_PRIVATE_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_VTI_REMOTE
-#define IFLA_VTI_UNSPEC 0
-#define IFLA_VTI_LINK 1
-#define IFLA_VTI_IKEY 2
-#define IFLA_VTI_OKEY 3
-#define IFLA_VTI_LOCAL 4
-#define IFLA_VTI_REMOTE 5
-#define __IFLA_VTI_MAX 6
-
-#define IFLA_VTI_MAX (__IFLA_VTI_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_PHYS_PORT_ID
-#define IFLA_EXT_MASK 29
-#undef IFLA_PROMISCUITY
-#define IFLA_PROMISCUITY 30
-#define IFLA_NUM_TX_QUEUES 31
-#define IFLA_NUM_RX_QUEUES 32
-#define IFLA_CARRIER 33
-#define IFLA_PHYS_PORT_ID 34
-#define __IFLA_MAX 35
-
-#define IFLA_MAX (__IFLA_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_BOND_AD_ACTOR_SYSTEM
-#define IFLA_BOND_UNSPEC 0
-#define IFLA_BOND_MODE 1
-#define IFLA_BOND_ACTIVE_SLAVE 2
-#define IFLA_BOND_MIIMON 3
-#define IFLA_BOND_UPDELAY 4
-#define IFLA_BOND_DOWNDELAY 5
-#define IFLA_BOND_USE_CARRIER 6
-#define IFLA_BOND_ARP_INTERVAL 7
-#define IFLA_BOND_ARP_IP_TARGET 8
-#define IFLA_BOND_ARP_VALIDATE 9
-#define IFLA_BOND_ARP_ALL_TARGETS 10
-#define IFLA_BOND_PRIMARY 11
-#define IFLA_BOND_PRIMARY_RESELECT 12
-#define IFLA_BOND_FAIL_OVER_MAC 13
-#define IFLA_BOND_XMIT_HASH_POLICY 14
-#define IFLA_BOND_RESEND_IGMP 15
-#define IFLA_BOND_NUM_PEER_NOTIF 16
-#define IFLA_BOND_ALL_SLAVES_ACTIVE 17
-#define IFLA_BOND_MIN_LINKS 18
-#define IFLA_BOND_LP_INTERVAL 19
-#define IFLA_BOND_PACKETS_PER_SLAVE 20
-#define IFLA_BOND_AD_LACP_RATE 21
-#define IFLA_BOND_AD_SELECT 22
-#define IFLA_BOND_AD_INFO 23
-#define IFLA_BOND_AD_ACTOR_SYS_PRIO 24
-#define IFLA_BOND_AD_USER_PORT_KEY 25
-#define IFLA_BOND_AD_ACTOR_SYSTEM 26
-#define __IFLA_BOND_MAX 27
-
-#define IFLA_BOND_MAX   (__IFLA_BOND_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_VLAN_PROTOCOL
-#define IFLA_VLAN_UNSPEC 0
-#define IFLA_VLAN_ID 1
-#define IFLA_VLAN_FLAGS 2
-#define IFLA_VLAN_EGRESS_QOS 3
-#define IFLA_VLAN_INGRESS_QOS 4
-#define IFLA_VLAN_PROTOCOL 5
-#define __IFLA_VLAN_MAX 6
-
-#define IFLA_VLAN_MAX   (__IFLA_VLAN_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_VXLAN_GPE
-#define IFLA_VXLAN_UNSPEC 0
-#define IFLA_VXLAN_ID 1
-#define IFLA_VXLAN_GROUP 2
-#define IFLA_VXLAN_LINK 3
-#define IFLA_VXLAN_LOCAL 4
-#define IFLA_VXLAN_TTL 5
-#define IFLA_VXLAN_TOS 6
-#define IFLA_VXLAN_LEARNING 7
-#define IFLA_VXLAN_AGEING 8
-#define IFLA_VXLAN_LIMIT 9
-#define IFLA_VXLAN_PORT_RANGE 10
-#define IFLA_VXLAN_PROXY 11
-#define IFLA_VXLAN_RSC 12
-#define IFLA_VXLAN_L2MISS 13
-#define IFLA_VXLAN_L3MISS 14
-#define IFLA_VXLAN_PORT 15
-#define IFLA_VXLAN_GROUP6 16
-#define IFLA_VXLAN_LOCAL6 17
-#define IFLA_VXLAN_UDP_CSUM 18
-#define IFLA_VXLAN_UDP_ZERO_CSUM6_TX 19
-#define IFLA_VXLAN_UDP_ZERO_CSUM6_RX 20
-#define IFLA_VXLAN_REMCSUM_TX 21
-#define IFLA_VXLAN_REMCSUM_RX 22
-#define IFLA_VXLAN_GBP 23
-#define IFLA_VXLAN_REMCSUM_NOPARTIAL 24
-#define IFLA_VXLAN_COLLECT_METADATA 25
-#define IFLA_VXLAN_LABEL 26
-#define IFLA_VXLAN_GPE 27
-
-#define __IFLA_VXLAN_MAX 28
-
-#define IFLA_VXLAN_MAX  (__IFLA_VXLAN_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_GENEVE_LABEL
-#define IFLA_GENEVE_UNSPEC 0
-#define IFLA_GENEVE_ID 1
-#define IFLA_GENEVE_REMOTE 2
-#define IFLA_GENEVE_TTL 3
-#define IFLA_GENEVE_TOS 4
-#define IFLA_GENEVE_PORT 5
-#define IFLA_GENEVE_COLLECT_METADATA 6
-#define IFLA_GENEVE_REMOTE6 7
-#define IFLA_GENEVE_UDP_CSUM 8
-#define IFLA_GENEVE_UDP_ZERO_CSUM6_TX 9
-#define IFLA_GENEVE_UDP_ZERO_CSUM6_RX 10
-#define IFLA_GENEVE_LABEL 11
-
-#define __IFLA_GENEVE_MAX 12
-
-#define IFLA_GENEVE_MAX  (__IFLA_GENEVE_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_IPTUN_ENCAP_DPORT
-#define IFLA_IPTUN_UNSPEC 0
-#define IFLA_IPTUN_LINK 1
-#define IFLA_IPTUN_LOCAL 2
-#define IFLA_IPTUN_REMOTE 3
-#define IFLA_IPTUN_TTL 4
-#define IFLA_IPTUN_TOS 5
-#define IFLA_IPTUN_ENCAP_LIMIT 6
-#define IFLA_IPTUN_FLOWINFO 7
-#define IFLA_IPTUN_FLAGS 8
-#define IFLA_IPTUN_PROTO 9
-#define IFLA_IPTUN_PMTUDISC 10
-#define IFLA_IPTUN_6RD_PREFIX 11
-#define IFLA_IPTUN_6RD_RELAY_PREFIX 12
-#define IFLA_IPTUN_6RD_PREFIXLEN 13
-#define IFLA_IPTUN_6RD_RELAY_PREFIXLEN 14
-#define IFLA_IPTUN_ENCAP_TYPE 15
-#define IFLA_IPTUN_ENCAP_FLAGS 16
-#define IFLA_IPTUN_ENCAP_SPORT 17
-#define IFLA_IPTUN_ENCAP_DPORT 18
-
-#define __IFLA_IPTUN_MAX 19
-
-#define IFLA_IPTUN_MAX  (__IFLA_IPTUN_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_GRE_ENCAP_DPORT
-#define IFLA_GRE_UNSPEC 0
-#define IFLA_GRE_LINK 1
-#define IFLA_GRE_IFLAGS 2
-#define IFLA_GRE_OFLAGS 3
-#define IFLA_GRE_IKEY 4
-#define IFLA_GRE_OKEY 5
-#define IFLA_GRE_LOCAL 6
-#define IFLA_GRE_REMOTE 7
-#define IFLA_GRE_TTL 8
-#define IFLA_GRE_TOS 9
-#define IFLA_GRE_PMTUDISC 10
-#define IFLA_GRE_ENCAP_LIMIT 11
-#define IFLA_GRE_FLOWINFO 12
-#define IFLA_GRE_FLAGS 13
-#define IFLA_GRE_ENCAP_TYPE 14
-#define IFLA_GRE_ENCAP_FLAGS 15
-#define IFLA_GRE_ENCAP_SPORT 16
-#define IFLA_GRE_ENCAP_DPORT 17
-
-#define __IFLA_GRE_MAX 18
-
-#define IFLA_GRE_MAX  (__IFLA_GRE_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_BRIDGE_VLAN_INFO
-#define IFLA_BRIDGE_FLAGS 0
-#define IFLA_BRIDGE_MODE 1
-#define IFLA_BRIDGE_VLAN_INFO 2
-#define __IFLA_BRIDGE_MAX 3
-
-#define IFLA_BRIDGE_MAX (__IFLA_BRIDGE_MAX - 1)
-#endif
-
-#ifndef BRIDGE_VLAN_INFO_RANGE_BEGIN
-#define BRIDGE_VLAN_INFO_RANGE_BEGIN (1<<3) /* VLAN is start of vlan range */
-#endif
-
-#ifndef BRIDGE_VLAN_INFO_RANGE_END
-#define BRIDGE_VLAN_INFO_RANGE_END (1<<4) /* VLAN is end of vlan range */
-#endif
-
-#if !HAVE_IFLA_BR_VLAN_DEFAULT_PVID
-#define IFLA_BR_UNSPEC 0
-#define IFLA_BR_FORWARD_DELAY 1
-#define IFLA_BR_HELLO_TIME 2
-#define IFLA_BR_MAX_AGE 3
-#define IFLA_BR_AGEING_TIME 4
-#define IFLA_BR_STP_STATE 5
-#define IFLA_BR_PRIORITY 6
-#define IFLA_BR_VLAN_FILTERING 7
-#define IFLA_BR_VLAN_PROTOCOL 8
-#define IFLA_BR_GROUP_FWD_MASK 9
-#define IFLA_BR_ROOT_ID 10
-#define IFLA_BR_BRIDGE_ID 11
-#define IFLA_BR_ROOT_PORT 12
-#define IFLA_BR_ROOT_PATH_COST 13
-#define IFLA_BR_TOPOLOGY_CHANGE 14
-#define IFLA_BR_TOPOLOGY_CHANGE_DETECTED 15
-#define IFLA_BR_HELLO_TIMER 16
-#define IFLA_BR_TCN_TIMER 17
-#define IFLA_BR_TOPOLOGY_CHANGE_TIMER 18
-#define IFLA_BR_GC_TIMER 19
-#define IFLA_BR_GROUP_ADDR 20
-#define IFLA_BR_FDB_FLUSH 21
-#define IFLA_BR_MCAST_ROUTER 22
-#define IFLA_BR_MCAST_SNOOPING 23
-#define IFLA_BR_MCAST_QUERY_USE_IFADDR 24
-#define IFLA_BR_MCAST_QUERIER 25
-#define IFLA_BR_MCAST_HASH_ELASTICITY 26
-#define IFLA_BR_MCAST_HASH_MAX 27
-#define IFLA_BR_MCAST_LAST_MEMBER_CNT 28
-#define IFLA_BR_MCAST_STARTUP_QUERY_CNT 29
-#define IFLA_BR_MCAST_LAST_MEMBER_INTVL 30
-#define IFLA_BR_MCAST_MEMBERSHIP_INTVL 31
-#define IFLA_BR_MCAST_QUERIER_INTVL 32
-#define IFLA_BR_MCAST_QUERY_INTVL 33
-#define IFLA_BR_MCAST_QUERY_RESPONSE_INTVL 34
-#define IFLA_BR_MCAST_STARTUP_QUERY_INTVL 35
-#define IFLA_BR_NF_CALL_IPTABLES 36
-#define IFLA_BR_NF_CALL_IP6TABLES 37
-#define IFLA_BR_NF_CALL_ARPTABLES 38
-#define IFLA_BR_VLAN_DEFAULT_PVID 39
-#define __IFLA_BR_MAX 40
-
-#define IFLA_BR_MAX (__IFLA_BR_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_BRPORT_LEARNING_SYNC
-#define IFLA_BRPORT_UNSPEC 0
-#define IFLA_BRPORT_STATE 1
-#define IFLA_BRPORT_PRIORITY 2
-#define IFLA_BRPORT_COST 3
-#define IFLA_BRPORT_MODE 4
-#define IFLA_BRPORT_GUARD 5
-#define IFLA_BRPORT_PROTECT 6
-#define IFLA_BRPORT_FAST_LEAVE 7
-#define IFLA_BRPORT_LEARNING 8
-#define IFLA_BRPORT_UNICAST_FLOOD 9
-#define IFLA_BRPORT_LEARNING_SYNC 11
-#define __IFLA_BRPORT_MAX 12
-
-#define IFLA_BRPORT_MAX (__IFLA_BRPORT_MAX - 1)
-#endif
-
-#if !HAVE_IFLA_BRPORT_PROXYARP
-#define IFLA_BRPORT_PROXYARP 10
-#endif
-
-#if !HAVE_IFLA_VRF_TABLE
-#define IFLA_VRF_TABLE 1
-#endif
-
-#if !HAVE_VXCAN_INFO_PEER
-#define VXCAN_INFO_PEER 1
-#endif
-
-#if !HAVE_NDA_IFINDEX
-#define NDA_UNSPEC 0
-#define NDA_DST 1
-#define NDA_LLADDR 2
-#define NDA_CACHEINFO 3
-#define NDA_PROBES 4
-#define NDA_VLAN 5
-#define NDA_PORT 6
-#define NDA_VNI 7
-#define NDA_IFINDEX 8
-#define __NDA_MAX 9
-
-#define NDA_MAX (__NDA_MAX - 1)
-#endif
-
-#ifndef RTA_PREF
-#define RTA_PREF 20
-#endif
-
-#ifndef RTAX_QUICKACK
-#define RTAX_QUICKACK 15
-#endif
-
-#ifndef RTA_EXPIRES
-#define RTA_EXPIRES 23
-#endif
-
-#ifndef IPV6_UNICAST_IF
-#define IPV6_UNICAST_IF 76
-#endif
-
 #ifndef IPV6_MIN_MTU
 #define IPV6_MIN_MTU 1280
 #endif
 
 #ifndef IPV4_MIN_MTU
 #define IPV4_MIN_MTU 68
-#endif
-
-#ifndef IFF_MULTI_QUEUE
-#define IFF_MULTI_QUEUE 0x100
-#endif
-
-#ifndef IFF_LOWER_UP
-#define IFF_LOWER_UP 0x10000
-#endif
-
-#ifndef IFF_DORMANT
-#define IFF_DORMANT 0x20000
-#endif
-
-#ifndef BOND_XMIT_POLICY_ENCAP23
-#define BOND_XMIT_POLICY_ENCAP23 3
-#endif
-
-#ifndef BOND_XMIT_POLICY_ENCAP34
-#define BOND_XMIT_POLICY_ENCAP34 4
-#endif
-
-#ifndef NET_ADDR_RANDOM
-#  define NET_ADDR_RANDOM 1
-#endif
-
-#ifndef NET_NAME_UNKNOWN
-#  define NET_NAME_UNKNOWN 0
-#endif
-
-#ifndef NET_NAME_ENUM
-#  define NET_NAME_ENUM 1
-#endif
-
-#ifndef NET_NAME_PREDICTABLE
-#  define NET_NAME_PREDICTABLE 2
-#endif
-
-#ifndef NET_NAME_USER
-#  define NET_NAME_USER 3
-#endif
-
-#ifndef NET_NAME_RENAMED
-#  define NET_NAME_RENAMED 4
-#endif
-
-#ifndef BPF_XOR
-#  define BPF_XOR 0xa0
-#endif
-
-/* Note that LOOPBACK_IFINDEX is currently not exported by the
- * kernel/glibc, but hardcoded internally by the kernel.  However, as
- * it is exported to userspace indirectly via rtnetlink and the
- * ioctls, and made use of widely we define it here too, in a way that
- * is compatible with the kernel's internal definition. */
-#ifndef LOOPBACK_IFINDEX
-#define LOOPBACK_IFINDEX 1
-#endif
-
-#if !HAVE_IFA_FLAGS
-#define IFA_FLAGS 8
-#endif
-
-#ifndef IFA_F_MANAGETEMPADDR
-#define IFA_F_MANAGETEMPADDR 0x100
-#endif
-
-#ifndef IFA_F_NOPREFIXROUTE
-#define IFA_F_NOPREFIXROUTE 0x200
-#endif
-
-#ifndef MAX_AUDIT_MESSAGE_LENGTH
-#define MAX_AUDIT_MESSAGE_LENGTH 8970
-#endif
-
-#ifndef AUDIT_NLGRP_MAX
-#define AUDIT_NLGRP_READLOG 1
-#endif
-
-#ifndef CAP_MAC_OVERRIDE
-#define CAP_MAC_OVERRIDE 32
-#endif
-
-#ifndef CAP_MAC_ADMIN
-#define CAP_MAC_ADMIN 33
-#endif
-
-#ifndef CAP_SYSLOG
-#define CAP_SYSLOG 34
-#endif
-
-#ifndef CAP_WAKE_ALARM
-#define CAP_WAKE_ALARM 35
-#endif
-
-#ifndef CAP_BLOCK_SUSPEND
-#define CAP_BLOCK_SUSPEND 36
-#endif
-
-#ifndef CAP_AUDIT_READ
-#define CAP_AUDIT_READ 37
 #endif
 
 #ifndef RENAME_NOREPLACE
@@ -807,51 +182,14 @@ struct input_mask {
 #define KCMP_FILE 0
 #endif
 
-#ifndef INPUT_PROP_POINTING_STICK
-#define INPUT_PROP_POINTING_STICK 0x05
-#endif
-
-#ifndef INPUT_PROP_ACCELEROMETER
-#define INPUT_PROP_ACCELEROMETER  0x06
-#endif
-
-#ifndef BTN_DPAD_UP
-#define BTN_DPAD_UP 0x220
-#define BTN_DPAD_RIGHT 0x223
-#endif
-
-#ifndef KEY_ALS_TOGGLE
-#define KEY_ALS_TOGGLE 0x230
-#endif
-
 typedef int32_t key_serial_t;
-
-#ifndef KEYCTL_JOIN_SESSION_KEYRING
-#define KEYCTL_JOIN_SESSION_KEYRING 1
-#endif
-
-#ifndef KEYCTL_CHOWN
-#define KEYCTL_CHOWN 4
-#endif
-
-#ifndef KEYCTL_SETPERM
-#define KEYCTL_SETPERM 5
-#endif
 
 #ifndef KEYCTL_DESCRIBE
 #define KEYCTL_DESCRIBE 6
 #endif
 
-#ifndef KEYCTL_LINK
-#define KEYCTL_LINK 8
-#endif
-
 #ifndef KEYCTL_READ
 #define KEYCTL_READ 11
-#endif
-
-#ifndef KEYCTL_SET_TIMEOUT
-#define KEYCTL_SET_TIMEOUT 15
 #endif
 
 #ifndef KEY_POS_VIEW
@@ -882,30 +220,6 @@ typedef int32_t key_serial_t;
 #define KEY_OTH_SEARCH  0x00000008
 #define KEY_OTH_LINK    0x00000010
 #define KEY_OTH_SETATTR 0x00000020
-#endif
-
-#ifndef KEY_SPEC_USER_KEYRING
-#define KEY_SPEC_USER_KEYRING -4
-#endif
-
-#ifndef KEY_SPEC_SESSION_KEYRING
-#define KEY_SPEC_SESSION_KEYRING -3
-#endif
-
-#ifndef PR_CAP_AMBIENT
-#define PR_CAP_AMBIENT 47
-#endif
-
-#ifndef PR_CAP_AMBIENT_IS_SET
-#define PR_CAP_AMBIENT_IS_SET 1
-#endif
-
-#ifndef PR_CAP_AMBIENT_RAISE
-#define PR_CAP_AMBIENT_RAISE 2
-#endif
-
-#ifndef PR_CAP_AMBIENT_CLEAR_ALL
-#define PR_CAP_AMBIENT_CLEAR_ALL 4
 #endif
 
 #ifndef AF_VSOCK
