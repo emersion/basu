@@ -31,8 +31,6 @@ basic_sources = files('''
         format-util.h
         fs-util.c
         fs-util.h
-        glob-util.c
-        glob-util.h
         gunicode.c
         gunicode.h
         hash-funcs.c
