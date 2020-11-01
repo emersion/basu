@@ -7,7 +7,6 @@
 #include <sys/types.h>
 
 #include "macro.h"
-#include "time-util.h"
 
 /* Regular colors */
 #define ANSI_BLACK   "\x1B[0;30m"
@@ -56,63 +55,17 @@
 /* Set cursor to top left corner and clear screen */
 #define ANSI_HOME_CLEAR "\x1B[H\x1B[2J"
 
-int reset_terminal_fd(int fd, bool switch_to_text);
-int reset_terminal(const char *name);
-
 int open_terminal(const char *name, int mode);
-
-/* Flags for tweaking the way we become the controlling process of a terminal. */
-typedef enum AcquireTerminalFlags {
-        /* Try to become the controlling process of the TTY. If we can't return -EPERM. */
-        ACQUIRE_TERMINAL_TRY        = 0,
-
-        /* Tell the kernel to forcibly make us the controlling process of the TTY. Returns -EPERM if the kernel doesn't allow that. */
-        ACQUIRE_TERMINAL_FORCE      = 1,
-
-        /* If we can't become the controlling process of the TTY right-away, then wait until we can. */
-        ACQUIRE_TERMINAL_WAIT       = 2,
-
-        /* Pick one of the above, and then OR this flag in, in order to request permissive behaviour, if we can't become controlling process then don't mind */
-        ACQUIRE_TERMINAL_PERMISSIVE = 1 << 2,
-} AcquireTerminalFlags;
-
-int acquire_terminal(const char *name, AcquireTerminalFlags flags, usec_t timeout);
-int release_terminal(void);
-
-int terminal_vhangup_fd(int fd);
-int terminal_vhangup(const char *name);
-
-int chvt(int vt);
-
-int read_one_char(FILE *f, char *ret, usec_t timeout, bool *need_nl);
-int ask_char(char *ret, const char *replies, const char *text, ...) _printf_(3, 4);
-int ask_string(char **ret, const char *text, ...) _printf_(2, 3);
-
-int vt_disallocate(const char *name);
-
-int resolve_dev_console(char **ret);
-int get_kernel_consoles(char ***ret);
-bool tty_is_vc(const char *tty);
-bool tty_is_vc_resolve(const char *tty);
-bool tty_is_console(const char *tty) _pure_;
-int vtnr_from_tty(const char *tty);
-const char *default_term_for_tty(const char *tty);
-
-int make_console_stdio(void);
 
 int fd_columns(int fd);
 unsigned columns(void);
 int fd_lines(int fd);
 unsigned lines(void);
 
-void columns_lines_cache_reset(int _unused_ signum);
-void reset_terminal_feature_caches(void);
-
 bool on_tty(void);
 bool terminal_is_dumb(void);
 bool colors_enabled(void);
 bool underline_enabled(void);
-bool dev_console_colors_enabled(void);
 
 #define DEFINE_ANSI_FUNC(name, NAME)                            \
         static inline const char *ansi_##name(void) {           \
@@ -143,26 +96,6 @@ DEFINE_ANSI_FUNC_UNDERLINE(highlight_blue_underline,   HIGHLIGHT_BLUE_UNDERLINE,
 int get_ctty_devnr(pid_t pid, dev_t *d);
 int get_ctty(pid_t, dev_t *_devnr, char **r);
 
-int getttyname_malloc(int fd, char **r);
-int getttyname_harder(int fd, char **r);
-
-int ptsname_malloc(int fd, char **ret);
-int ptsname_namespace(int pty, char **ret);
-
-int openpt_in_namespace(pid_t pid, int flags);
-int open_terminal_in_namespace(pid_t pid, const char *name, int mode);
-
-int vt_default_utf8(void);
-int vt_reset_keyboard(int fd);
-
 int terminal_urlify(const char *url, const char *text, char **ret);
-int terminal_urlify_path(const char *path, const char *text, char **ret);
 int terminal_urlify_man(const char *page, const char *section, char **ret);
 
-typedef enum CatFlags {
-        CAT_FLAGS_MAIN_FILE_OPTIONAL = 1 << 0,
-} CatFlags;
-
-int cat_files(const char *file, char **dropins, CatFlags flags);
-
-void print_separator(void);
