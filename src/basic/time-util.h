@@ -55,36 +55,18 @@ typedef struct triple_timestamp {
 /* We assume a maximum timezone length of 6. TZNAME_MAX is not defined on Linux, but glibc internally initializes this
  * to 6. Let's rely on that. */
 #define FORMAT_TIMESTAMP_MAX (3+1+10+1+8+1+6+1+6+1)
-#define FORMAT_TIMESTAMP_WIDTH 28 /* when outputting, assume this width */
-#define FORMAT_TIMESTAMP_RELATIVE_MAX 256
 #define FORMAT_TIMESPAN_MAX 64
 
 #define TIME_T_MAX (time_t)((UINTMAX_C(1) << ((sizeof(time_t) << 3) - 1)) - 1)
 
-#define DUAL_TIMESTAMP_NULL ((struct dual_timestamp) {})
-#define TRIPLE_TIMESTAMP_NULL ((struct triple_timestamp) {})
-
 usec_t now(clockid_t clock);
-nsec_t now_nsec(clockid_t clock);
 
 dual_timestamp* dual_timestamp_get(dual_timestamp *ts);
-dual_timestamp* dual_timestamp_from_realtime(dual_timestamp *ts, usec_t u);
-dual_timestamp* dual_timestamp_from_monotonic(dual_timestamp *ts, usec_t u);
-dual_timestamp* dual_timestamp_from_boottime_or_monotonic(dual_timestamp *ts, usec_t u);
 
 triple_timestamp* triple_timestamp_get(triple_timestamp *ts);
-triple_timestamp* triple_timestamp_from_realtime(triple_timestamp *ts, usec_t u);
-
-#define DUAL_TIMESTAMP_HAS_CLOCK(clock)                               \
-        IN_SET(clock, CLOCK_REALTIME, CLOCK_REALTIME_ALARM, CLOCK_MONOTONIC)
 
 #define TRIPLE_TIMESTAMP_HAS_CLOCK(clock)                               \
         IN_SET(clock, CLOCK_REALTIME, CLOCK_REALTIME_ALARM, CLOCK_MONOTONIC, CLOCK_BOOTTIME, CLOCK_BOOTTIME_ALARM)
-
-static inline bool dual_timestamp_is_set(const dual_timestamp *ts) {
-        return ((ts->realtime > 0 && ts->realtime != USEC_INFINITY) ||
-                (ts->monotonic > 0 && ts->monotonic != USEC_INFINITY));
-}
 
 static inline bool triple_timestamp_is_set(const triple_timestamp *ts) {
         return ((ts->realtime > 0 && ts->realtime != USEC_INFINITY) ||
@@ -98,7 +80,6 @@ usec_t timespec_load(const struct timespec *ts) _pure_;
 nsec_t timespec_load_nsec(const struct timespec *ts) _pure_;
 struct timespec *timespec_store(struct timespec *ts, usec_t u);
 
-usec_t timeval_load(const struct timeval *tv) _pure_;
 struct timeval *timeval_store(struct timeval *tv, usec_t u);
 
 char *format_timestamp(char *buf, size_t l, usec_t t);
@@ -108,16 +89,11 @@ char *format_timestamp_us_utc(char *buf, size_t l, usec_t t);
 char *format_timestamp_relative(char *buf, size_t l, usec_t t);
 char *format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy);
 
-int parse_timestamp(const char *t, usec_t *usec);
-
 int parse_sec(const char *t, usec_t *usec);
-int parse_sec_fix_0(const char *t, usec_t *usec);
 int parse_time(const char *t, usec_t *usec, usec_t default_unit);
-int parse_nsec(const char *t, nsec_t *nsec);
 
 bool ntp_synced(void);
 
-int get_timezones(char ***l);
 bool timezone_is_valid(const char *name, int log_level);
 
 bool clock_boottime_supported(void);
@@ -126,14 +102,8 @@ clockid_t clock_boottime_or_monotonic(void);
 
 usec_t usec_shift_clock(usec_t, clockid_t from, clockid_t to);
 
-int get_timezone(char **timezone);
 
-time_t mktime_or_timegm(struct tm *tm, bool utc);
 struct tm *localtime_or_gmtime_r(const time_t *t, struct tm *tm, bool utc);
-
-unsigned long usec_to_jiffies(usec_t usec);
-
-bool in_utc_timezone(void);
 
 static inline usec_t usec_add(usec_t a, usec_t b) {
         usec_t c;
@@ -176,4 +146,3 @@ static inline usec_t usec_sub_signed(usec_t timestamp, int64_t delta) {
 #error "Yuck, time_t is neither 4 nor 8 bytes wide?"
 #endif
 
-int time_change_fd(void);
