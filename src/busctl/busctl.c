@@ -18,7 +18,6 @@
 #include "json.h"
 #include "locale-util.h"
 #include "log.h"
-#include "pager.h"
 #include "parse-util.h"
 #include "path-util.h"
 #include "set.h"
@@ -33,7 +32,6 @@ static enum {
         JSON_SHORT,
         JSON_PRETTY,
 } arg_json = JSON_OFF;
-static bool arg_no_pager = false;
 static bool arg_legend = true;
 static const char *arg_address = NULL;
 static bool arg_unique = false;
@@ -154,8 +152,6 @@ static int list_bus_names(int argc, char **argv, void *userdata) {
         r = sd_bus_list_names(bus, (arg_acquired || arg_unique) ? &acquired : NULL, arg_activatable ? &activatable : NULL);
         if (r < 0)
                 return log_error_errno(r, "Failed to list names: %m");
-
-        (void) pager_open(arg_no_pager, false);
 
         names = hashmap_new(&string_hash_ops);
         if (!names)
@@ -470,8 +466,6 @@ static int tree_one(sd_bus *bus, const char *service, const char *prefix, bool m
                 p = NULL;
         }
 
-        (void) pager_open(arg_no_pager, false);
-
         l = set_get_strv(done);
         if (!l)
                 return log_oom();
@@ -504,8 +498,6 @@ static int tree(int argc, char **argv, void *userdata) {
                 if (r < 0)
                         return log_error_errno(r, "Failed to get name list: %m");
 
-                (void) pager_open(arg_no_pager, false);
-
                 STRV_FOREACH(i, names) {
                         int q;
 
@@ -534,7 +526,6 @@ static int tree(int argc, char **argv, void *userdata) {
                                 printf("\n");
 
                         if (argv[2]) {
-                                (void) pager_open(arg_no_pager, false);
                                 printf("Service %s%s%s:\n", ansi_highlight(), *i, ansi_normal());
                         }
 
@@ -1032,8 +1023,6 @@ static int introspect(int argc, char **argv, void *userdata) {
                 if (r < 0)
                         return bus_log_parse_error(r);
         }
-
-        (void) pager_open(arg_no_pager, false);
 
         name_width = STRLEN("NAME");
         type_width = STRLEN("TYPE");
@@ -1966,9 +1955,6 @@ static int call(int argc, char **argv, void *userdata) {
                 if (arg_json != JSON_OFF) {
                         _cleanup_(json_variant_unrefp) JsonVariant *v = NULL;
 
-                        if (arg_json != JSON_SHORT)
-                                (void) pager_open(arg_no_pager, false);
-
                         r = json_transform_message(reply, &v);
                         if (r < 0)
                                 return r;
@@ -1976,7 +1962,6 @@ static int call(int argc, char **argv, void *userdata) {
                         json_dump_with_flags(v, stdout);
 
                 } else if (arg_verbose) {
-                        (void) pager_open(arg_no_pager, false);
 
                         r = bus_message_dump(reply, stdout, 0);
                         if (r < 0)
@@ -2027,9 +2012,6 @@ static int get_property(int argc, char **argv, void *userdata) {
                 if (arg_json != JSON_OFF) {
                         _cleanup_(json_variant_unrefp) JsonVariant *v = NULL;
 
-                        if (arg_json != JSON_SHORT)
-                                (void) pager_open(arg_no_pager, false);
-
                         r = json_transform_variant(reply, contents, &v);
                         if (r < 0)
                                 return r;
@@ -2037,7 +2019,6 @@ static int get_property(int argc, char **argv, void *userdata) {
                         json_dump_with_flags(v, stdout);
 
                 } else if (arg_verbose)  {
-                        (void) pager_open(arg_no_pager, false);
 
                         r = bus_message_dump(reply, stdout, BUS_MESSAGE_DUMP_SUBTREE_ONLY);
                         if (r < 0)
@@ -2117,7 +2098,6 @@ static int help(void) {
                "Introspect the bus.\n\n"
                "  -h --help               Show this help\n"
                "     --version            Show package version\n"
-               "     --no-pager           Do not pipe output into a pager\n"
                "     --no-legend          Do not show the headers and footers\n"
                "     --system             Connect to system bus\n"
                "     --user               Connect to user bus\n"
@@ -2173,7 +2153,6 @@ static int parse_argv(int argc, char *argv[]) {
 
         enum {
                 ARG_VERSION = 0x100,
-                ARG_NO_PAGER,
                 ARG_NO_LEGEND,
                 ARG_SYSTEM,
                 ARG_USER,
@@ -2198,7 +2177,6 @@ static int parse_argv(int argc, char *argv[]) {
         static const struct option options[] = {
                 { "help",                            no_argument,       NULL, 'h'                                 },
                 { "version",                         no_argument,       NULL, ARG_VERSION                         },
-                { "no-pager",                        no_argument,       NULL, ARG_NO_PAGER                        },
                 { "no-legend",                       no_argument,       NULL, ARG_NO_LEGEND                       },
                 { "system",                          no_argument,       NULL, ARG_SYSTEM                          },
                 { "user",                            no_argument,       NULL, ARG_USER                            },
@@ -2238,10 +2216,6 @@ static int parse_argv(int argc, char *argv[]) {
 
                 case ARG_VERSION:
                         return version();
-
-                case ARG_NO_PAGER:
-                        arg_no_pager = true;
-                        break;
 
                 case ARG_NO_LEGEND:
                         arg_legend = false;
@@ -2430,9 +2404,6 @@ int main(int argc, char *argv[]) {
         r = busctl_main(argc, argv);
 
 finish:
-        /* make sure we terminate the bus connection first, and then close the
-         * pager, see issue #3543 for the details. */
-        pager_close();
 
         arg_matches = strv_free(arg_matches);
 

@@ -58,8 +58,6 @@ basic_sources = files('''
         mempool.c
         mempool.h
         missing_syscall.h
-        pager.c
-        pager.h
         parse-util.c
         parse-util.h
         path-util.c

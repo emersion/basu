@@ -32,7 +32,6 @@
 #include "io-util.h"
 #include "log.h"
 #include "macro.h"
-#include "pager.h"
 #include "parse-util.h"
 #include "path-util.h"
 #include "process-util.h"
@@ -336,7 +335,7 @@ static bool urlify_enabled(void) {
                 if (val >= 0)
                         cached_urlify_enabled = val;
                 else
-                        cached_urlify_enabled = colors_enabled() && !pager_have();
+                        cached_urlify_enabled = colors_enabled();
         }
 
         return cached_urlify_enabled;
