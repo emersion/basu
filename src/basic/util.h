@@ -28,6 +28,16 @@
 #include "missing.h"
 #include "time-util.h"
 
+#ifndef __COMPAR_FN_T
+#define __COMPAR_FN_T
+typedef int (*__compar_fn_t)(const void *, const void *);
+#endif
+
+#ifndef __COMPAR_D_FN_T
+#define __COMPAR_D_FN_T
+typedef int (*__compar_d_fn_t) (__const void *, __const void *, void *);
+#endif
+
 size_t page_size(void) _pure_;
 #define PAGE_ALIGN(l) ALIGN_TO((l), page_size())
 
