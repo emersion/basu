@@ -39,18 +39,6 @@ static inline const char* true_false(bool b) {
         return b ? "true" : "false";
 }
 
-static inline const char* one_zero(bool b) {
-        return b ? "1" : "0";
-}
-
-static inline const char* enable_disable(bool b) {
-        return b ? "enable" : "disable";
-}
-
-bool plymouth_running(void);
-
-bool display_is_local(const char *display) _pure_;
-
 #define NULSTR_FOREACH(i, l)                                    \
         for ((i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
 
@@ -59,23 +47,6 @@ bool display_is_local(const char *display) _pure_;
 
 extern int saved_argc;
 extern char **saved_argv;
-
-bool kexec_loaded(void);
-
-int prot_from_flags(int flags) _const_;
-
-bool in_initrd(void);
-void in_initrd_force(bool value);
-
-void *xbsearch_r(const void *key, const void *base, size_t nmemb, size_t size,
-                 __compar_d_fn_t compar, void *arg);
-
-#define typesafe_bsearch_r(k, b, n, func, userdata)                     \
-        ({                                                              \
-                const typeof(b[0]) *_k = k;                             \
-                int (*_func_)(const typeof(b[0])*, const typeof(b[0])*, typeof(userdata)) = func; \
-                xbsearch_r((const void*) _k, (b), (n), sizeof((b)[0]), (__compar_d_fn_t) _func_, userdata); \
-        })
 
 /**
  * Normal bsearch requires base to be nonnull. Here were require
@@ -117,20 +88,6 @@ static inline void qsort_safe(void *base, size_t nmemb, size_t size, __compar_fn
                 qsort_safe((p), (n), sizeof((p)[0]), (__compar_fn_t) _func_); \
         })
 
-static inline void qsort_r_safe(void *base, size_t nmemb, size_t size, __compar_d_fn_t compar, void *userdata) {
-        if (nmemb <= 1)
-                return;
-
-        assert(base);
-        qsort_r(base, nmemb, size, compar, userdata);
-}
-
-#define typesafe_qsort_r(p, n, func, userdata)                          \
-        ({                                                              \
-                int (*_func_)(const typeof(p[0])*, const typeof(p[0])*, typeof(userdata)) = func; \
-                qsort_r_safe((p), (n), sizeof((p)[0]), (__compar_d_fn_t) _func_, userdata); \
-        })
-
 /* Normal memcpy requires src to be nonnull. We do nothing if n is 0. */
 static inline void memcpy_safe(void *dst, const void *src, size_t n) {
         if (n == 0)
@@ -139,16 +96,6 @@ static inline void memcpy_safe(void *dst, const void *src, size_t n) {
         memcpy(dst, src, n);
 }
 
-/* Normal memcmp requires s1 and s2 to be nonnull. We do nothing if n is 0. */
-static inline int memcmp_safe(const void *s1, const void *s2, size_t n) {
-        if (n == 0)
-                return 0;
-        assert(s1);
-        assert(s2);
-        return memcmp(s1, s2, n);
-}
-
-int on_ac_power(void);
 
 #define memzero(x,l)                                            \
         ({                                                      \
@@ -187,14 +134,6 @@ static inline unsigned u64log2(uint64_t n) {
 #endif
 }
 
-static inline unsigned u32ctz(uint32_t n) {
-#if __SIZEOF_INT__ == 4
-        return __builtin_ctz(n);
-#else
-#error "Wut?"
-#endif
-}
-
 static inline unsigned log2i(int x) {
         assert(x > 0);
 
@@ -221,14 +160,4 @@ int container_get_leader(const char *machine, pid_t *pid);
 int namespace_open(pid_t pid, int *pidns_fd, int *mntns_fd, int *netns_fd, int *userns_fd, int *root_fd);
 int namespace_enter(int pidns_fd, int mntns_fd, int netns_fd, int userns_fd, int root_fd);
 
-uint64_t physical_memory(void);
-uint64_t physical_memory_scale(uint64_t v, uint64_t max);
-
-uint64_t system_tasks_max(void);
-uint64_t system_tasks_max_scale(uint64_t v, uint64_t max);
-
 int version(void);
-
-int str_verscmp(const char *s1, const char *s2);
-
-void disable_coredumps(void);
