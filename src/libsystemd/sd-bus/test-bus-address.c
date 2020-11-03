@@ -61,7 +61,6 @@ static void test_bus_set_address_system_remote(char **args) {
 int main(int argc, char *argv[]) {
         log_set_max_level(LOG_INFO);
         log_parse_environment();
-        log_open();
 
         test_bus_set_address_system_remote(argv + 1);
 

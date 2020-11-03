@@ -3063,24 +3063,17 @@ int json_log_internal(
         }
 
         if (source && source_line > 0 && source_column > 0)
-                return log_struct_internal(
+                return log_internal(
                                 LOG_REALM_PLUS_LEVEL(LOG_REALM_SYSTEMD, level),
                                 error,
                                 file, line, func,
-                                "MESSAGE_ID=" SD_MESSAGE_INVALID_CONFIGURATION_STR,
-                                "CONFIG_FILE=%s", source,
-                                "CONFIG_LINE=%u", source_line,
-                                "CONFIG_COLUMN=%u", source_column,
-                                LOG_MESSAGE("%s:%u: %s", source, line, buffer),
-                                NULL);
+                                "%s:%u: %s", source, line, buffer);
         else
-                return log_struct_internal(
+                return log_internal(
                                 LOG_REALM_PLUS_LEVEL(LOG_REALM_SYSTEMD, level),
                                 error,
                                 file, line, func,
-                                "MESSAGE_ID=" SD_MESSAGE_INVALID_CONFIGURATION_STR,
-                                LOG_MESSAGE("%s", buffer),
-                                NULL);
+                                "%s", buffer);
 }
 
 int json_dispatch(JsonVariant *v, const JsonDispatch table[], JsonDispatchCallback bad, JsonDispatchFlags flags, void *userdata) {

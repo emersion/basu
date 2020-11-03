@@ -719,12 +719,6 @@ int safe_fork_full(
 
         /* We are in the child process */
 
-        if (flags & FORK_REOPEN_LOG) {
-                /* Close the logs if requested, before we log anything. And make sure we reopen it if needed. */
-                log_close();
-                log_set_open_when_needed(true);
-        }
-
         if (name) {
                 r = rename_process(name);
                 if (r < 0)
@@ -785,19 +779,11 @@ int safe_fork_full(
 
         if (flags & FORK_CLOSE_ALL_FDS) {
                 /* Close the logs here in case it got reopened above, as close_all_fds() would close them for us */
-                log_close();
-
                 r = close_all_fds(except_fds, n_except_fds);
                 if (r < 0) {
                         log_full_errno(prio, r, "Failed to close all file descriptors: %m");
                         _exit(EXIT_FAILURE);
                 }
-        }
-
-        /* When we were asked to reopen the logs, do so again now */
-        if (flags & FORK_REOPEN_LOG) {
-                log_open();
-                log_set_open_when_needed(false);
         }
 
         if (flags & FORK_NULL_STDIO) {

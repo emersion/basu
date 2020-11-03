@@ -2395,7 +2395,6 @@ int main(int argc, char *argv[]) {
         int r;
 
         log_parse_environment();
-        log_open();
 
         r = parse_argv(argc, argv);
         if (r <= 0)
