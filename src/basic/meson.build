@@ -43,7 +43,6 @@ basic_sources = files('''
         hostname-util.h
         io-util.c
         io-util.h
-        ioprio.h
         json-internal.h
         json.c
         json.h
