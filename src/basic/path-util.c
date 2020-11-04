@@ -36,42 +36,6 @@ bool is_path(const char *p) {
         return !!strchr(p, '/');
 }
 
-int path_split_and_make_absolute(const char *p, char ***ret) {
-        char **l;
-        int r;
-
-        assert(p);
-        assert(ret);
-
-        l = strv_split(p, ":");
-        if (!l)
-                return -ENOMEM;
-
-        r = path_strv_make_absolute_cwd(l);
-        if (r < 0) {
-                strv_free(l);
-                return r;
-        }
-
-        *ret = l;
-        return r;
-}
-
-char *path_make_absolute(const char *p, const char *prefix) {
-        assert(p);
-
-        /* Makes every item in the list an absolute path by prepending
-         * the prefix, if specified and necessary */
-
-        if (path_is_absolute(p) || isempty(prefix))
-                return strdup(p);
-
-        if (endswith(prefix, "/"))
-                return strjoin(prefix, p);
-        else
-                return strjoin(prefix, "/", p);
-}
-
 int safe_getcwd(char **ret) {
         char *cwd;
 
@@ -115,96 +79,6 @@ int path_make_absolute_cwd(const char *p, char **ret) {
                 return -ENOMEM;
 
         *ret = c;
-        return 0;
-}
-
-int path_make_relative(const char *from_dir, const char *to_path, char **_r) {
-        char *f, *t, *r, *p;
-        unsigned n_parents = 0;
-
-        assert(from_dir);
-        assert(to_path);
-        assert(_r);
-
-        /* Strips the common part, and adds ".." elements as necessary. */
-
-        if (!path_is_absolute(from_dir) || !path_is_absolute(to_path))
-                return -EINVAL;
-
-        f = strdupa(from_dir);
-        t = strdupa(to_path);
-
-        path_simplify(f, true);
-        path_simplify(t, true);
-
-        /* Skip the common part. */
-        for (;;) {
-                size_t a, b;
-
-                f += *f == '/';
-                t += *t == '/';
-
-                if (!*f) {
-                        if (!*t)
-                                /* from_dir equals to_path. */
-                                r = strdup(".");
-                        else
-                                /* from_dir is a parent directory of to_path. */
-                                r = strdup(t);
-                        if (!r)
-                                return -ENOMEM;
-
-                        *_r = r;
-                        return 0;
-                }
-
-                if (!*t)
-                        break;
-
-                a = strcspn(f, "/");
-                b = strcspn(t, "/");
-
-                if (a != b || memcmp(f, t, a) != 0)
-                        break;
-
-                f += a;
-                t += b;
-        }
-
-        /* If we're here, then "from_dir" has one or more elements that need to
-         * be replaced with "..". */
-
-        /* Count the number of necessary ".." elements. */
-        for (; *f;) {
-                size_t w;
-
-                w = strcspn(f, "/");
-
-                /* If this includes ".." we can't do a simple series of "..", refuse */
-                if (w == 2 && f[0] == '.' && f[1] == '.')
-                        return -EINVAL;
-
-                /* Count number of elements */
-                n_parents++;
-
-                f += w;
-                f += *f == '/';
-        }
-
-        r = new(char, n_parents * 3 + strlen(t) + 1);
-        if (!r)
-                return -ENOMEM;
-
-        for (p = r; n_parents > 0; n_parents--)
-                p = mempcpy(p, "../", 3);
-
-        if (*t)
-                strcpy(p, t);
-        else
-                /* Remove trailing slash */
-                *(--p) = 0;
-
-        *_r = r;
         return 0;
 }
 
@@ -556,90 +430,6 @@ int find_binary(const char *name, char **ret) {
         return last_error;
 }
 
-bool paths_check_timestamp(const char* const* paths, usec_t *timestamp, bool update) {
-        bool changed = false;
-        const char* const* i;
-
-        assert(timestamp);
-
-        if (!paths)
-                return false;
-
-        STRV_FOREACH(i, paths) {
-                struct stat stats;
-                usec_t u;
-
-                if (stat(*i, &stats) < 0)
-                        continue;
-
-                u = timespec_load(&stats.st_mtim);
-
-                /* first check */
-                if (*timestamp >= u)
-                        continue;
-
-                log_debug("timestamp of '%s' changed", *i);
-
-                /* update timestamp */
-                if (update) {
-                        *timestamp = u;
-                        changed = true;
-                } else
-                        return true;
-        }
-
-        return changed;
-}
-
-static int binary_is_good(const char *binary) {
-        _cleanup_free_ char *p = NULL, *d = NULL;
-        int r;
-
-        r = find_binary(binary, &p);
-        if (r == -ENOENT)
-                return 0;
-        if (r < 0)
-                return r;
-
-        /* An fsck that is linked to /bin/true is a non-existent
-         * fsck */
-
-        r = readlink_malloc(p, &d);
-        if (r == -EINVAL) /* not a symlink */
-                return 1;
-        if (r < 0)
-                return r;
-
-        return !PATH_IN_SET(d, "true"
-                               "/bin/true",
-                               "/usr/bin/true",
-                               "/dev/null");
-}
-
-int fsck_exists(const char *fstype) {
-        const char *checker;
-
-        assert(fstype);
-
-        if (streq(fstype, "auto"))
-                return -EINVAL;
-
-        checker = strjoina("fsck.", fstype);
-        return binary_is_good(checker);
-}
-
-int mkfs_exists(const char *fstype) {
-        const char *mkfs;
-
-        assert(fstype);
-
-        if (streq(fstype, "auto"))
-                return -EINVAL;
-
-        mkfs = strjoina("mkfs.", fstype);
-        return binary_is_good(mkfs);
-}
-
 char *prefix_root(const char *root, const char *path) {
         char *n, *p;
         size_t l;
@@ -674,38 +464,6 @@ char *prefix_root(const char *root, const char *path) {
         return n;
 }
 
-int parse_path_argument_and_warn(const char *path, bool suppress_root, char **arg) {
-        char *p;
-        int r;
-
-        /*
-         * This function is intended to be used in command line
-         * parsers, to handle paths that are passed in. It makes the
-         * path absolute, and reduces it to NULL if omitted or
-         * root (the latter optionally).
-         *
-         * NOTE THAT THIS WILL FREE THE PREVIOUS ARGUMENT POINTER ON
-         * SUCCESS! Hence, do not pass in uninitialized pointers.
-         */
-
-        if (isempty(path)) {
-                *arg = mfree(*arg);
-                return 0;
-        }
-
-        r = path_make_absolute_cwd(path, &p);
-        if (r < 0)
-                return log_error_errno(r, "Failed to parse path \"%s\" and make it absolute: %m", path);
-
-        path_simplify(p, false);
-        if (suppress_root && empty_or_root(p))
-                p = mfree(p);
-
-        free_and_replace(*arg, p);
-
-        return 0;
-}
-
 char* dirname_malloc(const char *path) {
         char *d, *dir, *dir2;
 
@@ -725,44 +483,6 @@ char* dirname_malloc(const char *path) {
         free(d);
 
         return dir2;
-}
-
-const char *last_path_component(const char *path) {
-
-        /* Finds the last component of the path, preserving the optional trailing slash that signifies a directory.
-         *
-         *    a/b/c → c
-         *    a/b/c/ → c/
-         *    x → x
-         *    x/ → x/
-         *    /y → y
-         *    /y/ → y/
-         *    / → /
-         *    // → /
-         *    /foo/a → a
-         *    /foo/a/ → a/
-         *
-         *    Also, the empty string is mapped to itself.
-         *
-         * This is different than basename(), which returns "" when a trailing slash is present.
-         */
-
-        unsigned l, k;
-
-        l = k = strlen(path);
-        if (l == 0) /* special case — an empty string */
-                return path;
-
-        while (k > 0 && path[k-1] == '/')
-                k--;
-
-        if (k == 0) /* the root directory */
-                return path + l - 1;
-
-        while (k > 0 && path[k-1] != '/')
-                k--;
-
-        return path + k;
 }
 
 bool filename_is_valid(const char *p) {
@@ -891,40 +611,6 @@ bool hidden_or_backup_file(const char *filename) {
                           "new");
 }
 
-bool is_device_path(const char *path) {
-
-        /* Returns true on paths that likely refer to a device, either by path in sysfs or to something in /dev */
-
-        return PATH_STARTSWITH_SET(path, "/dev/", "/sys/");
-}
-
-bool valid_device_node_path(const char *path) {
-
-        /* Some superficial checks whether the specified path is a valid device node path, all without looking at the
-         * actual device node. */
-
-        if (!PATH_STARTSWITH_SET(path, "/dev/", "/run/systemd/inaccessible/"))
-                return false;
-
-        if (endswith(path, "/")) /* can't be a device node if it ends in a slash */
-                return false;
-
-        return path_is_normalized(path);
-}
-
-bool valid_device_allow_pattern(const char *path) {
-        assert(path);
-
-        /* Like valid_device_node_path(), but also allows full-subsystem expressions, like DeviceAllow= and DeviceDeny=
-         * accept it */
-
-        if (startswith(path, "block-") ||
-            startswith(path, "char-"))
-                return true;
-
-        return valid_device_node_path(path);
-}
-
 bool dot_or_dot_dot(const char *path) {
         if (!path)
                 return false;
@@ -949,49 +635,3 @@ bool empty_or_root(const char *root) {
         return root[strspn(root, "/")] == 0;
 }
 
-int path_simplify_and_warn(
-                char *path,
-                unsigned flag,
-                const char *unit,
-                const char *filename,
-                unsigned line,
-                const char *lvalue) {
-
-        bool absolute, fatal = flag & PATH_CHECK_FATAL;
-
-        assert(!FLAGS_SET(flag, PATH_CHECK_ABSOLUTE | PATH_CHECK_RELATIVE));
-
-        if (!utf8_is_valid(path)) {
-                log_syntax_invalid_utf8(unit, LOG_ERR, filename, line, path);
-                return -EINVAL;
-        }
-
-        if (flag & (PATH_CHECK_ABSOLUTE | PATH_CHECK_RELATIVE)) {
-                absolute = path_is_absolute(path);
-
-                if (!absolute && (flag & PATH_CHECK_ABSOLUTE)) {
-                        log_syntax(unit, LOG_ERR, filename, line, 0,
-                                   "%s= path is not absolute%s: %s",
-                                   lvalue, fatal ? "" : ", ignoring", path);
-                        return -EINVAL;
-                }
-
-                if (absolute && (flag & PATH_CHECK_RELATIVE)) {
-                        log_syntax(unit, LOG_ERR, filename, line, 0,
-                                   "%s= path is absolute%s: %s",
-                                   lvalue, fatal ? "" : ", ignoring", path);
-                        return -EINVAL;
-                }
-        }
-
-        path_simplify(path, true);
-
-        if (!path_is_normalized(path)) {
-                log_syntax(unit, LOG_ERR, filename, line, 0,
-                           "%s= path is not normalized%s: %s",
-                           lvalue, fatal ? "" : ", ignoring", path);
-                return -EINVAL;
-        }
-
-        return 0;
-}
