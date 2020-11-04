@@ -143,3 +143,14 @@ void* greedy_realloc0(void **p, size_t *allocated, size_t need, size_t size);
                 (ptr) = NULL;                   \
                 _ptr_;                          \
         })
+
+#ifndef strndupa
+#define strndupa(src, len)                                    \
+        ({                                                    \
+                const char *__src = (src);                    \
+                size_t __strlen = strnlen(__src, (len));      \
+                char *__dst = alloca(__strlen + 1);           \
+                __dst[__strlen] = '\0';                       \
+                memcpy(__dst, __src, __strlen);               \
+         })
+#endif
