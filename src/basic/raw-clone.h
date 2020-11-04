@@ -72,8 +72,5 @@ static inline pid_t raw_clone(unsigned long flags) {
         ret = (pid_t) syscall(__NR_clone, flags, NULL);
 #endif
 
-        if (ret == 0)
-                reset_cached_pid();
-
         return ret;
 }

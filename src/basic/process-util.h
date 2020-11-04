@@ -77,7 +77,6 @@ static inline bool pid_is_valid(pid_t p) {
 }
 
 pid_t getpid_cached(void);
-void reset_cached_pid(void);
 
 int must_be_root(void);
 
