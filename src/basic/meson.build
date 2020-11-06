@@ -11,8 +11,6 @@ basic_sources = files('''
         cap-list.h
         capability-util.c
         capability-util.h
-        copy.c
-        copy.h
         def.h
         dirent-util.c
         dirent-util.h
