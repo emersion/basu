@@ -12,7 +12,6 @@ basic_sources = files('''
         capability-util.c
         capability-util.h
         def.h
-        dirent-util.c
         dirent-util.h
         env-util.c
         env-util.h
