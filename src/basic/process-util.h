@@ -84,12 +84,6 @@ typedef enum ForkFlags {
         FORK_RESET_SIGNALS = 1 << 0,
         FORK_CLOSE_ALL_FDS = 1 << 1,
         FORK_DEATHSIG      = 1 << 2,
-        FORK_NULL_STDIO    = 1 << 3,
-        FORK_REOPEN_LOG    = 1 << 4,
-        FORK_LOG           = 1 << 5,
-        FORK_WAIT          = 1 << 6,
-        FORK_NEW_MOUNTNS   = 1 << 7,
-        FORK_MOUNTNS_SLAVE = 1 << 8,
 } ForkFlags;
 
 int safe_fork_full(const char *name, const int except_fds[], size_t n_except_fds, ForkFlags flags, pid_t *ret_pid);
