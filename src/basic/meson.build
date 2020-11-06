@@ -66,7 +66,6 @@ basic_sources = files('''
         procfs-util.h
         random-util.c
         random-util.h
-        raw-clone.h
         refcnt.h
         set.h
         signal-util.c
