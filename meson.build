@@ -463,7 +463,7 @@ libsystemd = shared_library(
         install : true,
         install_dir : rootlibdir)
 
-exe = executable('busctl',
+exe = executable('basuctl',
                  'src/busctl/busctl.c',
                  'src/busctl/busctl-introspect.c',
                  'src/busctl/busctl-introspect.h',
