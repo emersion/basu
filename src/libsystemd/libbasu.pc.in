@@ -16,5 +16,5 @@ Name: basu
 Description: basu Library
 URL: @PACKAGE_URL@
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lsystemd
+Libs: -L${libdir} -lbasu
 Cflags: -I${includedir}
