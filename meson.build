@@ -445,6 +445,7 @@ add_project_arguments('-include', 'config.h', language : 'c')
 subdir('src/basic')
 subdir('src/shared')
 subdir('src/libsystemd')
+subdir('src/systemd')
 
 libsystemd_sym_path = '@0@/@1@'.format(meson.current_source_dir(), libsystemd_sym)
 libsystemd = shared_library(
