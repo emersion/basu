@@ -433,7 +433,7 @@ includes = include_directories(
   'src/libsystemd/sd-id128',
 )
 
-add_project_arguments('-include', 'config.h', language : 'c')
+add_project_arguments('-include', meson.current_build_dir() / 'config.h', language : 'c')
 
 subdir('src/basic')
 subdir('src/shared')
