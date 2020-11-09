@@ -56,7 +56,6 @@
         } while (false)
 
 static int bus_poll(sd_bus *bus, bool need_more, uint64_t timeout_usec);
-static void bus_detach_io_events(sd_bus *b);
 
 static thread_local sd_bus *default_system_bus = NULL;
 static thread_local sd_bus *default_user_bus = NULL;
@@ -115,8 +114,6 @@ sd_bus *bus_resolve(sd_bus *bus) {
 
 void bus_close_io_fds(sd_bus *b) {
         assert(b);
-
-        bus_detach_io_events(b);
 
         if (b->input_fd != b->output_fd)
                 safe_close(b->output_fd);
@@ -1079,15 +1076,8 @@ static int bus_start_address(sd_bus *b) {
                 else
                         goto next;
 
-                if (r >= 0) {
-                        int q;
-
-                        q = bus_attach_io_events(b);
-                        if (q < 0)
-                                return q;
-
+                if (r >= 0)
                         return r;
-                }
 
                 b->last_connect_error = -r;
 
@@ -2735,8 +2725,7 @@ null_message:
 static int bus_exit_now(sd_bus *bus) {
         assert(bus);
 
-        /* Exit due to close, if this is requested. If this is bus object is attached to an event source, invokes
-         * sd_event_exit(), otherwise invokes libc exit(). */
+        /* Exit due to close, if this is requested. */
 
         if (bus->exited) /* did we already exit? */
                 return 0;
@@ -2749,10 +2738,7 @@ static int bus_exit_now(sd_bus *bus) {
 
         log_debug("Bus connection disconnected, exiting.");
 
-        if (bus->event)
-                return sd_event_exit(bus->event, EXIT_FAILURE);
-        else
-                exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
 
         assert_not_reached("exit() didn't exit?");
 }
@@ -3263,143 +3249,6 @@ bool bus_pid_changed(sd_bus *bus) {
         return bus->original_pid != getpid_cached();
 }
 
-static int io_callback(sd_event_source *s, int fd, uint32_t revents, void *userdata) {
-        sd_bus *bus = userdata;
-        int r;
-
-        assert(bus);
-
-        /* Note that this is called both on input_fd and output_fd events */
-
-        r = sd_bus_process(bus, NULL);
-        if (r < 0) {
-                log_debug_errno(r, "Processing of bus failed, closing down: %m");
-                bus_enter_closing(bus);
-        }
-
-        return 1;
-}
-
-static int prepare_callback(sd_event_source *s, void *userdata) {
-        sd_bus *bus = userdata;
-        int r, e;
-        usec_t until;
-
-        assert(s);
-        assert(bus);
-
-        e = sd_bus_get_events(bus);
-        if (e < 0) {
-                r = e;
-                goto fail;
-        }
-
-        if (bus->output_fd != bus->input_fd) {
-
-                r = sd_event_source_set_io_events(bus->input_io_event_source, e & POLLIN);
-                if (r < 0)
-                        goto fail;
-
-                r = sd_event_source_set_io_events(bus->output_io_event_source, e & POLLOUT);
-        } else
-                r = sd_event_source_set_io_events(bus->input_io_event_source, e);
-        if (r < 0)
-                goto fail;
-
-        r = sd_bus_get_timeout(bus, &until);
-        if (r < 0)
-                goto fail;
-        if (r > 0) {
-                int j;
-
-                j = sd_event_source_set_time(bus->time_event_source, until);
-                if (j < 0) {
-                        r = j;
-                        goto fail;
-                }
-        }
-
-        r = sd_event_source_set_enabled(bus->time_event_source, r > 0);
-        if (r < 0)
-                goto fail;
-
-        return 1;
-
-fail:
-        log_debug_errno(r, "Preparing of bus events failed, closing down: %m");
-        bus_enter_closing(bus);
-
-        return 1;
-}
-
-int bus_attach_io_events(sd_bus *bus) {
-        int r;
-
-        assert(bus);
-
-        if (bus->input_fd < 0)
-                return 0;
-
-        if (!bus->event)
-                return 0;
-
-        if (!bus->input_io_event_source) {
-                r = sd_event_add_io(bus->event, &bus->input_io_event_source, bus->input_fd, 0, io_callback, bus);
-                if (r < 0)
-                        return r;
-
-                r = sd_event_source_set_prepare(bus->input_io_event_source, prepare_callback);
-                if (r < 0)
-                        return r;
-
-                r = sd_event_source_set_priority(bus->input_io_event_source, bus->event_priority);
-                if (r < 0)
-                        return r;
-
-                r = sd_event_source_set_description(bus->input_io_event_source, "bus-input");
-        } else
-                r = sd_event_source_set_io_fd(bus->input_io_event_source, bus->input_fd);
-
-        if (r < 0)
-                return r;
-
-        if (bus->output_fd != bus->input_fd) {
-                assert(bus->output_fd >= 0);
-
-                if (!bus->output_io_event_source) {
-                        r = sd_event_add_io(bus->event, &bus->output_io_event_source, bus->output_fd, 0, io_callback, bus);
-                        if (r < 0)
-                                return r;
-
-                        r = sd_event_source_set_priority(bus->output_io_event_source, bus->event_priority);
-                        if (r < 0)
-                                return r;
-
-                        r = sd_event_source_set_description(bus->input_io_event_source, "bus-output");
-                } else
-                        r = sd_event_source_set_io_fd(bus->output_io_event_source, bus->output_fd);
-
-                if (r < 0)
-                        return r;
-        }
-
-        return 0;
-}
-
-static void bus_detach_io_events(sd_bus *bus) {
-        assert(bus);
-
-        if (bus->input_io_event_source) {
-                sd_event_source_set_enabled(bus->input_io_event_source, SD_EVENT_OFF);
-                bus->input_io_event_source = sd_event_source_unref(bus->input_io_event_source);
-        }
-
-        if (bus->output_io_event_source) {
-                sd_event_source_set_enabled(bus->output_io_event_source, SD_EVENT_OFF);
-                bus->output_io_event_source = sd_event_source_unref(bus->output_io_event_source);
-        }
-}
-
 _public_ sd_bus_message* sd_bus_get_current_message(sd_bus *bus) {
         assert_return(bus, NULL);
 
@@ -3476,9 +3325,6 @@ _public_ int sd_bus_get_tid(sd_bus *b, pid_t *tid) {
                 *tid = b->tid;
                 return 0;
         }
-
-        if (b->event)
-                return sd_event_get_tid(b->event, tid);
 
         return -ENXIO;
 }

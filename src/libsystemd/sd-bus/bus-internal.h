@@ -287,13 +287,6 @@ struct sd_bus {
         pid_t original_pid;
         pid_t busexec_pid;
 
-        sd_event_source *input_io_event_source;
-        sd_event_source *output_io_event_source;
-        sd_event_source *time_event_source;
-        sd_event_source *quit_event_source;
-        sd_event *event;
-        int event_priority;
-
         sd_bus_message *current_message;
         sd_bus_slot *current_slot;
         sd_bus_message_handler_t current_handler;
