@@ -84,8 +84,6 @@ pkgconfiglibdir = get_option('pkgconfiglibdir') == '' ? join_paths(libdir, 'pkgc
 catalogdir = join_paths(prefixdir, 'lib/systemd/catalog')
 testsdir = join_paths(prefixdir, 'lib/systemd/tests')
 
-conf.set('ANSI_OK_COLOR',                                     'ANSI_' + get_option('ok-color').underscorify().to_upper())
-
 conf.set_quoted('SYSTEMD_TEST_DATA',                          join_paths(testsdir, 'testdata'))
 conf.set_quoted('SYSTEMD_CATALOG_DIR',                        catalogdir)
 
