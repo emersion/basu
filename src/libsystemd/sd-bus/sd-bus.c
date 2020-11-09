@@ -148,8 +148,6 @@ static sd_bus* bus_free(sd_bus *b) {
 
         b->state = BUS_CLOSED;
 
-        sd_bus_detach_event(b);
-
         while ((s = b->slots)) {
                 /* At this point only floating slots can still be
                  * around, because the non-floating ones keep a
@@ -1516,8 +1514,6 @@ _public_ void sd_bus_close(sd_bus *bus) {
         bus_kill_exec(bus);
 
         bus_set_state(bus, BUS_CLOSED);
-
-        sd_bus_detach_event(bus);
 
         /* Drop all queued messages so that they drop references to
          * the bus object and the bus may be freed */
@@ -3284,21 +3280,6 @@ static int io_callback(sd_event_source *s, int fd, uint32_t revents, void *userd
         return 1;
 }
 
-static int time_callback(sd_event_source *s, uint64_t usec, void *userdata) {
-        sd_bus *bus = userdata;
-        int r;
-
-        assert(bus);
-
-        r = sd_bus_process(bus, NULL);
-        if (r < 0) {
-                log_debug_errno(r, "Processing of bus failed, closing down: %m");
-                bus_enter_closing(bus);
-        }
-
-        return 1;
-}
-
 static int prepare_callback(sd_event_source *s, void *userdata) {
         sd_bus *bus = userdata;
         int r, e;
@@ -3347,19 +3328,6 @@ static int prepare_callback(sd_event_source *s, void *userdata) {
 fail:
         log_debug_errno(r, "Preparing of bus events failed, closing down: %m");
         bus_enter_closing(bus);
-
-        return 1;
-}
-
-static int quit_callback(sd_event_source *event, void *userdata) {
-        sd_bus *bus = userdata;
-
-        assert(event);
-
-        if (bus->close_on_exit) {
-                sd_bus_flush(bus);
-                sd_bus_close(bus);
-        }
 
         return 1;
 }
@@ -3430,87 +3398,6 @@ static void bus_detach_io_events(sd_bus *bus) {
                 sd_event_source_set_enabled(bus->output_io_event_source, SD_EVENT_OFF);
                 bus->output_io_event_source = sd_event_source_unref(bus->output_io_event_source);
         }
-}
-
-_public_ int sd_bus_attach_event(sd_bus *bus, sd_event *event, int priority) {
-        int r;
-
-        assert_return(bus, -EINVAL);
-        assert_return(bus = bus_resolve(bus), -ENOPKG);
-        assert_return(!bus->event, -EBUSY);
-
-        assert(!bus->input_io_event_source);
-        assert(!bus->output_io_event_source);
-        assert(!bus->time_event_source);
-
-        if (event)
-                bus->event = sd_event_ref(event);
-        else  {
-                r = sd_event_default(&bus->event);
-                if (r < 0)
-                        return r;
-        }
-
-        bus->event_priority = priority;
-
-        r = sd_event_add_time(bus->event, &bus->time_event_source, CLOCK_MONOTONIC, 0, 0, time_callback, bus);
-        if (r < 0)
-                goto fail;
-
-        r = sd_event_source_set_priority(bus->time_event_source, priority);
-        if (r < 0)
-                goto fail;
-
-        r = sd_event_source_set_description(bus->time_event_source, "bus-time");
-        if (r < 0)
-                goto fail;
-
-        r = sd_event_add_exit(bus->event, &bus->quit_event_source, quit_callback, bus);
-        if (r < 0)
-                goto fail;
-
-        r = sd_event_source_set_description(bus->quit_event_source, "bus-exit");
-        if (r < 0)
-                goto fail;
-
-        r = bus_attach_io_events(bus);
-        if (r < 0)
-                goto fail;
-
-        return 0;
-
-fail:
-        sd_bus_detach_event(bus);
-        return r;
-}
-
-_public_ int sd_bus_detach_event(sd_bus *bus) {
-        assert_return(bus, -EINVAL);
-        assert_return(bus = bus_resolve(bus), -ENOPKG);
-
-        if (!bus->event)
-                return 0;
-
-        bus_detach_io_events(bus);
-
-        if (bus->time_event_source) {
-                sd_event_source_set_enabled(bus->time_event_source, SD_EVENT_OFF);
-                bus->time_event_source = sd_event_source_unref(bus->time_event_source);
-        }
-
-        if (bus->quit_event_source) {
-                sd_event_source_set_enabled(bus->quit_event_source, SD_EVENT_OFF);
-                bus->quit_event_source = sd_event_source_unref(bus->quit_event_source);
-        }
-
-        bus->event = sd_event_unref(bus->event);
-        return 1;
-}
-
-_public_ sd_event* sd_bus_get_event(sd_bus *bus) {
-        assert_return(bus, NULL);
-
-        return bus->event;
 }
 
 _public_ sd_bus_message* sd_bus_get_current_message(sd_bus *bus) {

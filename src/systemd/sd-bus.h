@@ -200,10 +200,6 @@ sd_bus_message* sd_bus_get_current_message(sd_bus *bus);
 sd_bus_message_handler_t sd_bus_get_current_handler(sd_bus *bus);
 void* sd_bus_get_current_userdata(sd_bus *bus);
 
-int sd_bus_attach_event(sd_bus *bus, sd_event *e, int priority);
-int sd_bus_detach_event(sd_bus *bus);
-sd_event *sd_bus_get_event(sd_bus *bus);
-
 int sd_bus_get_n_queued_read(sd_bus *bus, uint64_t *ret);
 int sd_bus_get_n_queued_write(sd_bus *bus, uint64_t *ret);
 
