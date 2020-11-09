@@ -150,7 +150,6 @@ struct sd_bus_slot {
 
 enum bus_state {
         BUS_UNSET,
-        BUS_WATCH_BIND,      /* waiting for the socket to appear via inotify */
         BUS_OPENING,         /* the kernel's connect() is still not ready */
         BUS_AUTHENTICATING,  /* we are currently in the "SASL" authorization phase of dbus */
         BUS_HELLO,           /* we are waiting for the Hello() response */
@@ -183,7 +182,6 @@ struct sd_bus {
 
         enum bus_state state;
         int input_fd, output_fd;
-        int inotify_fd;
         int message_version;
         int message_endian;
 
@@ -293,7 +291,6 @@ struct sd_bus {
         sd_event_source *output_io_event_source;
         sd_event_source *time_event_source;
         sd_event_source *quit_event_source;
-        sd_event_source *inotify_event_source;
         sd_event *event;
         int event_priority;
 
@@ -314,9 +311,6 @@ struct sd_bus {
 
         LIST_HEAD(sd_bus_slot, slots);
         LIST_HEAD(sd_bus_track, tracks);
-
-        int *inotify_watches;
-        size_t n_inotify_watches;
 
         /* zero means use value specified by $SYSTEMD_BUS_TIMEOUT= environment variable or built-in default */
         usec_t method_call_timeout;
@@ -377,9 +371,7 @@ bool bus_pid_changed(sd_bus *bus);
 char *bus_address_escape(const char *v);
 
 int bus_attach_io_events(sd_bus *b);
-int bus_attach_inotify_event(sd_bus *b);
 
-void bus_close_inotify_fd(sd_bus *b);
 void bus_close_io_fds(sd_bus *b);
 
 #define OBJECT_PATH_FOREACH_PREFIX(prefix, path)                        \
