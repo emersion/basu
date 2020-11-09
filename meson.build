@@ -50,11 +50,6 @@ if rootprefixdir == ''
         rootprefixdir = rootprefix_default
 endif
 
-sysvinit_path = get_option('sysvinit-path')
-sysvrcnd_path = get_option('sysvrcnd-path')
-conf.set10('HAVE_SYSV_COMPAT', sysvinit_path != '' and sysvrcnd_path != '',
-           description : 'SysV init scripts and rcN.d links are supported')
-
 conf.set('HIGH_RLIMIT_NOFILE',          256*1024)
 
 # join_paths ignore the preceding arguments if an absolute component is
@@ -378,7 +373,6 @@ endforeach
 conf.set10('ENABLE_DEBUG_HASHMAP', enable_debug_hashmap)
 
 conf.set10('VALGRIND', get_option('valgrind'))
-conf.set10('LOG_TRACE', get_option('log-trace'))
 
 #####################################################################
 
