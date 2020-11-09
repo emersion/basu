@@ -10,7 +10,6 @@
 #include "bus-internal.h"
 #include "bus-signature.h"
 #include "bus-type.h"
-#include "bus-util.h"
 #include "busctl-introspect.h"
 #include "escape.h"
 #include "fd-util.h"
@@ -26,6 +25,14 @@
 #include "user-util.h"
 #include "util.h"
 #include "verbs.h"
+
+typedef enum BusTransport {
+        BUS_TRANSPORT_LOCAL,
+        BUS_TRANSPORT_REMOTE,
+        BUS_TRANSPORT_MACHINE,
+        _BUS_TRANSPORT_MAX,
+        _BUS_TRANSPORT_INVALID = -1
+} BusTransport;
 
 static enum {
         JSON_OFF,
@@ -55,6 +62,14 @@ static usec_t arg_timeout = 0;
 
 #define NAME_IS_ACQUIRED INT_TO_PTR(1)
 #define NAME_IS_ACTIVATABLE INT_TO_PTR(2)
+
+static int bus_log_parse_error(int r) {
+        return log_error_errno(r, "Failed to parse bus message: %m");
+}
+
+static int bus_log_create_error(int r) {
+        return log_error_errno(r, "Failed to create bus message: %m");
+}
 
 static int acquire_bus(bool set_monitor, sd_bus **ret) {
         _cleanup_(sd_bus_unrefp) sd_bus *bus = NULL;

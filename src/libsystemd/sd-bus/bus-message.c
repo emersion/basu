@@ -12,7 +12,6 @@
 #include "bus-message.h"
 #include "bus-signature.h"
 #include "bus-type.h"
-#include "bus-util.h"
 #include "fd-util.h"
 #include "io-util.h"
 #include "memfd-util.h"
@@ -4057,7 +4056,7 @@ _public_ int sd_bus_message_enter_container(sd_bus_message *m,
                 end = m->rindex + 0;
         else
                 end = m->rindex + c->item_size;
-        
+
         m->containers[m->n_containers++] = (struct bus_container) {
                  .enclosing = type,
                  .signature = TAKE_PTR(signature),

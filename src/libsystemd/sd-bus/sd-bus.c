@@ -25,7 +25,6 @@
 #include "bus-socket.h"
 #include "bus-track.h"
 #include "bus-type.h"
-#include "bus-util.h"
 #include "def.h"
 #include "fd-util.h"
 #include "hexdecoct.h"

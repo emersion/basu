@@ -8,7 +8,6 @@
 #include "bus-creds.h"
 #include "bus-label.h"
 #include "bus-message.h"
-#include "bus-util.h"
 #include "capability-util.h"
 #include "def.h"
 #include "fd-util.h"

@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1+
 
 shared_sources = files('''
-        bus-util.c
-        bus-util.h
         enable-mempool.c
         tests.c
         tests.h
