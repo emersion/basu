@@ -7,7 +7,7 @@ project('basu', 'c',
     'sysconfdir=/etc',
     'localstatedir=/var',
   ],
-  meson_version: '>= 0.46',
+  meson_version: '>= 0.54',
 )
 
 libsystemd_version = '0.23.0'
@@ -474,3 +474,8 @@ exe = executable('basuctl',
                               libsystemd_static],
                  install_rpath : rootlibexecdir,
                  install : true)
+
+meson.override_dependency('basu', declare_dependency(
+  link_with : libsystemd,
+  include_directories : includes,
+))
