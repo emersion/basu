@@ -437,6 +437,7 @@ includes = include_directories(
   'src/shared',
   'src/systemd',
   'src/libsystemd/sd-bus',
+  'src/libsystemd/sd-daemon',
   'src/libsystemd/sd-id128',
 )
 

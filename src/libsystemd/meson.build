@@ -6,7 +6,10 @@ id128_sources = files('''
         sd-id128/sd-id128.c
 '''.split())
 
-sd_daemon_c = files('sd-daemon/sd-daemon.c')
+sd_daemon = files('''
+        sd-daemon/sd-daemon.c
+        sd-daemon/sd-daemon.h
+'''.split())
 
 libsystemd_sources = files('''
         sd-bus/bus-common-errors.c
@@ -48,7 +51,7 @@ libsystemd_sources = files('''
         sd-bus/bus-type.c
         sd-bus/bus-type.h
         sd-bus/sd-bus.c
-'''.split()) + id128_sources + sd_daemon_c
+'''.split()) + id128_sources + sd_daemon
 
 disable_mempool_c = files('disable-mempool.c')
 
