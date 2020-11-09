@@ -278,57 +278,6 @@ global:
         sd_bus_track_contains;
         sd_bus_track_first;
         sd_bus_track_next;
-
-        /* sd-event */
-        sd_event_default;
-        sd_event_new;
-        sd_event_ref;
-        sd_event_unref;
-        sd_event_add_io;
-        sd_event_add_time;
-        sd_event_add_signal;
-        sd_event_add_child;
-        sd_event_add_defer;
-        sd_event_add_post;
-        sd_event_add_exit;
-        sd_event_prepare;
-        sd_event_wait;
-        sd_event_dispatch;
-        sd_event_run;
-        sd_event_loop;
-        sd_event_exit;
-        sd_event_now;
-        sd_event_get_fd;
-        sd_event_get_state;
-        sd_event_get_tid;
-        sd_event_get_exit_code;
-        sd_event_set_watchdog;
-        sd_event_get_watchdog;
-        sd_event_source_ref;
-        sd_event_source_unref;
-        sd_event_source_get_event;
-        sd_event_source_get_userdata;
-        sd_event_source_set_userdata;
-        sd_event_source_set_description;
-        sd_event_source_get_description;
-        sd_event_source_set_prepare;
-        sd_event_source_get_pending;
-        sd_event_source_get_priority;
-        sd_event_source_set_priority;
-        sd_event_source_get_enabled;
-        sd_event_source_set_enabled;
-        sd_event_source_get_io_fd;
-        sd_event_source_set_io_fd;
-        sd_event_source_get_io_events;
-        sd_event_source_set_io_events;
-        sd_event_source_get_io_revents;
-        sd_event_source_get_time;
-        sd_event_source_set_time;
-        sd_event_source_set_time_accuracy;
-        sd_event_source_get_time_accuracy;
-        sd_event_source_get_time_clock;
-        sd_event_source_get_signal;
-        sd_event_source_get_child_pid;
 } LIBSYSTEMD_220;
 
 LIBSYSTEMD_222 {
@@ -356,8 +305,6 @@ LIBSYSTEMD_230 {
 } LIBSYSTEMD_229;
 
 LIBSYSTEMD_231 {
-global:
-        sd_event_get_iteration;
 } LIBSYSTEMD_230;
 
 LIBSYSTEMD_232 {
@@ -400,8 +347,6 @@ global:
         sd_bus_set_sender;
         sd_bus_get_sender;
         sd_bus_message_set_sender;
-        sd_event_source_get_io_fd_own;
-        sd_event_source_set_io_fd_own;
 } LIBSYSTEMD_236;
 
 LIBSYSTEMD_238 {
@@ -421,10 +366,6 @@ global:
         sd_bus_slot_set_destroy_callback;
         sd_bus_track_get_destroy_callback;
         sd_bus_track_set_destroy_callback;
-        sd_event_add_inotify;
-        sd_event_source_get_inotify_mask;
-        sd_event_source_set_destroy_callback;
-        sd_event_source_get_destroy_callback;
 } LIBSYSTEMD_238;
 
 LIBSYSTEMD_240 {
@@ -437,7 +378,4 @@ global:
 
         sd_bus_set_close_on_exit;
         sd_bus_get_close_on_exit;
-
-        sd_event_source_get_floating;
-        sd_event_source_set_floating;
 } LIBSYSTEMD_239;

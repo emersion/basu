@@ -5,7 +5,6 @@ _systemd_headers = '''
         sd-bus-protocol.h
         sd-bus-vtable.h
         sd-daemon.h
-        sd-event.h
         sd-id128.h
         sd-messages.h
 '''.split()
