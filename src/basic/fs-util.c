@@ -297,20 +297,6 @@ int tmp_dir(const char **ret) {
         return tmp_dir_internal("/tmp", ret);
 }
 
-int inotify_add_watch_fd(int fd, int what, uint32_t mask) {
-        char path[STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int) + 1];
-        int r;
-
-        /* This is like inotify_add_watch(), except that the file to watch is not referenced by a path, but by an fd */
-        xsprintf(path, "/proc/self/fd/%i", what);
-
-        r = inotify_add_watch(fd, path, mask);
-        if (r < 0)
-                return -errno;
-
-        return r;
-}
-
 static bool safe_transition(const struct stat *a, const struct stat *b) {
         /* Returns true if the transition from a to b is safe, i.e. that we never transition from unprivileged to
          * privileged files or directories. Why bother? So that unprivileged code can't symlink to privileged files

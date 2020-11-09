@@ -6,7 +6,6 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys/inotify.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -29,15 +28,6 @@ int touch(const char *path);
 
 int tmp_dir(const char **ret);
 int var_tmp_dir(const char **ret);
-
-#define INOTIFY_EVENT_MAX (sizeof(struct inotify_event) + NAME_MAX + 1)
-
-union inotify_event_buffer {
-        struct inotify_event ev;
-        uint8_t raw[INOTIFY_EVENT_MAX];
-};
-
-int inotify_add_watch_fd(int fd, int what, uint32_t mask);
 
 enum {
         CHASE_PREFIX_ROOT = 1 << 0, /* If set, the specified path will be prefixed by the specified root before beginning the iteration */
