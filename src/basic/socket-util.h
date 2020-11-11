@@ -80,20 +80,6 @@ static inline int socket_address_unlink(const SocketAddress *a) {
 
 bool socket_address_can_accept(const SocketAddress *a) _pure_;
 
-int socket_address_listen(
-                const SocketAddress *a,
-                int flags,
-                int backlog,
-                SocketAddressBindIPv6Only only,
-                const char *bind_to_device,
-                bool reuse_port,
-                bool free_bind,
-                bool transparent,
-                mode_t directory_mode,
-                mode_t socket_mode,
-                const char *label);
-int make_socket_fd(int log_level, const char* address, int type, int flags);
-
 bool socket_address_is(const SocketAddress *a, const char *s, int type);
 bool socket_address_is_netlink(const SocketAddress *a, const char *s);
 

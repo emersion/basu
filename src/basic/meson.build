@@ -72,7 +72,6 @@ basic_sources = files('''
         signal-util.h
         siphash24.c
         siphash24.h
-        socket-label.c
         socket-util.c
         socket-util.h
         stat-util.c
