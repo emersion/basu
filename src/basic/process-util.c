@@ -33,13 +33,47 @@
 #include "macro.h"
 #include "missing.h"
 #include "process-util.h"
-#include "signal-util.h"
 #include "stat-util.h"
 #include "string-table.h"
 #include "string-util.h"
 #include "terminal-util.h"
 #include "user-util.h"
 #include "util.h"
+
+static int reset_all_signal_handlers(void) {
+        static const struct sigaction sa = {
+                .sa_handler = SIG_DFL,
+                .sa_flags = SA_RESTART,
+        };
+        int sig, r = 0;
+
+        for (sig = 1; sig < _NSIG; sig++) {
+
+                /* These two cannot be caught... */
+                if (IN_SET(sig, SIGKILL, SIGSTOP))
+                        continue;
+
+                /* On Linux the first two RT signals are reserved by
+                 * glibc, and sigaction() will return EINVAL for them. */
+                if ((sigaction(sig, &sa, NULL) < 0))
+                        if (errno != EINVAL && r >= 0)
+                                r = -errno;
+        }
+
+        return r;
+}
+
+static int reset_signal_mask(void) {
+        sigset_t ss;
+
+        if (sigemptyset(&ss) < 0)
+                return -errno;
+
+        if (sigprocmask(SIG_SETMASK, &ss, NULL) < 0)
+                return -errno;
+
+        return 0;
+}
 
 int get_process_state(pid_t pid) {
         const char *p;
@@ -334,7 +368,7 @@ int wait_for_terminate_and_check(const char *name, pid_t pid, WaitFlags flags) {
 
         } else if (IN_SET(status.si_code, CLD_KILLED, CLD_DUMPED)) {
 
-                log_full(prio, "%s terminated by signal %s.", strna(name), signal_to_string(status.si_status));
+                log_full(prio, "%s terminated by signal %d.", strna(name), status.si_status);
                 return -EPROTO;
         }
 

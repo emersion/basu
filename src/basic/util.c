@@ -33,7 +33,6 @@
 #include "process-util.h"
 #include "procfs-util.h"
 #include "set.h"
-#include "signal-util.h"
 #include "stat-util.h"
 #include "string-util.h"
 #include "strv.h"

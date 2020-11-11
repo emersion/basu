@@ -21,7 +21,6 @@
 #include "missing.h"
 #include "path-util.h"
 #include "process-util.h"
-#include "signal-util.h"
 #include "stdio-util.h"
 #include "string-util.h"
 #include "user-util.h"

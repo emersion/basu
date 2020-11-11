@@ -24,7 +24,6 @@
 #include "missing.h"
 #include "parse-util.h"
 #include "process-util.h"
-#include "signal-util.h"
 #include "socket-util.h"
 #include "stdio-util.h"
 #include "string-table.h"

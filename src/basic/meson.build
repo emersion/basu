@@ -68,8 +68,6 @@ basic_sources = files('''
         random-util.h
         refcnt.h
         set.h
-        signal-util.c
-        signal-util.h
         siphash24.c
         siphash24.h
         socket-util.c
