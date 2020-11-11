@@ -62,8 +62,6 @@ basic_sources = files('''
         prioq.h
         process-util.c
         process-util.h
-        procfs-util.c
-        procfs-util.h
         random-util.c
         random-util.h
         refcnt.h
