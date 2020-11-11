@@ -18,17 +18,6 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int is_symlink(const char *path) {
-        struct stat info;
-
-        assert(path);
-
-        if (lstat(path, &info) < 0)
-                return -errno;
-
-        return !!S_ISLNK(info.st_mode);
-}
-
 int is_dir(const char* path, bool follow) {
         struct stat st;
         int r;
@@ -43,97 +32,6 @@ int is_dir(const char* path, bool follow) {
                 return -errno;
 
         return !!S_ISDIR(st.st_mode);
-}
-
-int is_dir_fd(int fd) {
-        struct stat st;
-
-        if (fstat(fd, &st) < 0)
-                return -errno;
-
-        return !!S_ISDIR(st.st_mode);
-}
-
-int is_device_node(const char *path) {
-        struct stat info;
-
-        assert(path);
-
-        if (lstat(path, &info) < 0)
-                return -errno;
-
-        return !!(S_ISBLK(info.st_mode) || S_ISCHR(info.st_mode));
-}
-
-int dir_is_empty(const char *path) {
-        _cleanup_closedir_ DIR *d;
-        struct dirent *de;
-
-        d = opendir(path);
-        if (!d)
-                return -errno;
-
-        FOREACH_DIRENT(de, d, return -errno)
-                return 0;
-
-        return 1;
-}
-
-bool null_or_empty(struct stat *st) {
-        assert(st);
-
-        if (S_ISREG(st->st_mode) && st->st_size <= 0)
-                return true;
-
-        /* We don't want to hardcode the major/minor of /dev/null,
-         * hence we do a simpler "is this a device node?" check. */
-
-        if (S_ISCHR(st->st_mode) || S_ISBLK(st->st_mode))
-                return true;
-
-        return false;
-}
-
-int null_or_empty_path(const char *fn) {
-        struct stat st;
-
-        assert(fn);
-
-        if (stat(fn, &st) < 0)
-                return -errno;
-
-        return null_or_empty(&st);
-}
-
-int null_or_empty_fd(int fd) {
-        struct stat st;
-
-        assert(fd >= 0);
-
-        if (fstat(fd, &st) < 0)
-                return -errno;
-
-        return null_or_empty(&st);
-}
-
-int path_is_read_only_fs(const char *path) {
-        struct statvfs st;
-
-        assert(path);
-
-        if (statvfs(path, &st) < 0)
-                return -errno;
-
-        if (st.f_flag & ST_RDONLY)
-                return true;
-
-        /* On NFS, statvfs() might not reflect whether we can actually
-         * write to the remote share. Let's try again with
-         * access(W_OK) which is more reliable, at least sometimes. */
-        if (access(path, W_OK) < 0 && errno == EROFS)
-                return true;
-
-        return false;
 }
 
 int files_same(const char *filea, const char *fileb, int flags) {
@@ -176,50 +74,6 @@ int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
                 return -errno;
 
         return fd_is_fs_type(fd, magic_value);
-}
-
-bool is_temporary_fs(const struct statfs *s) {
-        return is_fs_type(s, TMPFS_MAGIC) ||
-                is_fs_type(s, RAMFS_MAGIC);
-}
-
-bool is_network_fs(const struct statfs *s) {
-        return is_fs_type(s, CIFS_MAGIC_NUMBER) ||
-                is_fs_type(s, CODA_SUPER_MAGIC) ||
-                is_fs_type(s, NCP_SUPER_MAGIC) ||
-                is_fs_type(s, NFS_SUPER_MAGIC) ||
-                is_fs_type(s, SMB_SUPER_MAGIC) ||
-                is_fs_type(s, V9FS_MAGIC) ||
-                is_fs_type(s, AFS_SUPER_MAGIC) ||
-                is_fs_type(s, OCFS2_SUPER_MAGIC);
-}
-
-int fd_is_temporary_fs(int fd) {
-        struct statfs s;
-
-        if (fstatfs(fd, &s) < 0)
-                return -errno;
-
-        return is_temporary_fs(&s);
-}
-
-int fd_is_network_fs(int fd) {
-        struct statfs s;
-
-        if (fstatfs(fd, &s) < 0)
-                return -errno;
-
-        return is_network_fs(&s);
-}
-
-int path_is_temporary_fs(const char *path) {
-        _cleanup_close_ int fd = -1;
-
-        fd = open(path, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_PATH);
-        if (fd < 0)
-                return -errno;
-
-        return fd_is_temporary_fs(fd);
 }
 
 int stat_verify_regular(const struct stat *st) {
