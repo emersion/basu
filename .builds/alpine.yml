@@ -13,3 +13,6 @@ tasks:
   - build: |
       cd basu
       ninja -C build
+  - test: |
+      cd basu
+      ninja -C build test
