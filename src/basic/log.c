@@ -13,8 +13,6 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#include "sd-messages.h"
-
 #include "alloc-util.h"
 #include "fd-util.h"
 #include "format-util.h"

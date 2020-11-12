@@ -5,7 +5,6 @@ _systemd_headers = '''
         sd-bus-protocol.h
         sd-bus-vtable.h
         sd-id128.h
-        sd-messages.h
 '''.split()
 
 # https://github.com/mesonbuild/meson/issues/1633
