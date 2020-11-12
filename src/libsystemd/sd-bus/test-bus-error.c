@@ -1,11 +1,14 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
+#include <stdio.h>
+
 #include "sd-bus.h"
 
 #include "bus-common-errors.h"
 #include "bus-error.h"
-#include "bus-util.h"
 #include "errno-list.h"
+#include "string-util.h"
+#include "errno.h"
 
 static void test_error(void) {
         _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL, second = SD_BUS_ERROR_NULL;

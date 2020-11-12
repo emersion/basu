@@ -439,6 +439,48 @@ subdir('src/basic')
 subdir('src/shared')
 subdir('src/libsystemd')
 subdir('src/systemd')
+subdir('src/test')
+
+foreach tuple : tests
+        sources = tuple[0]
+        link_with = tuple[1].length() > 0 ? tuple[1] : [libbasic, libshared_static, libsystemd_static]
+        dependencies = tuple[2]
+        condition = tuple.length() >= 4 ? tuple[3] : ''
+        type = tuple.length() >= 5 ? tuple[4] : ''
+        defs = tuple.length() >= 6 ? tuple[5] : []
+        incs = tuple.length() >= 7 ? tuple[6] : includes
+        timeout = 30
+
+        name = sources[0].split('/')[-1].split('.')[0]
+        if type.startswith('timeout=')
+                timeout = type.split('=')[1].to_int()
+                type = ''
+        endif
+
+        if condition == '' or conf.get(condition) == 1
+                exe = executable(
+                        name,
+                        sources,
+                        include_directories : incs,
+                        link_with : link_with,
+                        dependencies : [dependencies],
+                        c_args : defs,
+                        build_by_default : want_tests != 'false',
+                        install_rpath : rootlibexecdir,
+                        install : install_tests,
+                        install_dir : join_paths(testsdir, type))
+
+                if type == 'manual'
+                        message('@0@ is a manual test'.format(name))
+                elif type == 'unsafe' and want_tests != 'unsafe'
+                        message('@0@ is an unsafe test'.format(name))
+                elif want_tests != 'false'
+                        test(name, exe, timeout : timeout)
+                endif
+        else
+                message('Not compiling @0@ because @1@ is not true'.format(name, condition))
+        endif
+endforeach
 
 libsystemd_sym_path = '@0@/@1@'.format(meson.current_source_dir(), libsystemd_sym)
 libsystemd = shared_library(

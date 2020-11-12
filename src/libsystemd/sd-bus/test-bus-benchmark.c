@@ -7,11 +7,11 @@
 #include "alloc-util.h"
 #include "bus-internal.h"
 #include "bus-kernel.h"
-#include "bus-util.h"
 #include "def.h"
 #include "fd-util.h"
 #include "time-util.h"
 #include "util.h"
+#include "string-util.h"
 
 #define MAX_SIZE (2*1024*1024)
 

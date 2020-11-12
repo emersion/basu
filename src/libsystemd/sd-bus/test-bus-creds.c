@@ -3,18 +3,15 @@
 #include "sd-bus.h"
 
 #include "bus-dump.h"
-#include "bus-util.h"
-#include "cgroup-util.h"
 #include "tests.h"
+#include "errno.h"
+#include "log.h"
 
 int main(int argc, char *argv[]) {
         _cleanup_(sd_bus_creds_unrefp) sd_bus_creds *creds = NULL;
         int r;
 
         test_setup_logging(LOG_DEBUG);
-
-        if (cg_unified_flush() == -ENOMEDIUM)
-                return log_tests_skipped("/sys/fs/cgroup/ not available");
 
         r = sd_bus_creds_new_from_pid(&creds, 0, _SD_BUS_CREDS_ALL);
         log_full_errno(r < 0 ? LOG_ERR : LOG_DEBUG, r, "sd_bus_creds_new_from_pid: %m");

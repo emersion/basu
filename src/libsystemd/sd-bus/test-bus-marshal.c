@@ -17,7 +17,6 @@
 #include "bus-dump.h"
 #include "bus-label.h"
 #include "bus-message.h"
-#include "bus-util.h"
 #include "escape.h"
 #include "fd-util.h"
 #include "log.h"

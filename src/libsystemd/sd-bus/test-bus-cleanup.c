@@ -6,7 +6,6 @@
 
 #include "bus-internal.h"
 #include "bus-message.h"
-#include "bus-util.h"
 #include "refcnt.h"
 #include "tests.h"
 
