@@ -52,14 +52,6 @@ struct sockaddr_vm {
 #define F_LINUX_SPECIFIC_BASE 1024
 #endif
 
-#ifndef F_SETPIPE_SZ
-#define F_SETPIPE_SZ (F_LINUX_SPECIFIC_BASE + 7)
-#endif
-
-#ifndef F_GETPIPE_SZ
-#define F_GETPIPE_SZ (F_LINUX_SPECIFIC_BASE + 8)
-#endif
-
 #ifndef F_ADD_SEALS
 #define F_ADD_SEALS (F_LINUX_SPECIFIC_BASE + 9)
 #define F_GET_SEALS (F_LINUX_SPECIFIC_BASE + 10)
@@ -140,30 +132,6 @@ struct sockaddr_vm {
 
 #ifndef SO_PEERGROUPS
 #  define SO_PEERGROUPS 59
-#endif
-
-/* The precise definition of __O_TMPFILE is arch specific; use the
- * values defined by the kernel (note: some are hexa, some are octal,
- * duplicated as-is from the kernel definitions):
- * - alpha, parisc, sparc: each has a specific value;
- * - others: they use the "generic" value.
- */
-
-#ifndef __O_TMPFILE
-#if defined(__alpha__)
-#define __O_TMPFILE     0100000000
-#elif defined(__parisc__) || defined(__hppa__)
-#define __O_TMPFILE     0400000000
-#elif defined(__sparc__) || defined(__sparc64__)
-#define __O_TMPFILE     0x2000000
-#else
-#define __O_TMPFILE     020000000
-#endif
-#endif
-
-/* a horrid kludge trying to make sure that this will fail on old kernels */
-#ifndef O_TMPFILE
-#define O_TMPFILE (__O_TMPFILE | O_DIRECTORY)
 #endif
 
 #ifndef IPV6_MIN_MTU
