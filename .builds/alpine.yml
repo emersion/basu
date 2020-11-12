@@ -4,6 +4,8 @@ packages:
   - linux-headers
   - libcap-dev
   - meson
+  # for tests
+  - dbus
 sources:
   - https://github.com/emersion/basu
 tasks:
@@ -12,7 +14,7 @@ tasks:
       meson build/
   - build: |
       cd basu
-      ninja -C build
+      ninja -C build/
   - test: |
       cd basu
-      ninja -C build test
+      dbus-run-session -- ninja -C build/ test
