@@ -650,6 +650,8 @@ chased_one:
         return 0;
 }
 
+static int open_parent(const char *path, int flags, mode_t mode);
+
 int fsync_directory_of_file(int fd) {
         _cleanup_free_ char *path = NULL;
         _cleanup_close_ int dfd = -1;
@@ -687,7 +689,7 @@ int fsync_directory_of_file(int fd) {
         return 0;
 }
 
-int open_parent(const char *path, int flags, mode_t mode) {
+static int open_parent(const char *path, int flags, mode_t mode) {
         _cleanup_free_ char *parent = NULL;
         int fd;
 
@@ -705,8 +707,6 @@ int open_parent(const char *path, int flags, mode_t mode) {
 
         if ((flags & O_PATH) == O_PATH)
                 flags |= O_DIRECTORY;
-        else if ((flags & O_TMPFILE) != O_TMPFILE)
-                flags |= O_DIRECTORY|O_RDONLY;
 
         fd = open(parent, flags, mode);
         if (fd < 0)

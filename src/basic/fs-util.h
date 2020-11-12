@@ -46,5 +46,3 @@ enum {
 int chase_symlinks(const char *path_with_prefix, const char *root, unsigned flags, char **ret);
 
 int fsync_directory_of_file(int fd);
-
-int open_parent(const char *path, int flags, mode_t mode);
