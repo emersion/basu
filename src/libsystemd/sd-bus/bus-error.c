@@ -15,6 +15,19 @@
 #include "string-util.h"
 #include "util.h"
 
+static char *_strerror_r(int errnum, char *buf, size_t buflen) {
+#ifdef __GLIBC__
+        return strerror_r(errnum, buf, buflen);
+#else
+        int res = strerror_r(errnum, buf, buflen);
+        if (res != 0) {
+                errno = res;
+                return NULL;
+        }
+        return buf;
+#endif
+}
+
 BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_standard_errors[] = {
         SD_BUS_ERROR_MAP("org.freedesktop.DBus.Error.Failed",                           EACCES),
         SD_BUS_ERROR_MAP("org.freedesktop.DBus.Error.NoMemory",                         ENOMEM),
@@ -382,7 +395,7 @@ static void bus_error_strerror(sd_bus_error *e, int error) {
                         return;
 
                 errno = 0;
-                x = strerror_r(error, m, k);
+                x = _strerror_r(error, m, k);
                 if (errno == ERANGE || strlen(x) >= k - 1) {
                         free(m);
                         k *= 2;
