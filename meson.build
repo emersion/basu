@@ -295,7 +295,6 @@ if not cc.has_header('sys/capability.h')
 endif
 foreach header : ['crypt.h',
                   'linux/memfd.h',
-                  'linux/vm_sockets.h',
                   'sys/auxv.h',
                   'valgrind/memcheck.h',
                   'valgrind/valgrind.h',

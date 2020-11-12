@@ -43,6 +43,4 @@ enum {
 /* How many iterations to execute before returning -ELOOP */
 #define CHASE_SYMLINKS_MAX 32
 
-int chase_symlinks(const char *path_with_prefix, const char *root, unsigned flags, char **ret);
-
 int fsync_directory_of_file(int fd);

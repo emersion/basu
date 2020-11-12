@@ -52,8 +52,6 @@ char* path_simplify(char *path, bool kill_dots);
         })
 
 int path_strv_make_absolute_cwd(char **l);
-char** path_strv_resolve(char **l, const char *root);
-char** path_strv_resolve_uniq(char **l, const char *root);
 
 int find_binary(const char *name, char **filename);
 

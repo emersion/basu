@@ -24,23 +24,6 @@
 #include <asm/sgidefs.h>
 #endif
 
-#if HAVE_LINUX_VM_SOCKETS_H
-#include <linux/vm_sockets.h>
-#else
-#define VMADDR_CID_ANY -1U
-struct sockaddr_vm {
-        unsigned short svm_family;
-        unsigned short svm_reserved1;
-        unsigned int svm_port;
-        unsigned int svm_cid;
-        unsigned char svm_zero[sizeof(struct sockaddr) -
-                               sizeof(unsigned short) -
-                               sizeof(unsigned short) -
-                               sizeof(unsigned int) -
-                               sizeof(unsigned int)];
-};
-#endif /* !HAVE_LINUX_VM_SOCKETS_H */
-
 #ifndef RLIMIT_RTTIME
 #define RLIMIT_RTTIME 15
 #endif

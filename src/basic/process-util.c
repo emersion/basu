@@ -3,7 +3,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
-#include <linux/oom.h>
 #include <sched.h>
 #include <signal.h>
 #include <stdbool.h>
