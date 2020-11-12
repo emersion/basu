@@ -1,38 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <limits.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <netinet/ip.h>
-#include <poll.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#include "alloc-util.h"
 #include "fd-util.h"
-#include "fileio.h"
-#include "format-util.h"
-#include "log.h"
-#include "macro.h"
-#include "missing.h"
-#include "parse-util.h"
-#include "path-util.h"
 #include "process-util.h"
 #include "socket-util.h"
-#include "string-table.h"
-#include "string-util.h"
 #include "strv.h"
-#include "user-util.h"
-#include "utf8.h"
-#include "util.h"
-
-#define IDN_FLAGS 0
 
 int fd_inc_sndbuf(int fd, size_t n) {
         int r, value;
