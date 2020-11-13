@@ -136,16 +136,6 @@ static inline int missing_setns(int fd, int nstype) {
 
 /* ======================================================================= */
 
-static inline pid_t raw_getpid(void) {
-#if defined(__alpha__)
-        return (pid_t) syscall(__NR_getxpid);
-#else
-        return (pid_t) syscall(__NR_getpid);
-#endif
-}
-
-/* ======================================================================= */
-
 #if !HAVE_RENAMEAT2
 #  ifndef __NR_renameat2
 #    if defined __x86_64__

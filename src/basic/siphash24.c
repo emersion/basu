@@ -186,15 +186,3 @@ uint64_t siphash24_finalize(struct siphash *state) {
 
         return state->v0 ^ state->v1 ^ state->v2  ^ state->v3;
 }
-
-uint64_t siphash24(const void *in, size_t inlen, const uint8_t k[16]) {
-        struct siphash state;
-
-        assert(in);
-        assert(k);
-
-        siphash24_init(&state, k);
-        siphash24_compress(in, inlen, &state);
-
-        return siphash24_finalize(&state);
-}

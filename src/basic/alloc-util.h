@@ -18,15 +18,7 @@
                 (t*) alloca(sizeof(t)*(n));                     \
         })
 
-#define newa0(t, n)                                             \
-        ({                                                      \
-                assert(!size_multiply_overflow(sizeof(t), n));  \
-                (t*) alloca0(sizeof(t)*(n));                    \
-        })
-
 #define newdup(t, p, n) ((t*) memdup_multiply(p, sizeof(t), (n)))
-
-#define newdup_suffix0(t, p, n) ((t*) memdup_suffix0_multiply(p, sizeof(t), (n)))
 
 #define malloc0(n) (calloc(1, (n)))
 
@@ -45,21 +37,6 @@ static inline void *mfree(void *memory) {
 
 void* memdup(const void *p, size_t l) _alloc_(2);
 void* memdup_suffix0(const void *p, size_t l) _alloc_(2);
-
-#define memdupa(p, l)                           \
-        ({                                      \
-                void *_q_;                      \
-                _q_ = alloca(l);                \
-                memcpy(_q_, p, l);              \
-        })
-
-#define memdupa_suffix0(p, l)                   \
-        ({                                      \
-                void *_q_;                      \
-                _q_ = alloca(l + 1);            \
-                ((uint8_t*) _q_)[l] = 0;        \
-                memcpy(_q_, p, l);              \
-        })
 
 static inline void freep(void *p) {
         free(*(void**) p);
@@ -94,13 +71,6 @@ _alloc_(2, 3) static inline void *memdup_multiply(const void *p, size_t size, si
         return memdup(p, size * need);
 }
 
-_alloc_(2, 3) static inline void *memdup_suffix0_multiply(const void *p, size_t size, size_t need) {
-        if (size_multiply_overflow(size, need))
-                return NULL;
-
-        return memdup_suffix0(p, size * need);
-}
-
 void* greedy_realloc(void **p, size_t *allocated, size_t need, size_t size);
 void* greedy_realloc0(void **p, size_t *allocated, size_t need, size_t size);
 
@@ -109,31 +79,6 @@ void* greedy_realloc0(void **p, size_t *allocated, size_t need, size_t size);
 
 #define GREEDY_REALLOC0(array, allocated, need)                         \
         greedy_realloc0((void**) &(array), &(allocated), (need), sizeof((array)[0]))
-
-#define alloca0(n)                                      \
-        ({                                              \
-                char *_new_;                            \
-                size_t _len_ = n;                       \
-                _new_ = alloca(_len_);                  \
-                (void *) memset(_new_, 0, _len_);       \
-        })
-
-/* It's not clear what alignment glibc/gcc alloca() guarantee, hence provide a guaranteed safe version */
-#define alloca_align(size, align)                                       \
-        ({                                                              \
-                void *_ptr_;                                            \
-                size_t _mask_ = (align) - 1;                            \
-                _ptr_ = alloca((size) + _mask_);                        \
-                (void*)(((uintptr_t)_ptr_ + _mask_) & ~_mask_);         \
-        })
-
-#define alloca0_align(size, align)                                      \
-        ({                                                              \
-                void *_new_;                                            \
-                size_t _size_ = (size);                                 \
-                _new_ = alloca_align(_size_, (align));                  \
-                (void*)memset(_new_, 0, _size_);                        \
-        })
 
 /* Takes inspiration from Rusts's Option::take() method: reads and returns a pointer, but at the same time resets it to
  * NULL. See: https://doc.rust-lang.org/std/option/enum.Option.html#method.take */

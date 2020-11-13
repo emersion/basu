@@ -32,11 +32,6 @@
 typedef int (*__compar_fn_t)(const void *, const void *);
 #endif
 
-#ifndef __COMPAR_D_FN_T
-#define __COMPAR_D_FN_T
-typedef int (*__compar_d_fn_t) (__const void *, __const void *, void *);
-#endif
-
 size_t page_size(void) _pure_;
 #define PAGE_ALIGN(l) ALIGN_TO((l), page_size())
 
@@ -51,31 +46,8 @@ static inline const char* true_false(bool b) {
 #define NULSTR_FOREACH(i, l)                                    \
         for ((i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
 
-#define NULSTR_FOREACH_PAIR(i, j, l)                             \
-        for ((i) = (l), (j) = strchr((i), 0)+1; (i) && *(i); (i) = strchr((j), 0)+1, (j) = *(i) ? strchr((i), 0)+1 : (i))
-
 extern int saved_argc;
 extern char **saved_argv;
-
-/**
- * Normal bsearch requires base to be nonnull. Here were require
- * that only if nmemb > 0.
- */
-static inline void* bsearch_safe(const void *key, const void *base,
-                                 size_t nmemb, size_t size, __compar_fn_t compar) {
-        if (nmemb <= 0)
-                return NULL;
-
-        assert(base);
-        return bsearch(key, base, nmemb, size, compar);
-}
-
-#define typesafe_bsearch(k, b, n, func)                                 \
-        ({                                                              \
-                const typeof(b[0]) *_k = k;                             \
-                int (*_func_)(const typeof(b[0])*, const typeof(b[0])*) = func; \
-                bsearch_safe((const void*) _k, (b), (n), sizeof((b)[0]), (__compar_fn_t) _func_); \
-        })
 
 /**
  * Normal qsort requires base to be nonnull. Here were require
@@ -133,20 +105,6 @@ static inline int negative_errno(void) {
          * be 0 and thus the caller's error-handling might not be triggered. */
         assert_return(errno > 0, -EINVAL);
         return -errno;
-}
-
-static inline unsigned u64log2(uint64_t n) {
-#if __SIZEOF_LONG_LONG__ == 8
-        return (n > 1) ? (unsigned) __builtin_clzll(n) ^ 63U : 0;
-#else
-#error "Wut?"
-#endif
-}
-
-static inline unsigned log2i(int x) {
-        assert(x > 0);
-
-        return __SIZEOF_INT__ * 8 - __builtin_clz(x) - 1;
 }
 
 static inline unsigned log2u(unsigned x) {

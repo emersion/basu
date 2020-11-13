@@ -19,8 +19,6 @@ basic_sources = files('''
         errno-list.h
         escape.c
         escape.h
-        extract-word.c
-        extract-word.h
         fd-util.c
         fd-util.h
         fileio.c
@@ -71,7 +69,6 @@ basic_sources = files('''
         stat-util.c
         stat-util.h
         stdio-util.h
-        string-table.c
         string-table.h
         string-util.c
         string-util.h
@@ -83,7 +80,6 @@ basic_sources = files('''
         terminal-util.h
         time-util.c
         time-util.h
-        umask-util.h
         unaligned.h
         user-util.c
         user-util.h
@@ -101,20 +97,6 @@ missing_h = files('missing.h')
 
 generate_gperfs = find_program('generate-gperfs.py')
 
-generate_af_list = find_program('generate-af-list.sh')
-af_list_txt = custom_target(
-        'af-list.txt',
-        output : 'af-list.txt',
-        command : [generate_af_list, cpp],
-        capture : true)
-
-generate_arphrd_list = find_program('generate-arphrd-list.sh')
-arphrd_list_txt = custom_target(
-        'arphrd-list.txt',
-        output : 'arphrd-list.txt',
-        command : [generate_arphrd_list, cpp],
-        capture : true)
-
 generate_cap_list = find_program('generate-cap-list.sh')
 cap_list_txt = custom_target(
         'cap-list.txt',
@@ -129,19 +111,9 @@ errno_list_txt = custom_target(
         command : [generate_errno_list, cpp],
         capture : true)
 
-generate_socket_protocol_list = find_program('generate-socket-protocol-list.sh')
-socket_protocol_list_txt = custom_target(
-        'socket-protocol-list.txt',
-        output : 'socket-protocol-list.txt',
-        command : [generate_socket_protocol_list, cpp],
-        capture : true)
-
 generated_gperf_headers = []
-foreach item : [['af',     af_list_txt,     'af',         ''],
-                ['arphrd', arphrd_list_txt, 'arphrd',     'ARPHRD_'],
-                ['cap',    cap_list_txt,    'capability', ''],
-                ['errno',  errno_list_txt,  'errno',      ''],
-                ['socket-protocol', socket_protocol_list_txt, 'socket_protocol',     'IPPROTO_']]
+foreach item : [['cap',    cap_list_txt,    'capability', ''],
+                ['errno',  errno_list_txt,  'errno',      '']]
 
         fname = '@0@-from-name.gperf'.format(item[0])
         gperf_file = custom_target(

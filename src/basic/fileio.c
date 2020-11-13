@@ -32,7 +32,6 @@
 #include "string-util.h"
 #include "strv.h"
 #include "time-util.h"
-#include "umask-util.h"
 #include "utf8.h"
 
 #define READ_FULL_BYTES_MAX (4U*1024U*1024U)
@@ -511,55 +510,6 @@ int parse_env_file(
         return r;
 }
 
-static int load_env_file_push_pairs(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata,
-                int *n_pushed) {
-        char ***m = userdata;
-        int r;
-
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
-
-        r = strv_extend(m, key);
-        if (r < 0)
-                return -ENOMEM;
-
-        if (!value) {
-                r = strv_extend(m, "");
-                if (r < 0)
-                        return -ENOMEM;
-        } else {
-                r = strv_push(m, value);
-                if (r < 0)
-                        return r;
-        }
-
-        if (n_pushed)
-                (*n_pushed)++;
-
-        return 0;
-}
-
-int load_env_file_pairs(FILE *f, const char *fname, const char *newline, char ***rl) {
-        char **m = NULL;
-        int r;
-
-        if (!newline)
-                newline = NEWLINE;
-
-        r = parse_env_file_internal(f, fname, newline, load_env_file_push_pairs, &m, NULL);
-        if (r < 0) {
-                strv_free(m);
-                return r;
-        }
-
-        *rl = m;
-        return 0;
-}
-
 int fflush_and_check(FILE *f) {
         assert(f);
 
@@ -570,35 +520,6 @@ int fflush_and_check(FILE *f) {
                 return errno > 0 ? -errno : -EIO;
 
         return 0;
-}
-
-int fputs_with_space(FILE *f, const char *s, const char *separator, bool *space) {
-        int r;
-
-        assert(s);
-
-        /* Outputs the specified string with fputs(), but optionally prefixes it with a separator. The *space parameter
-         * when specified shall initially point to a boolean variable initialized to false. It is set to true after the
-         * first invocation. This call is supposed to be use in loops, where a separator shall be inserted between each
-         * element, but not before the first one. */
-
-        if (!f)
-                f = stdout;
-
-        if (space) {
-                if (!separator)
-                        separator = " ";
-
-                if (*space) {
-                        r = fputs(separator, f);
-                        if (r < 0)
-                                return r;
-                }
-
-                *space = true;
-        }
-
-        return fputs(s, f);
 }
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(FILE*, funlockfile);

@@ -29,8 +29,6 @@
 #include "syslog-util.h"
 #include "utf8.h"
 
-#define SNDBUF_SIZE (8*1024*1024)
-
 static int log_max_level[] = {LOG_INFO, LOG_INFO};
 assert_cc(ELEMENTSOF(log_max_level) == _LOG_REALM_MAX);
 
@@ -121,28 +119,6 @@ static int log_dispatch_internal(
         } while (buffer);
 
         return -error;
-}
-
-int log_dump_internal(
-                int level,
-                int error,
-                const char *file,
-                int line,
-                const char *func,
-                char *buffer) {
-
-        LogRealm realm = LOG_REALM_REMOVE_LEVEL(level);
-        PROTECT_ERRNO;
-
-        /* This modifies the buffer... */
-
-        if (error < 0)
-                error = -error;
-
-        if (_likely_(LOG_PRI(level) > log_max_level[realm]))
-                return -error;
-
-        return log_dispatch_internal(level, error, file, line, func, NULL, NULL, NULL, NULL, buffer);
 }
 
 static int log_internalv_realm(

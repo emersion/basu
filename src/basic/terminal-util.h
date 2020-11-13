@@ -55,13 +55,6 @@
 /* Set cursor to top left corner and clear screen */
 #define ANSI_HOME_CLEAR "\x1B[H\x1B[2J"
 
-int open_terminal(const char *name, int mode);
-
-int fd_columns(int fd);
-unsigned columns(void);
-int fd_lines(int fd);
-unsigned lines(void);
-
 bool on_tty(void);
 bool terminal_is_dumb(void);
 bool colors_enabled(void);

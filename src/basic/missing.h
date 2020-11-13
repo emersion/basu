@@ -24,65 +24,17 @@
 #include <asm/sgidefs.h>
 #endif
 
-#ifndef RLIMIT_RTTIME
-#define RLIMIT_RTTIME 15
-#endif
-
-/* If RLIMIT_RTTIME is not defined, then we cannot use RLIMIT_NLIMITS as is */
-#define _RLIMIT_MAX (RLIMIT_RTTIME+1 > RLIMIT_NLIMITS ? RLIMIT_RTTIME+1 : RLIMIT_NLIMITS)
-
 #ifndef F_LINUX_SPECIFIC_BASE
 #define F_LINUX_SPECIFIC_BASE 1024
 #endif
 
 #ifndef F_ADD_SEALS
 #define F_ADD_SEALS (F_LINUX_SPECIFIC_BASE + 9)
-#define F_GET_SEALS (F_LINUX_SPECIFIC_BASE + 10)
 
 #define F_SEAL_SEAL     0x0001  /* prevent further seals from being set */
 #define F_SEAL_SHRINK   0x0002  /* prevent file from shrinking */
 #define F_SEAL_GROW     0x0004  /* prevent file from growing */
 #define F_SEAL_WRITE    0x0008  /* prevent writes */
-#endif
-
-#ifndef MFD_ALLOW_SEALING
-#define MFD_ALLOW_SEALING 0x0002U
-#endif
-
-#ifndef MFD_CLOEXEC
-#define MFD_CLOEXEC 0x0001U
-#endif
-
-#ifndef IP_FREEBIND
-#define IP_FREEBIND 15
-#endif
-
-#ifndef OOM_SCORE_ADJ_MIN
-#define OOM_SCORE_ADJ_MIN (-1000)
-#endif
-
-#ifndef OOM_SCORE_ADJ_MAX
-#define OOM_SCORE_ADJ_MAX 1000
-#endif
-
-#ifndef TIOCVHANGUP
-#define TIOCVHANGUP 0x5437
-#endif
-
-#ifndef IP_TRANSPARENT
-#define IP_TRANSPARENT 19
-#endif
-
-#ifndef CLONE_NEWCGROUP
-#define CLONE_NEWCGROUP 0x02000000
-#endif
-
-#ifndef TMPFS_MAGIC
-#define TMPFS_MAGIC 0x01021994
-#endif
-
-#ifndef OCFS2_SUPER_MAGIC
-#define OCFS2_SUPER_MAGIC 0x7461636f
 #endif
 
 #ifndef MS_REC
@@ -101,10 +53,6 @@
 #define PR_SET_MM_ARG_END 9
 #endif
 
-#ifndef CIFS_MAGIC_NUMBER
-#  define CIFS_MAGIC_NUMBER 0xFF534D42
-#endif
-
 #ifndef TFD_TIMER_CANCEL_ON_SET
 #  define TFD_TIMER_CANCEL_ON_SET (1 << 1)
 #endif
@@ -115,22 +63,6 @@
 
 #ifndef SO_PEERGROUPS
 #  define SO_PEERGROUPS 59
-#endif
-
-#ifndef IPV6_MIN_MTU
-#define IPV6_MIN_MTU 1280
-#endif
-
-#ifndef IPV4_MIN_MTU
-#define IPV4_MIN_MTU 68
-#endif
-
-#ifndef RENAME_NOREPLACE
-#define RENAME_NOREPLACE (1 << 0)
-#endif
-
-#ifndef KCMP_FILE
-#define KCMP_FILE 0
 #endif
 
 typedef int32_t key_serial_t;
@@ -171,22 +103,6 @@ typedef int32_t key_serial_t;
 #define KEY_OTH_SEARCH  0x00000008
 #define KEY_OTH_LINK    0x00000010
 #define KEY_OTH_SETATTR 0x00000020
-#endif
-
-#ifndef AF_VSOCK
-#define AF_VSOCK 40
-#endif
-
-#ifndef FALLOC_FL_KEEP_SIZE
-#define FALLOC_FL_KEEP_SIZE 0x01
-#endif
-
-#ifndef FALLOC_FL_PUNCH_HOLE
-#define FALLOC_FL_PUNCH_HOLE 0x02
-#endif
-
-#ifndef PF_KTHREAD
-#define PF_KTHREAD 0x00200000
 #endif
 
 /* The maximum thread/process name length including trailing NUL byte. This mimics the kernel definition of the same

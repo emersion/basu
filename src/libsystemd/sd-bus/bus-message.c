@@ -5447,34 +5447,6 @@ _public_ int sd_bus_message_set_sender(sd_bus_message *m, const char *sender) {
         return message_append_field_string(m, BUS_MESSAGE_HEADER_SENDER, SD_BUS_TYPE_STRING, sender, &m->sender);
 }
 
-int bus_message_get_blob(sd_bus_message *m, void **buffer, size_t *sz) {
-        size_t total;
-        void *p, *e;
-        size_t i;
-        struct bus_body_part *part;
-
-        assert(m);
-        assert(buffer);
-        assert(sz);
-
-        total = BUS_MESSAGE_SIZE(m);
-
-        p = malloc(total);
-        if (!p)
-                return -ENOMEM;
-
-        e = mempcpy(p, m->header, BUS_MESSAGE_BODY_BEGIN(m));
-        MESSAGE_FOREACH_PART(part, i, m)
-                e = mempcpy(e, part->data, part->size);
-
-        assert(total == (size_t) ((uint8_t*) e - (uint8_t*) p));
-
-        *buffer = p;
-        *sz = total;
-
-        return 0;
-}
-
 int bus_message_read_strv_extend(sd_bus_message *m, char ***l) {
         const char *s;
         int r;
@@ -5822,16 +5794,6 @@ int bus_message_remarshal(sd_bus *bus, sd_bus_message **m) {
         *m = TAKE_PTR(n);
 
         return 0;
-}
-
-int bus_message_append_sender(sd_bus_message *m, const char *sender) {
-        assert(m);
-        assert(sender);
-
-        assert_return(!m->sealed, -EPERM);
-        assert_return(!m->sender, -EPERM);
-
-        return message_append_field_string(m, BUS_MESSAGE_HEADER_SENDER, SD_BUS_TYPE_STRING, sender, &m->sender);
 }
 
 _public_ int sd_bus_message_get_priority(sd_bus_message *m, int64_t *priority) {

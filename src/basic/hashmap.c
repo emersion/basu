@@ -318,8 +318,6 @@ static unsigned base_bucket_hash(HashmapBase *h, const void *p) {
 static inline void base_set_dirty(HashmapBase *h) {
         h->dirty = true;
 }
-#define hashmap_set_dirty(h) base_set_dirty(HASHMAP_BASE(h))
-
 static void get_hash_key(uint8_t hash_key[HASH_KEY_SIZE], bool reuse_is_ok) {
         static uint8_t current[HASH_KEY_SIZE];
         static bool current_initialized = false;
@@ -350,10 +348,6 @@ static struct plain_hashmap_entry *plain_bucket_at(Hashmap *h, unsigned idx) {
 
 static struct ordered_hashmap_entry *ordered_bucket_at(OrderedHashmap *h, unsigned idx) {
         return (struct ordered_hashmap_entry*) bucket_at(HASHMAP_BASE(h), idx);
-}
-
-static struct set_entry *set_bucket_at(Set *h, unsigned idx) {
-        return (struct set_entry*) bucket_at(HASHMAP_BASE(h), idx);
 }
 
 static struct ordered_hashmap_entry *bucket_at_swap(struct swap_entries *swap, unsigned idx) {
@@ -707,25 +701,6 @@ bool set_iterate(Set *s, Iterator *i, void **value) {
              (idx != IDX_NIL); \
              (idx) = hashmap_iterate_entry((h), &(i)))
 
-IteratedCache *internal_hashmap_iterated_cache_new(HashmapBase *h) {
-        IteratedCache *cache;
-
-        assert(h);
-        assert(!h->cached);
-
-        if (h->cached)
-                return NULL;
-
-        cache = new0(IteratedCache, 1);
-        if (!cache)
-                return NULL;
-
-        cache->hashmap = h;
-        h->cached = true;
-
-        return cache;
-}
-
 static void reset_direct_storage(HashmapBase *h) {
         const struct hashmap_type_info *hi = &hashmap_type_info[h->type];
         void *p;
@@ -775,10 +750,6 @@ Hashmap *internal_hashmap_new(const struct hash_ops *hash_ops  HASHMAP_DEBUG_PAR
         return (Hashmap*)        hashmap_base_new(hash_ops, HASHMAP_TYPE_PLAIN HASHMAP_DEBUG_PASS_ARGS);
 }
 
-OrderedHashmap *internal_ordered_hashmap_new(const struct hash_ops *hash_ops  HASHMAP_DEBUG_PARAMS) {
-        return (OrderedHashmap*) hashmap_base_new(hash_ops, HASHMAP_TYPE_ORDERED HASHMAP_DEBUG_PASS_ARGS);
-}
-
 Set *internal_set_new(const struct hash_ops *hash_ops  HASHMAP_DEBUG_PARAMS) {
         return (Set*)            hashmap_base_new(hash_ops, HASHMAP_TYPE_SET HASHMAP_DEBUG_PASS_ARGS);
 }
@@ -806,10 +777,6 @@ int internal_hashmap_ensure_allocated(Hashmap **h, const struct hash_ops *hash_o
 
 int internal_ordered_hashmap_ensure_allocated(OrderedHashmap **h, const struct hash_ops *hash_ops  HASHMAP_DEBUG_PARAMS) {
         return hashmap_base_ensure_allocated((HashmapBase**)h, hash_ops, HASHMAP_TYPE_ORDERED HASHMAP_DEBUG_PASS_ARGS);
-}
-
-int internal_set_ensure_allocated(Set **s, const struct hash_ops *hash_ops  HASHMAP_DEBUG_PARAMS) {
-        return hashmap_base_ensure_allocated((HashmapBase**)s, hash_ops, HASHMAP_TYPE_SET HASHMAP_DEBUG_PASS_ARGS);
 }
 
 static void hashmap_free_no_clear(HashmapBase *h) {
@@ -1239,58 +1206,6 @@ int set_put(Set *s, const void *key) {
         return hashmap_put_boldly(s, hash, &swap, true);
 }
 
-int hashmap_replace(Hashmap *h, const void *key, void *value) {
-        struct swap_entries swap;
-        struct plain_hashmap_entry *e;
-        unsigned hash, idx;
-
-        assert(h);
-
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
-        if (idx != IDX_NIL) {
-                e = plain_bucket_at(h, idx);
-#if ENABLE_DEBUG_HASHMAP
-                /* Although the key is equal, the key pointer may have changed,
-                 * and this would break our assumption for iterating. So count
-                 * this operation as incompatible with iteration. */
-                if (e->b.key != key) {
-                        h->b.debug.put_count++;
-                        h->b.debug.rem_count++;
-                        h->b.debug.last_rem_idx = idx;
-                }
-#endif
-                e->b.key = key;
-                e->value = value;
-                hashmap_set_dirty(h);
-
-                return 0;
-        }
-
-        e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = key;
-        e->value = value;
-        return hashmap_put_boldly(h, hash, &swap, true);
-}
-
-int hashmap_update(Hashmap *h, const void *key, void *value) {
-        struct plain_hashmap_entry *e;
-        unsigned hash, idx;
-
-        assert(h);
-
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
-
-        e = plain_bucket_at(h, idx);
-        e->value = value;
-        hashmap_set_dirty(h);
-
-        return 0;
-}
-
 void *internal_hashmap_get(HashmapBase *h, const void *key) {
         struct hashmap_base_entry *e;
         unsigned hash, idx;
@@ -1305,25 +1220,6 @@ void *internal_hashmap_get(HashmapBase *h, const void *key) {
 
         e = bucket_at(h, idx);
         return entry_value(h, e);
-}
-
-void *hashmap_get2(Hashmap *h, const void *key, void **key2) {
-        struct plain_hashmap_entry *e;
-        unsigned hash, idx;
-
-        if (!h)
-                return NULL;
-
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
-
-        e = plain_bucket_at(h, idx);
-        if (key2)
-                *key2 = (void*) e->b.key;
-
-        return e->value;
 }
 
 bool internal_hashmap_contains(HashmapBase *h, const void *key) {
@@ -1354,145 +1250,6 @@ void *internal_hashmap_remove(HashmapBase *h, const void *key) {
         remove_entry(h, idx);
 
         return data;
-}
-
-void *hashmap_remove2(Hashmap *h, const void *key, void **rkey) {
-        struct plain_hashmap_entry *e;
-        unsigned hash, idx;
-        void *data;
-
-        if (!h) {
-                if (rkey)
-                        *rkey = NULL;
-                return NULL;
-        }
-
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL) {
-                if (rkey)
-                        *rkey = NULL;
-                return NULL;
-        }
-
-        e = plain_bucket_at(h, idx);
-        data = e->value;
-        if (rkey)
-                *rkey = (void*) e->b.key;
-
-        remove_entry(h, idx);
-
-        return data;
-}
-
-int hashmap_remove_and_put(Hashmap *h, const void *old_key, const void *new_key, void *value) {
-        struct swap_entries swap;
-        struct plain_hashmap_entry *e;
-        unsigned old_hash, new_hash, idx;
-
-        if (!h)
-                return -ENOENT;
-
-        old_hash = bucket_hash(h, old_key);
-        idx = bucket_scan(h, old_hash, old_key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
-
-        new_hash = bucket_hash(h, new_key);
-        if (bucket_scan(h, new_hash, new_key) != IDX_NIL)
-                return -EEXIST;
-
-        remove_entry(h, idx);
-
-        e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = new_key;
-        e->value = value;
-        assert_se(hashmap_put_boldly(h, new_hash, &swap, false) == 1);
-
-        return 0;
-}
-
-int set_remove_and_put(Set *s, const void *old_key, const void *new_key) {
-        struct swap_entries swap;
-        struct hashmap_base_entry *e;
-        unsigned old_hash, new_hash, idx;
-
-        if (!s)
-                return -ENOENT;
-
-        old_hash = bucket_hash(s, old_key);
-        idx = bucket_scan(s, old_hash, old_key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
-
-        new_hash = bucket_hash(s, new_key);
-        if (bucket_scan(s, new_hash, new_key) != IDX_NIL)
-                return -EEXIST;
-
-        remove_entry(s, idx);
-
-        e = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-        e->key = new_key;
-        assert_se(hashmap_put_boldly(s, new_hash, &swap, false) == 1);
-
-        return 0;
-}
-
-int hashmap_remove_and_replace(Hashmap *h, const void *old_key, const void *new_key, void *value) {
-        struct swap_entries swap;
-        struct plain_hashmap_entry *e;
-        unsigned old_hash, new_hash, idx_old, idx_new;
-
-        if (!h)
-                return -ENOENT;
-
-        old_hash = bucket_hash(h, old_key);
-        idx_old = bucket_scan(h, old_hash, old_key);
-        if (idx_old == IDX_NIL)
-                return -ENOENT;
-
-        old_key = bucket_at(HASHMAP_BASE(h), idx_old)->key;
-
-        new_hash = bucket_hash(h, new_key);
-        idx_new = bucket_scan(h, new_hash, new_key);
-        if (idx_new != IDX_NIL)
-                if (idx_old != idx_new) {
-                        remove_entry(h, idx_new);
-                        /* Compensate for a possible backward shift. */
-                        if (old_key != bucket_at(HASHMAP_BASE(h), idx_old)->key)
-                                idx_old = prev_idx(HASHMAP_BASE(h), idx_old);
-                        assert(old_key == bucket_at(HASHMAP_BASE(h), idx_old)->key);
-                }
-
-        remove_entry(h, idx_old);
-
-        e = &bucket_at_swap(&swap, IDX_PUT)->p;
-        e->b.key = new_key;
-        e->value = value;
-        assert_se(hashmap_put_boldly(h, new_hash, &swap, false) == 1);
-
-        return 0;
-}
-
-void *hashmap_remove_value(Hashmap *h, const void *key, void *value) {
-        struct plain_hashmap_entry *e;
-        unsigned hash, idx;
-
-        if (!h)
-                return NULL;
-
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
-
-        e = plain_bucket_at(h, idx);
-        if (e->value != value)
-                return NULL;
-
-        remove_entry(h, idx);
-
-        return value;
 }
 
 static unsigned find_first_entry(HashmapBase *h) {
@@ -1532,62 +1289,6 @@ unsigned internal_hashmap_size(HashmapBase *h) {
                 return 0;
 
         return n_entries(h);
-}
-
-unsigned internal_hashmap_buckets(HashmapBase *h) {
-
-        if (!h)
-                return 0;
-
-        return n_buckets(h);
-}
-
-int internal_hashmap_merge(Hashmap *h, Hashmap *other) {
-        Iterator i;
-        unsigned idx;
-
-        assert(h);
-
-        HASHMAP_FOREACH_IDX(idx, HASHMAP_BASE(other), i) {
-                struct plain_hashmap_entry *pe = plain_bucket_at(other, idx);
-                int r;
-
-                r = hashmap_put(h, pe->b.key, pe->value);
-                if (r < 0 && r != -EEXIST)
-                        return r;
-        }
-
-        return 0;
-}
-
-int set_merge(Set *s, Set *other) {
-        Iterator i;
-        unsigned idx;
-
-        assert(s);
-
-        HASHMAP_FOREACH_IDX(idx, HASHMAP_BASE(other), i) {
-                struct set_entry *se = set_bucket_at(other, idx);
-                int r;
-
-                r = set_put(s, se->b.key);
-                if (r < 0)
-                        return r;
-        }
-
-        return 0;
-}
-
-int internal_hashmap_reserve(HashmapBase *h, unsigned entries_add) {
-        int r;
-
-        assert(h);
-
-        r = resize_buckets(h, entries_add);
-        if (r < 0)
-                return r;
-
-        return 0;
 }
 
 /*
@@ -1641,73 +1342,6 @@ int internal_hashmap_move(HashmapBase *h, HashmapBase *other) {
         return 0;
 }
 
-int internal_hashmap_move_one(HashmapBase *h, HashmapBase *other, const void *key) {
-        struct swap_entries swap;
-        unsigned h_hash, other_hash, idx;
-        struct hashmap_base_entry *e, *n;
-        int r;
-
-        assert(h);
-
-        h_hash = bucket_hash(h, key);
-        if (bucket_scan(h, h_hash, key) != IDX_NIL)
-                return -EEXIST;
-
-        if (!other)
-                return -ENOENT;
-
-        assert(other->type == h->type);
-
-        other_hash = bucket_hash(other, key);
-        idx = bucket_scan(other, other_hash, key);
-        if (idx == IDX_NIL)
-                return -ENOENT;
-
-        e = bucket_at(other, idx);
-
-        n = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-        n->key = e->key;
-        if (h->type != HASHMAP_TYPE_SET)
-                ((struct plain_hashmap_entry*) n)->value =
-                        ((struct plain_hashmap_entry*) e)->value;
-        r = hashmap_put_boldly(h, h_hash, &swap, true);
-        if (r < 0)
-                return r;
-
-        remove_entry(other, idx);
-        return 0;
-}
-
-HashmapBase *internal_hashmap_copy(HashmapBase *h) {
-        HashmapBase *copy;
-        int r;
-
-        assert(h);
-
-        copy = hashmap_base_new(h->hash_ops, h->type  HASHMAP_DEBUG_SRC_ARGS);
-        if (!copy)
-                return NULL;
-
-        switch (h->type) {
-        case HASHMAP_TYPE_PLAIN:
-        case HASHMAP_TYPE_ORDERED:
-                r = hashmap_merge((Hashmap*)copy, (Hashmap*)h);
-                break;
-        case HASHMAP_TYPE_SET:
-                r = set_merge((Set*)copy, (Set*)h);
-                break;
-        default:
-                assert_not_reached("Unknown hashmap type");
-        }
-
-        if (r < 0) {
-                internal_hashmap_free(copy);
-                return NULL;
-        }
-
-        return copy;
-}
-
 char **internal_hashmap_get_strv(HashmapBase *h) {
         char **sv;
         Iterator i;
@@ -1723,24 +1357,6 @@ char **internal_hashmap_get_strv(HashmapBase *h) {
         sv[n] = NULL;
 
         return sv;
-}
-
-void *ordered_hashmap_next(OrderedHashmap *h, const void *key) {
-        struct ordered_hashmap_entry *e;
-        unsigned hash, idx;
-
-        if (!h)
-                return NULL;
-
-        hash = bucket_hash(h, key);
-        idx = bucket_scan(h, hash, key);
-        if (idx == IDX_NIL)
-                return NULL;
-
-        e = ordered_bucket_at(h, idx);
-        if (e->iterate_next == IDX_NIL)
-                return NULL;
-        return ordered_bucket_at(h, e->iterate_next)->p.value;
 }
 
 int set_consume(Set *s, void *value) {
@@ -1770,125 +1386,6 @@ int set_put_strdup(Set *s, const char *p) {
                 return -ENOMEM;
 
         return set_consume(s, c);
-}
-
-int set_put_strdupv(Set *s, char **l) {
-        int n = 0, r;
-        char **i;
-
-        assert(s);
-
-        STRV_FOREACH(i, l) {
-                r = set_put_strdup(s, *i);
-                if (r < 0)
-                        return r;
-
-                n += r;
-        }
-
-        return n;
-}
-
-int set_put_strsplit(Set *s, const char *v, const char *separators, ExtractFlags flags) {
-        const char *p = v;
-        int r;
-
-        assert(s);
-        assert(v);
-
-        for (;;) {
-                char *word;
-
-                r = extract_first_word(&p, &word, separators, flags);
-                if (r <= 0)
-                        return r;
-
-                r = set_consume(s, word);
-                if (r < 0)
-                        return r;
-        }
-}
-
-/* expand the cachemem if needed, return true if newly (re)activated. */
-static int cachemem_maintain(CacheMem *mem, unsigned size) {
-        assert(mem);
-
-        if (!GREEDY_REALLOC(mem->ptr, mem->n_allocated, size)) {
-                if (size > 0)
-                        return -ENOMEM;
-        }
-
-        if (!mem->active) {
-                mem->active = true;
-                return true;
-        }
-
-        return false;
-}
-
-int iterated_cache_get(IteratedCache *cache, const void ***res_keys, const void ***res_values, unsigned *res_n_entries) {
-        bool sync_keys = false, sync_values = false;
-        unsigned size;
-        int r;
-
-        assert(cache);
-        assert(cache->hashmap);
-
-        size = n_entries(cache->hashmap);
-
-        if (res_keys) {
-                r = cachemem_maintain(&cache->keys, size);
-                if (r < 0)
-                        return r;
-
-                sync_keys = r;
-        } else
-                cache->keys.active = false;
-
-        if (res_values) {
-                r = cachemem_maintain(&cache->values, size);
-                if (r < 0)
-                        return r;
-
-                sync_values = r;
-        } else
-                cache->values.active = false;
-
-        if (cache->hashmap->dirty) {
-                if (cache->keys.active)
-                        sync_keys = true;
-                if (cache->values.active)
-                        sync_values = true;
-
-                cache->hashmap->dirty = false;
-        }
-
-        if (sync_keys || sync_values) {
-                unsigned i, idx;
-                Iterator iter;
-
-                i = 0;
-                HASHMAP_FOREACH_IDX(idx, cache->hashmap, iter) {
-                        struct hashmap_base_entry *e;
-
-                        e = bucket_at(cache->hashmap, idx);
-
-                        if (sync_keys)
-                                cache->keys.ptr[i] = e->key;
-                        if (sync_values)
-                                cache->values.ptr[i] = entry_value(cache->hashmap, e);
-                        i++;
-                }
-        }
-
-        if (res_keys)
-                *res_keys = cache->keys.ptr;
-        if (res_values)
-                *res_values = cache->values.ptr;
-        if (res_n_entries)
-                *res_n_entries = size;
-
-        return 0;
 }
 
 IteratedCache *iterated_cache_free(IteratedCache *cache) {

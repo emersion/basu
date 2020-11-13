@@ -238,37 +238,6 @@ int close_all_fds(const int except[], size_t n_except) {
         return r;
 }
 
-void cmsg_close_all(struct msghdr *mh) {
-        struct cmsghdr *cmsg;
-
-        assert(mh);
-
-        CMSG_FOREACH(cmsg, mh)
-                if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_RIGHTS)
-                        close_many((int*) CMSG_DATA(cmsg), (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-}
-
-int fd_get_path(int fd, char **ret) {
-        char procfs_path[STRLEN("/proc/self/fd/") + DECIMAL_STR_MAX(int)];
-        int r;
-
-        xsprintf(procfs_path, "/proc/self/fd/%i", fd);
-        r = readlink_malloc(procfs_path, ret);
-        if (r == -ENOENT) {
-                /* ENOENT can mean two things: that the fd does not exist or that /proc is not mounted. Let's make
-                 * things debuggable and distuingish the two. */
-
-                if (access("/proc/self/fd/", F_OK) < 0)
-                        /* /proc is not available or not set up properly, we're most likely in some chroot
-                         * environment. */
-                        return errno == ENOENT ? -EOPNOTSUPP : -errno;
-
-                return -EBADF; /* The directory exists, hence it's the fd that doesn't. */
-        }
-
-        return r;
-}
-
 int fd_move_above_stdio(int fd) {
         int flags, copy;
         PROTECT_ERRNO;

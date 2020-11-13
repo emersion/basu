@@ -329,11 +329,8 @@ struct sd_bus {
 
 #define BUS_FDS_MAX 1024
 
-#define BUS_EXEC_ARGV_MAX 256
-
 bool interface_name_is_valid(const char *p) _pure_;
 bool service_name_is_valid(const char *p) _pure_;
-char* service_name_startswith(const char *a, const char *b);
 bool member_name_is_valid(const char *p) _pure_;
 bool object_path_is_valid(const char *p) _pure_;
 char *object_path_startswith(const char *a, const char *b) _pure_;
@@ -381,8 +378,6 @@ int bus_set_address_system(sd_bus *bus);
 int bus_set_address_user(sd_bus *bus);
 int bus_set_address_system_remote(sd_bus *b, const char *host);
 int bus_set_address_system_machine(sd_bus *b, const char *machine);
-
-int bus_get_root_path(sd_bus *bus);
 
 int bus_maybe_reply_error(sd_bus_message *m, int r, sd_bus_error *error);
 
