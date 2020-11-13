@@ -165,7 +165,6 @@ static inline bool BUS_MESSAGE_IS_GVARIANT(sd_bus_message *m) {
         return m->header->version == 2;
 }
 
-int bus_message_get_blob(sd_bus_message *m, void **buffer, size_t *sz);
 int bus_message_read_strv_extend(sd_bus_message *m, char ***l);
 
 int bus_message_from_header(
@@ -208,8 +207,6 @@ int bus_message_to_errno(sd_bus_message *m);
 int bus_message_new_synthetic_error(sd_bus *bus, uint64_t serial, const sd_bus_error *e, sd_bus_message **m);
 
 int bus_message_remarshal(sd_bus *bus, sd_bus_message **m);
-
-int bus_message_append_sender(sd_bus_message *m, const char *sender);
 
 void bus_message_set_sender_driver(sd_bus *bus, sd_bus_message *m);
 void bus_message_set_sender_local(sd_bus *bus, sd_bus_message *m);

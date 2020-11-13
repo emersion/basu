@@ -3561,17 +3561,6 @@ _public_ int sd_bus_get_description(sd_bus *bus, const char **description) {
         return 0;
 }
 
-int bus_get_root_path(sd_bus *bus) {
-        if (bus->cgroup_root)
-                return 0;
-
-        bus->cgroup_root = strdup("/");
-        if (!bus->cgroup_root)
-                return -ENOMEM;
-
-        return 0;
-}
-
 _public_ int sd_bus_get_scope(sd_bus *bus, const char **scope) {
         assert_return(bus, -EINVAL);
         assert_return(bus = bus_resolve(bus), -ENOPKG);

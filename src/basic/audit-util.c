@@ -67,23 +67,3 @@ int audit_loginuid_from_pid(pid_t pid, uid_t *uid) {
         *uid = u;
         return 0;
 }
-
-bool use_audit(void) {
-        static int cached_use = -1;
-
-        if (cached_use < 0) {
-                int fd;
-
-                fd = socket(AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC|SOCK_NONBLOCK, NETLINK_AUDIT);
-                if (fd < 0) {
-                        cached_use = !IN_SET(errno, EAFNOSUPPORT, EPROTONOSUPPORT, EPERM);
-                        if (!cached_use)
-                                log_debug_errno(errno, "Won't talk to audit: %m");
-                } else {
-                        cached_use = true;
-                        safe_close(fd);
-                }
-        }
-
-        return cached_use;
-}

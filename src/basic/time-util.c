@@ -57,45 +57,6 @@ usec_t now(clockid_t clock_id) {
         return timespec_load(&ts);
 }
 
-dual_timestamp* dual_timestamp_get(dual_timestamp *ts) {
-        assert(ts);
-
-        ts->realtime = now(CLOCK_REALTIME);
-        ts->monotonic = now(CLOCK_MONOTONIC);
-
-        return ts;
-}
-
-triple_timestamp* triple_timestamp_get(triple_timestamp *ts) {
-        assert(ts);
-
-        ts->realtime = now(CLOCK_REALTIME);
-        ts->monotonic = now(CLOCK_MONOTONIC);
-        ts->boottime = clock_boottime_supported() ? now(CLOCK_BOOTTIME) : USEC_INFINITY;
-
-        return ts;
-}
-
-usec_t triple_timestamp_by_clock(triple_timestamp *ts, clockid_t clock) {
-
-        switch (clock) {
-
-        case CLOCK_REALTIME:
-        case CLOCK_REALTIME_ALARM:
-                return ts->realtime;
-
-        case CLOCK_MONOTONIC:
-                return ts->monotonic;
-
-        case CLOCK_BOOTTIME:
-        case CLOCK_BOOTTIME_ALARM:
-                return ts->boottime;
-
-        default:
-                return USEC_INFINITY;
-        }
-}
-
 usec_t timespec_load(const struct timespec *ts) {
         assert(ts);
 
@@ -108,18 +69,6 @@ usec_t timespec_load(const struct timespec *ts) {
         return
                 (usec_t) ts->tv_sec * USEC_PER_SEC +
                 (usec_t) ts->tv_nsec / NSEC_PER_USEC;
-}
-
-nsec_t timespec_load_nsec(const struct timespec *ts) {
-        assert(ts);
-
-        if (ts->tv_sec < 0 || ts->tv_nsec < 0)
-                return NSEC_INFINITY;
-
-        if ((nsec_t) ts->tv_sec >= (UINT64_MAX - ts->tv_nsec) / NSEC_PER_SEC)
-                return NSEC_INFINITY;
-
-        return (nsec_t) ts->tv_sec * NSEC_PER_SEC + (nsec_t) ts->tv_nsec;
 }
 
 struct timespec *timespec_store(struct timespec *ts, usec_t u)  {
@@ -151,231 +100,6 @@ struct timeval *timeval_store(struct timeval *tv, usec_t u) {
         }
 
         return tv;
-}
-
-static char *format_timestamp_internal(
-                char *buf,
-                size_t l,
-                usec_t t,
-                bool utc,
-                bool us) {
-
-        /* The weekdays in non-localized (English) form. We use this instead of the localized form, so that our
-         * generated timestamps may be parsed with parse_timestamp(), and always read the same. */
-        static const char * const weekdays[] = {
-                [0] = "Sun",
-                [1] = "Mon",
-                [2] = "Tue",
-                [3] = "Wed",
-                [4] = "Thu",
-                [5] = "Fri",
-                [6] = "Sat",
-        };
-
-        struct tm tm;
-        time_t sec;
-        size_t n;
-
-        assert(buf);
-
-        if (l <
-            3 +                  /* week day */
-            1 + 10 +             /* space and date */
-            1 + 8 +              /* space and time */
-            (us ? 1 + 6 : 0) +   /* "." and microsecond part */
-            1 + 1 +              /* space and shortest possible zone */
-            1)
-                return NULL; /* Not enough space even for the shortest form. */
-        if (t <= 0 || t == USEC_INFINITY)
-                return NULL; /* Timestamp is unset */
-
-        /* Let's not format times with years > 9999 */
-        if (t > USEC_TIMESTAMP_FORMATTABLE_MAX) {
-                assert(l >= STRLEN("--- XXXX-XX-XX XX:XX:XX") + 1);
-                strcpy(buf, "--- XXXX-XX-XX XX:XX:XX");
-                return buf;
-        }
-
-        sec = (time_t) (t / USEC_PER_SEC); /* Round down */
-
-        if (!localtime_or_gmtime_r(&sec, &tm, utc))
-                return NULL;
-
-        /* Start with the week day */
-        assert((size_t) tm.tm_wday < ELEMENTSOF(weekdays));
-        memcpy(buf, weekdays[tm.tm_wday], 4);
-
-        /* Add the main components */
-        if (strftime(buf + 3, l - 3, " %Y-%m-%d %H:%M:%S", &tm) <= 0)
-                return NULL; /* Doesn't fit */
-
-        /* Append the microseconds part, if that's requested */
-        if (us) {
-                n = strlen(buf);
-                if (n + 8 > l)
-                        return NULL; /* Microseconds part doesn't fit. */
-
-                sprintf(buf + n, ".%06"PRI_USEC, t % USEC_PER_SEC);
-        }
-
-        /* Append the timezone */
-        n = strlen(buf);
-        if (utc) {
-                /* If this is UTC then let's explicitly use the "UTC" string here, because gmtime_r() normally uses the
-                 * obsolete "GMT" instead. */
-                if (n + 5 > l)
-                        return NULL; /* "UTC" doesn't fit. */
-
-                strcpy(buf + n, " UTC");
-
-        } else if (!isempty(tm.tm_zone)) {
-                size_t tn;
-
-                /* An explicit timezone is specified, let's use it, if it fits */
-                tn = strlen(tm.tm_zone);
-                if (n + 1 + tn + 1 > l) {
-                        /* The full time zone does not fit in. Yuck. */
-
-                        if (n + 1 + _POSIX_TZNAME_MAX + 1 > l)
-                                return NULL; /* Not even enough space for the POSIX minimum (of 6)? In that case, complain that it doesn't fit */
-
-                        /* So the time zone doesn't fit in fully, but the caller passed enough space for the POSIX
-                         * minimum time zone length. In this case suppress the timezone entirely, in order not to dump
-                         * an overly long, hard to read string on the user. This should be safe, because the user will
-                         * assume the local timezone anyway if none is shown. And so does parse_timestamp(). */
-                } else {
-                        buf[n++] = ' ';
-                        strcpy(buf + n, tm.tm_zone);
-                }
-        }
-
-        return buf;
-}
-
-char *format_timestamp(char *buf, size_t l, usec_t t) {
-        return format_timestamp_internal(buf, l, t, false, false);
-}
-
-char *format_timestamp_utc(char *buf, size_t l, usec_t t) {
-        return format_timestamp_internal(buf, l, t, true, false);
-}
-
-char *format_timestamp_us(char *buf, size_t l, usec_t t) {
-        return format_timestamp_internal(buf, l, t, false, true);
-}
-
-char *format_timestamp_us_utc(char *buf, size_t l, usec_t t) {
-        return format_timestamp_internal(buf, l, t, true, true);
-}
-
-char *format_timespan(char *buf, size_t l, usec_t t, usec_t accuracy) {
-        static const struct {
-                const char *suffix;
-                usec_t usec;
-        } table[] = {
-                { "y",     USEC_PER_YEAR   },
-                { "month", USEC_PER_MONTH  },
-                { "w",     USEC_PER_WEEK   },
-                { "d",     USEC_PER_DAY    },
-                { "h",     USEC_PER_HOUR   },
-                { "min",   USEC_PER_MINUTE },
-                { "s",     USEC_PER_SEC    },
-                { "ms",    USEC_PER_MSEC   },
-                { "us",    1               },
-        };
-
-        size_t i;
-        char *p = buf;
-        bool something = false;
-
-        assert(buf);
-        assert(l > 0);
-
-        if (t == USEC_INFINITY) {
-                strncpy(p, "infinity", l-1);
-                p[l-1] = 0;
-                return p;
-        }
-
-        if (t <= 0) {
-                strncpy(p, "0", l-1);
-                p[l-1] = 0;
-                return p;
-        }
-
-        /* The result of this function can be parsed with parse_sec */
-
-        for (i = 0; i < ELEMENTSOF(table); i++) {
-                int k = 0;
-                size_t n;
-                bool done = false;
-                usec_t a, b;
-
-                if (t <= 0)
-                        break;
-
-                if (t < accuracy && something)
-                        break;
-
-                if (t < table[i].usec)
-                        continue;
-
-                if (l <= 1)
-                        break;
-
-                a = t / table[i].usec;
-                b = t % table[i].usec;
-
-                /* Let's see if we should shows this in dot notation */
-                if (t < USEC_PER_MINUTE && b > 0) {
-                        usec_t cc;
-                        signed char j;
-
-                        j = 0;
-                        for (cc = table[i].usec; cc > 1; cc /= 10)
-                                j++;
-
-                        for (cc = accuracy; cc > 1; cc /= 10) {
-                                b /= 10;
-                                j--;
-                        }
-
-                        if (j > 0) {
-                                k = snprintf(p, l,
-                                             "%s"USEC_FMT".%0*"PRI_USEC"%s",
-                                             p > buf ? " " : "",
-                                             a,
-                                             j,
-                                             b,
-                                             table[i].suffix);
-
-                                t = 0;
-                                done = true;
-                        }
-                }
-
-                /* No? Then let's show it normally */
-                if (!done) {
-                        k = snprintf(p, l,
-                                     "%s"USEC_FMT"%s",
-                                     p > buf ? " " : "",
-                                     a,
-                                     table[i].suffix);
-
-                        t = b;
-                }
-
-                n = MIN((size_t) k, l);
-
-                l -= n;
-                p += n;
-
-                something = true;
-        }
-
-        *p = 0;
-
-        return buf;
 }
 
 static const char* extract_multiplier(const char *p, usec_t *multiplier) {
@@ -612,13 +336,6 @@ bool clock_boottime_supported(void) {
         return supported;
 }
 
-clockid_t clock_boottime_or_monotonic(void) {
-        if (clock_boottime_supported())
-                return CLOCK_BOOTTIME;
-        else
-                return CLOCK_MONOTONIC;
-}
-
 bool clock_supported(clockid_t clock) {
         struct timespec ts;
 
@@ -640,8 +357,4 @@ bool clock_supported(clockid_t clock) {
                 /* For everything else, check properly */
                 return clock_gettime(clock, &ts) >= 0;
         }
-}
-
-struct tm *localtime_or_gmtime_r(const time_t *t, struct tm *tm, bool utc) {
-        return utc ? gmtime_r(t, tm) : localtime_r(t, tm);
 }

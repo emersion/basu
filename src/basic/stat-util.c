@@ -17,22 +17,6 @@
 #include "stat-util.h"
 #include "string-util.h"
 
-int is_dir(const char* path, bool follow) {
-        struct stat st;
-        int r;
-
-        assert(path);
-
-        if (follow)
-                r = stat(path, &st);
-        else
-                r = lstat(path, &st);
-        if (r < 0)
-                return -errno;
-
-        return !!S_ISDIR(st.st_mode);
-}
-
 int files_same(const char *filea, const char *fileb, int flags) {
         struct stat a, b;
 
@@ -54,25 +38,6 @@ bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) {
         assert_cc(sizeof(statfs_f_type_t) >= sizeof(s->f_type));
 
         return F_TYPE_EQUAL(s->f_type, magic_value);
-}
-
-int fd_is_fs_type(int fd, statfs_f_type_t magic_value) {
-        struct statfs s;
-
-        if (fstatfs(fd, &s) < 0)
-                return -errno;
-
-        return is_fs_type(&s, magic_value);
-}
-
-int path_is_fs_type(const char *path, statfs_f_type_t magic_value) {
-        _cleanup_close_ int fd = -1;
-
-        fd = open(path, O_RDONLY|O_CLOEXEC|O_NOCTTY|O_PATH);
-        if (fd < 0)
-                return -errno;
-
-        return fd_is_fs_type(fd, magic_value);
 }
 
 int stat_verify_regular(const struct stat *st) {

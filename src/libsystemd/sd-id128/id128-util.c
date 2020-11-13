@@ -11,29 +11,6 @@
 #include "io-util.h"
 #include "stdio-util.h"
 
-char *id128_to_uuid_string(sd_id128_t id, char s[37]) {
-        unsigned n, k = 0;
-
-        assert(s);
-
-        /* Similar to sd_id128_to_string() but formats the result as UUID instead of plain hex chars */
-
-        for (n = 0; n < 16; n++) {
-
-                if (IN_SET(n, 4, 6, 8, 10))
-                        s[k++] = '-';
-
-                s[k++] = hexchar(id.bytes[n] >> 4);
-                s[k++] = hexchar(id.bytes[n] & 0xF);
-        }
-
-        assert(k == 36);
-
-        s[k] = 0;
-
-        return s;
-}
-
 bool id128_is_valid(const char *s) {
         size_t i, l;
 
@@ -136,50 +113,6 @@ int id128_read(const char *p, Id128Format f, sd_id128_t *ret) {
                 return -errno;
 
         return id128_read_fd(fd, f, ret);
-}
-
-int id128_write_fd(int fd, Id128Format f, sd_id128_t id, bool do_sync) {
-        char buffer[36 + 2];
-        size_t sz;
-        int r;
-
-        assert(fd >= 0);
-        assert(f < _ID128_FORMAT_MAX);
-
-        if (f != ID128_UUID) {
-                sd_id128_to_string(id, buffer);
-                buffer[32] = '\n';
-                sz = 33;
-        } else {
-                id128_to_uuid_string(id, buffer);
-                buffer[36] = '\n';
-                sz = 37;
-        }
-
-        r = loop_write(fd, buffer, sz, false);
-        if (r < 0)
-                return r;
-
-        if (do_sync) {
-                if (fsync(fd) < 0)
-                        return -errno;
-
-                r = fsync_directory_of_file(fd);
-                if (r < 0)
-                        return r;
-        }
-
-        return 0;
-}
-
-int id128_write(const char *p, Id128Format f, sd_id128_t id, bool do_sync) {
-        _cleanup_close_ int fd = -1;
-
-        fd = open(p, O_WRONLY|O_CREAT|O_CLOEXEC|O_NOCTTY|O_TRUNC, 0444);
-        if (fd < 0)
-                return -errno;
-
-        return id128_write_fd(fd, f, id, do_sync);
 }
 
 void id128_hash_func(const void *p, struct siphash *state) {

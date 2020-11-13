@@ -10,50 +10,6 @@
 #include "io-util.h"
 #include "time-util.h"
 
-int flush_fd(int fd) {
-        struct pollfd pollfd = {
-                .fd = fd,
-                .events = POLLIN,
-        };
-        int count = 0;
-
-        /* Read from the specified file descriptor, until POLLIN is not set anymore, throwing away everything
-         * read. Note that some file descriptors (notable IP sockets) will trigger POLLIN even when no data can be read
-         * (due to IP packet checksum mismatches), hence this function is only safe to be non-blocking if the fd used
-         * was set to non-blocking too. */
-
-        for (;;) {
-                char buf[LINE_MAX];
-                ssize_t l;
-                int r;
-
-                r = poll(&pollfd, 1, 0);
-                if (r < 0) {
-                        if (errno == EINTR)
-                                continue;
-
-                        return -errno;
-
-                } else if (r == 0)
-                        return count;
-
-                l = read(fd, buf, sizeof(buf));
-                if (l < 0) {
-
-                        if (errno == EINTR)
-                                continue;
-
-                        if (errno == EAGAIN)
-                                return count;
-
-                        return -errno;
-                } else if (l == 0)
-                        return count;
-
-                count += (int) l;
-        }
-}
-
 ssize_t loop_read(int fd, void *buf, size_t nbytes, bool do_poll) {
         uint8_t *p = buf;
         ssize_t n = 0;
@@ -113,65 +69,6 @@ int loop_read_exact(int fd, void *buf, size_t nbytes, bool do_poll) {
         return 0;
 }
 
-int loop_write(int fd, const void *buf, size_t nbytes, bool do_poll) {
-        const uint8_t *p = buf;
-
-        assert(fd >= 0);
-        assert(buf);
-
-        if (_unlikely_(nbytes > (size_t) SSIZE_MAX))
-                return -EINVAL;
-
-        do {
-                ssize_t k;
-
-                k = write(fd, p, nbytes);
-                if (k < 0) {
-                        if (errno == EINTR)
-                                continue;
-
-                        if (errno == EAGAIN && do_poll) {
-                                /* We knowingly ignore any return value here,
-                                 * and expect that any error/EOF is reported
-                                 * via write() */
-
-                                (void) fd_wait_for_event(fd, POLLOUT, USEC_INFINITY);
-                                continue;
-                        }
-
-                        return -errno;
-                }
-
-                if (_unlikely_(nbytes > 0 && k == 0)) /* Can't really happen */
-                        return -EIO;
-
-                assert((size_t) k <= nbytes);
-
-                p += k;
-                nbytes -= k;
-        } while (nbytes > 0);
-
-        return 0;
-}
-
-int pipe_eof(int fd) {
-        struct pollfd pollfd = {
-                .fd = fd,
-                .events = POLLIN|POLLHUP,
-        };
-
-        int r;
-
-        r = poll(&pollfd, 1, 0);
-        if (r < 0)
-                return -errno;
-
-        if (r == 0)
-                return 0;
-
-        return pollfd.revents & POLLHUP;
-}
-
 int fd_wait_for_event(int fd, int event, usec_t t) {
 
         struct pollfd pollfd = {
@@ -189,66 +86,4 @@ int fd_wait_for_event(int fd, int event, usec_t t) {
                 return 0;
 
         return pollfd.revents;
-}
-
-static size_t nul_length(const uint8_t *p, size_t sz) {
-        size_t n = 0;
-
-        while (sz > 0) {
-                if (*p != 0)
-                        break;
-
-                n++;
-                p++;
-                sz--;
-        }
-
-        return n;
-}
-
-ssize_t sparse_write(int fd, const void *p, size_t sz, size_t run_length) {
-        const uint8_t *q, *w, *e;
-        ssize_t l;
-
-        q = w = p;
-        e = q + sz;
-        while (q < e) {
-                size_t n;
-
-                n = nul_length(q, e - q);
-
-                /* If there are more than the specified run length of
-                 * NUL bytes, or if this is the beginning or the end
-                 * of the buffer, then seek instead of write */
-                if ((n > run_length) ||
-                    (n > 0 && q == p) ||
-                    (n > 0 && q + n >= e)) {
-                        if (q > w) {
-                                l = write(fd, w, q - w);
-                                if (l < 0)
-                                        return -errno;
-                                if (l != q -w)
-                                        return -EIO;
-                        }
-
-                        if (lseek(fd, n, SEEK_CUR) == (off_t) -1)
-                                return -errno;
-
-                        q += n;
-                        w = q;
-                } else if (n > 0)
-                        q += n;
-                else
-                        q++;
-        }
-
-        if (q > w) {
-                l = write(fd, w, q - w);
-                if (l < 0)
-                        return -errno;
-                if (l != q - w)
-                        return -EIO;
-        }
-
-        return q - (const uint8_t*) p;
 }

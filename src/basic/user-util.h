@@ -22,10 +22,8 @@ char* uid_to_name(uid_t uid);
 int reset_uid_gid(void);
 
 #define UID_INVALID ((uid_t) -1)
-#define GID_INVALID ((gid_t) -1)
 
 #define UID_NOBODY ((uid_t) 65534U)
-#define GID_NOBODY ((gid_t) 65534U)
 
 int maybe_setgroups(size_t size, const gid_t *list);
 

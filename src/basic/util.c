@@ -35,7 +35,6 @@
 #include "string-util.h"
 #include "strv.h"
 #include "time-util.h"
-#include "umask-util.h"
 #include "user-util.h"
 #include "util.h"
 

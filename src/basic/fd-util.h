@@ -48,23 +48,6 @@ int fd_cloexec(int fd, bool cloexec);
 
 int close_all_fds(const int except[], size_t n_except);
 
-void cmsg_close_all(struct msghdr *mh);
-
-int fd_get_path(int fd, char **ret);
-
 int fd_move_above_stdio(int fd);
 
 int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);
-
-static inline int make_null_stdio(void) {
-        return rearrange_stdio(-1, -1, -1);
-}
-
-/* Like TAKE_PTR() but for file descriptors, resetting them to -1 */
-#define TAKE_FD(fd)                             \
-        ({                                      \
-                int _fd_ = (fd);                \
-                (fd) = -1;                      \
-                _fd_;                           \
-        })
-

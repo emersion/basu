@@ -16,19 +16,13 @@
 #endif
 #define _sentinel_ __attribute__ ((sentinel))
 #define _unused_ __attribute__ ((unused))
-#define _destructor_ __attribute__ ((destructor))
 #define _pure_ __attribute__ ((pure))
 #define _const_ __attribute__ ((const))
-#define _deprecated_ __attribute__ ((deprecated))
 #define _packed_ __attribute__ ((packed))
 #define _malloc_ __attribute__ ((malloc))
-#define _weak_ __attribute__ ((weak))
 #define _likely_(x) (__builtin_expect(!!(x), 1))
 #define _unlikely_(x) (__builtin_expect(!!(x), 0))
 #define _public_ __attribute__ ((visibility("default")))
-#define _hidden_ __attribute__ ((visibility("hidden")))
-#define _weakref_(x) __attribute__((weakref(#x)))
-#define _alignas_(x) __attribute__((aligned(__alignof(x))))
 #define _cleanup_(x) __attribute__((cleanup(x)))
 #if __GNUC__ >= 7
 #define _fallthrough_ __attribute__((fallthrough))
@@ -61,30 +55,11 @@
         _Pragma("GCC diagnostic push");                                 \
         _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 
-#define DISABLE_WARNING_MISSING_PROTOTYPES                              \
-        _Pragma("GCC diagnostic push");                                 \
-        _Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"")
-
-#define DISABLE_WARNING_NONNULL                                         \
-        _Pragma("GCC diagnostic push");                                 \
-        _Pragma("GCC diagnostic ignored \"-Wnonnull\"")
-
-#define DISABLE_WARNING_SHADOW                                          \
-        _Pragma("GCC diagnostic push");                                 \
-        _Pragma("GCC diagnostic ignored \"-Wshadow\"")
-
-#define DISABLE_WARNING_INCOMPATIBLE_POINTER_TYPES                      \
-        _Pragma("GCC diagnostic push");                                 \
-        _Pragma("GCC diagnostic ignored \"-Wincompatible-pointer-types\"")
-
 #define REENABLE_WARNING                                                \
         _Pragma("GCC diagnostic pop")
 
 /* automake test harness */
 #define EXIT_TEST_SKIP 77
-
-#define XSTRINGIFY(x) #x
-#define STRINGIFY(x) XSTRINGIFY(x)
 
 #define XCONCATENATE(x, y) x ## y
 #define CONCATENATE(x, y) XCONCATENATE(x, y)
@@ -114,27 +89,10 @@
 #error "Wut? Pointers are neither 4 nor 8 bytes long?"
 #endif
 
-#define ALIGN_PTR(p) ((void*) ALIGN((unsigned long) (p)))
-#define ALIGN4_PTR(p) ((void*) ALIGN4((unsigned long) (p)))
 #define ALIGN8_PTR(p) ((void*) ALIGN8((unsigned long) (p)))
 
 static inline size_t ALIGN_TO(size_t l, size_t ali) {
         return ((l + ali - 1) & ~(ali - 1));
-}
-
-#define ALIGN_TO_PTR(p, ali) ((void*) ALIGN_TO((unsigned long) (p), (ali)))
-
-/* align to next higher power-of-2 (except for: 0 => 0, overflow => 0) */
-static inline unsigned long ALIGN_POWER2(unsigned long u) {
-        /* clz(0) is undefined */
-        if (u == 1)
-                return 1;
-
-        /* left-shift overflow is undefined */
-        if (__builtin_clzl(u - 1UL) < 1)
-                return 0;
-
-        return 1UL << (sizeof(u) * 8 - __builtin_clzl(u - 1UL));
 }
 
 #ifndef __COVERITY__
@@ -178,24 +136,6 @@ static inline unsigned long ALIGN_POWER2(unsigned long u) {
                 UNIQ_T(A, aq) > UNIQ_T(B, bq) ? UNIQ_T(A, aq) : UNIQ_T(B, bq); \
         })
 
-/* evaluates to (void) if _A or _B are not constant or of different types */
-#define CONST_MAX(_A, _B) \
-        (__builtin_choose_expr(                                         \
-                __builtin_constant_p(_A) &&                             \
-                __builtin_constant_p(_B) &&                             \
-                __builtin_types_compatible_p(typeof(_A), typeof(_B)),   \
-                ((_A) > (_B)) ? (_A) : (_B),                            \
-                VOID_0))
-
-/* takes two types and returns the size of the larger one */
-#define MAXSIZE(A, B) (sizeof(union _packed_ { typeof(A) a; typeof(B) b; }))
-
-#define MAX3(x, y, z)                                   \
-        ({                                              \
-                const typeof(x) _c = MAX(x, y);         \
-                MAX(_c, z);                             \
-        })
-
 #undef MIN
 #define MIN(a, b) __MIN(UNIQ, (a), UNIQ, (b))
 #define __MIN(aq, a, bq, b)                             \
@@ -203,20 +143,6 @@ static inline unsigned long ALIGN_POWER2(unsigned long u) {
                 const typeof(a) UNIQ_T(A, aq) = (a);    \
                 const typeof(b) UNIQ_T(B, bq) = (b);    \
                 UNIQ_T(A, aq) < UNIQ_T(B, bq) ? UNIQ_T(A, aq) : UNIQ_T(B, bq); \
-        })
-
-#define MIN3(x, y, z)                                   \
-        ({                                              \
-                const typeof(x) _c = MIN(x, y);         \
-                MIN(_c, z);                             \
-        })
-
-#define LESS_BY(a, b) __LESS_BY(UNIQ, (a), UNIQ, (b))
-#define __LESS_BY(aq, a, bq, b)                         \
-        ({                                              \
-                const typeof(a) UNIQ_T(A, aq) = (a);    \
-                const typeof(b) UNIQ_T(B, bq) = (b);    \
-                UNIQ_T(A, aq) > UNIQ_T(B, bq) ? UNIQ_T(A, aq) - UNIQ_T(B, bq) : 0; \
         })
 
 #define CMP(a, b) __CMP(UNIQ, (a), UNIQ, (b))
@@ -326,40 +252,12 @@ static inline int __coverity_check__(int condition) {
                         return (r);                                     \
         } while (false)
 
-#define assert_return_errno(expr, r, err)                               \
-        do {                                                            \
-                if (!assert_log(expr, #expr)) {                         \
-                        errno = err;                                    \
-                        return (r);                                     \
-                }                                                       \
-        } while (false)
-
 #define PTR_TO_INT(p) ((int) ((intptr_t) (p)))
 #define INT_TO_PTR(u) ((void *) ((intptr_t) (u)))
 #define PTR_TO_UINT(p) ((unsigned) ((uintptr_t) (p)))
 #define UINT_TO_PTR(u) ((void *) ((uintptr_t) (u)))
 
-#define PTR_TO_LONG(p) ((long) ((intptr_t) (p)))
-#define LONG_TO_PTR(u) ((void *) ((intptr_t) (u)))
-#define PTR_TO_ULONG(p) ((unsigned long) ((uintptr_t) (p)))
-#define ULONG_TO_PTR(u) ((void *) ((uintptr_t) (u)))
-
-#define PTR_TO_INT32(p) ((int32_t) ((intptr_t) (p)))
-#define INT32_TO_PTR(u) ((void *) ((intptr_t) (u)))
-#define PTR_TO_UINT32(p) ((uint32_t) ((uintptr_t) (p)))
-#define UINT32_TO_PTR(u) ((void *) ((uintptr_t) (u)))
-
-#define PTR_TO_INT64(p) ((int64_t) ((intptr_t) (p)))
-#define INT64_TO_PTR(u) ((void *) ((intptr_t) (u)))
-#define PTR_TO_UINT64(p) ((uint64_t) ((uintptr_t) (p)))
-#define UINT64_TO_PTR(u) ((void *) ((uintptr_t) (u)))
-
-#define PTR_TO_SIZE(p) ((size_t) ((uintptr_t) (p)))
-#define SIZE_TO_PTR(u) ((void *) ((uintptr_t) (u)))
-
 #define CHAR_TO_STR(x) ((char[2]) { x, 0 })
-
-#define char_array_0(x) x[sizeof(x)-1] = 0;
 
 /* Returns the number of chars needed to format variables of the
  * specified type as a decimal string. Adds in extra space for a
@@ -431,12 +329,6 @@ static inline int __coverity_check__(int condition) {
                 _found;                         \
         })
 
-#define SWAP_TWO(x, y) do {                        \
-                typeof(x) _t = (x);                \
-                (x) = (y);                         \
-                (y) = (_t);                        \
-        } while (false)
-
 /* Define C11 thread_local attribute even on older gcc compiler
  * version */
 #ifndef thread_local
@@ -480,23 +372,15 @@ static inline int __coverity_check__(int condition) {
                 return free_func(p);                             \
         }
 
-#define DEFINE_TRIVIAL_REF_FUNC(type, name)     \
-        _DEFINE_TRIVIAL_REF_FUNC(type, name,)
 #define DEFINE_PRIVATE_TRIVIAL_REF_FUNC(type, name)     \
         _DEFINE_TRIVIAL_REF_FUNC(type, name, static)
 #define DEFINE_PUBLIC_TRIVIAL_REF_FUNC(type, name)      \
         _DEFINE_TRIVIAL_REF_FUNC(type, name, _public_)
 
-#define DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
-        _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func,)
 #define DEFINE_PRIVATE_TRIVIAL_UNREF_FUNC(type, name, free_func)        \
         _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, static)
 #define DEFINE_PUBLIC_TRIVIAL_UNREF_FUNC(type, name, free_func)         \
         _DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func, _public_)
-
-#define DEFINE_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
-        DEFINE_TRIVIAL_REF_FUNC(type, name);                    \
-        DEFINE_TRIVIAL_UNREF_FUNC(type, name, free_func);
 
 #define DEFINE_PRIVATE_TRIVIAL_REF_UNREF_FUNC(type, name, free_func)    \
         DEFINE_PRIVATE_TRIVIAL_REF_FUNC(type, name);                    \

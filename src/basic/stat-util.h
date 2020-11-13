@@ -10,8 +10,6 @@
 
 #include "macro.h"
 
-int is_dir(const char *path, bool follow);
-
 int files_same(const char *filea, const char *fileb, int flags);
 
 /* The .f_type field of struct statfs is really weird defined on
@@ -19,8 +17,6 @@ int files_same(const char *filea, const char *fileb, int flags);
 typedef typeof(((struct statfs*)NULL)->f_type) statfs_f_type_t;
 
 bool is_fs_type(const struct statfs *s, statfs_f_type_t magic_value) _pure_;
-int fd_is_fs_type(int fd, statfs_f_type_t magic_value);
-int path_is_fs_type(const char *path, statfs_f_type_t magic_value);
 
 /* Because statfs.t_type can be int on some architectures, we have to cast
  * the const magic to the type, otherwise the compiler warns about

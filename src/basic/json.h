@@ -59,7 +59,6 @@ int json_variant_new_unsigned(JsonVariant **ret, uintmax_t u);
 int json_variant_new_real(JsonVariant **ret, long double d);
 int json_variant_new_boolean(JsonVariant **ret, bool b);
 int json_variant_new_array(JsonVariant **ret, JsonVariant **array, size_t n);
-int json_variant_new_array_bytes(JsonVariant **ret, const void *p, size_t n);
 int json_variant_new_array_strv(JsonVariant **ret, char **l);
 int json_variant_new_object(JsonVariant **ret, JsonVariant **array, size_t n);
 int json_variant_new_null(JsonVariant **ret);
@@ -87,38 +86,6 @@ static inline bool json_variant_is_string(JsonVariant *v) {
         return json_variant_has_type(v, JSON_VARIANT_STRING);
 }
 
-static inline bool json_variant_is_integer(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_INTEGER);
-}
-
-static inline bool json_variant_is_unsigned(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_UNSIGNED);
-}
-
-static inline bool json_variant_is_real(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_REAL);
-}
-
-static inline bool json_variant_is_number(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_NUMBER);
-}
-
-static inline bool json_variant_is_boolean(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_BOOLEAN);
-}
-
-static inline bool json_variant_is_array(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_ARRAY);
-}
-
-static inline bool json_variant_is_object(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_OBJECT);
-}
-
-static inline bool json_variant_is_null(JsonVariant *v) {
-        return json_variant_has_type(v, JSON_VARIANT_NULL);
-}
-
 bool json_variant_is_negative(JsonVariant *v);
 
 size_t json_variant_elements(JsonVariant *v);
@@ -133,23 +100,6 @@ struct json_variant_foreach_state {
         size_t idx;
 };
 
-#define JSON_VARIANT_ARRAY_FOREACH(i, v)                                \
-        for (struct json_variant_foreach_state _state = { (v), 0 };     \
-             _state.idx < json_variant_elements(_state.variant) &&      \
-                     ({ i = json_variant_by_index(_state.variant, _state.idx); \
-                             true; });                                  \
-             _state.idx++)
-
-#define JSON_VARIANT_OBJECT_FOREACH(k, e, v)                            \
-        for (struct json_variant_foreach_state _state = { (v), 0 };     \
-             _state.idx < json_variant_elements(_state.variant) &&      \
-                     ({ k = json_variant_by_index(_state.variant, _state.idx); \
-                             e = json_variant_by_index(_state.variant, _state.idx + 1); \
-                             true; });                                  \
-             _state.idx += 2)
-
-int json_variant_get_source(JsonVariant *v, const char **ret_source, unsigned *ret_line, unsigned *ret_column);
-
 enum {
         JSON_FORMAT_NEWLINE = 1 << 0, /* suffix with newline */
         JSON_FORMAT_PRETTY  = 1 << 1, /* add internal whitespace to appeal to human readers */
@@ -159,12 +109,9 @@ enum {
         JSON_FORMAT_SEQ     = 1 << 5, /* prefix/suffix with RFC 7464 application/json-seq */
 };
 
-int json_variant_format(JsonVariant *v, unsigned flags, char **ret);
 void json_variant_dump(JsonVariant *v, unsigned flags, FILE *f, const char *prefix);
 
 int json_parse(const char *string, JsonVariant **ret, unsigned *ret_line, unsigned *ret_column);
-int json_parse_continue(const char **p, JsonVariant **ret, unsigned *ret_line, unsigned *ret_column);
-int json_parse_file(FILE *f, const char *path, JsonVariant **ret, unsigned *ret_line, unsigned *ret_column);
 
 enum {
         _JSON_BUILD_STRING,
@@ -199,85 +146,6 @@ enum {
 
 int json_build(JsonVariant **ret, ...);
 int json_buildv(JsonVariant **ret, va_list ap);
-
-/* A bitmask of flags used by the dispatch logic. Note that this is a combined bit mask, that is generated from the bit
- * mask originally passed into json_dispatch(), the individual bitmask associated with the static JsonDispatch callout
- * entry, as well the bitmask specified for json_log() calls */
-typedef enum JsonDispatchFlags {
-        /* The following three may be set in JsonDispatch's .flags field or the json_dispatch() flags parameter  */
-        JSON_PERMISSIVE = 1 << 0, /* Shall parsing errors be considered fatal for this property? */
-        JSON_MANDATORY  = 1 << 1, /* Should existance of this property be mandatory? */
-        JSON_LOG        = 1 << 2, /* Should the parser log about errors? */
-
-        /* The following two may be passed into log_json() in addition to the three above */
-        JSON_DEBUG      = 1 << 3, /* Indicates that this log message is a debug message */
-        JSON_WARNING    = 1 << 4, /* Indicates that this log message is a warning message */
-} JsonDispatchFlags;
-
-typedef int (*JsonDispatchCallback)(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-
-typedef struct JsonDispatch {
-        const char *name;
-        JsonVariantType type;
-        JsonDispatchCallback callback;
-        size_t offset;
-        JsonDispatchFlags flags;
-} JsonDispatch;
-
-int json_dispatch(JsonVariant *v, const JsonDispatch table[], JsonDispatchCallback bad, JsonDispatchFlags flags, void *userdata);
-
-int json_dispatch_string(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_strv(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_boolean(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_tristate(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_variant(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_integer(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_unsigned(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_uint32(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-int json_dispatch_int32(const char *name, JsonVariant *variant, JsonDispatchFlags flags, void *userdata);
-
-assert_cc(sizeof(uintmax_t) == sizeof(uint64_t))
-#define json_dispatch_uint64 json_dispatch_unsigned
-
-assert_cc(sizeof(intmax_t) == sizeof(int64_t))
-#define json_dispatch_int64 json_dispatch_integer
-
-static inline int json_dispatch_level(JsonDispatchFlags flags) {
-
-        /* Did the user request no logging? If so, then never log higher than LOG_DEBUG. Also, if this is marked as
-         * debug message, then also log at debug level. */
-
-        if (!(flags & JSON_LOG) ||
-            (flags & JSON_DEBUG))
-                return LOG_DEBUG;
-
-        /* Are we invoked in permissive mode, or is this explicitly marked as warning message? Then this should be
-         * printed at LOG_WARNING */
-        if (flags & (JSON_PERMISSIVE|JSON_WARNING))
-                return LOG_WARNING;
-
-        /* Otherwise it's an error. */
-        return LOG_ERR;
-}
-
-int json_log_internal(JsonVariant *variant, int level, int error, const char *file, int line, const char *func, const char *format, ...)  _printf_(7, 8);
-
-#define json_log(variant, flags, error, ...)                       \
-        ({                                                              \
-                int _level = json_dispatch_level(flags), _e = (error);    \
-                (log_get_max_level() >= LOG_PRI(_level))                \
-                        ? json_log_internal(variant, _level, _e, __FILE__, __LINE__, __func__, __VA_ARGS__) \
-                        : -abs(_e);                                     \
-        })
-
-#define JSON_VARIANT_STRING_CONST(x) _JSON_VARIANT_STRING_CONST(UNIQ, (x))
-
-#define _JSON_VARIANT_STRING_CONST(xq, x)                                       \
-        ({                                                              \
-                __attribute__((aligned(2))) static const char UNIQ_T(json_string_const, xq)[] = (x); \
-                assert((((uintptr_t) UNIQ_T(json_string_const, xq)) & 1) == 0); \
-                (JsonVariant*) ((uintptr_t) UNIQ_T(json_string_const, xq) + 1); \
-        })
 
 const char *json_variant_type_to_string(JsonVariantType t);
 JsonVariantType json_variant_type_from_string(const char *s);
