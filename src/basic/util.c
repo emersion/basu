@@ -19,7 +19,6 @@
 #include "alloc-util.h"
 #include "def.h"
 #include "dirent-util.h"
-#include "env-util.h"
 #include "fd-util.h"
 #include "fileio.h"
 #include "format-util.h"
