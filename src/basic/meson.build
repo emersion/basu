@@ -36,8 +36,6 @@ basic_sources = files('''
         hashmap.h
         hexdecoct.c
         hexdecoct.h
-        hostname-util.c
-        hostname-util.h
         io-util.c
         io-util.h
         json-internal.h
