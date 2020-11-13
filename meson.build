@@ -379,11 +379,7 @@ threads = dependency('threads')
 librt = cc.find_library('rt')
 libm = cc.find_library('m')
 
-libcap = dependency('libcap', required : false)
-if not libcap.found()
-        # Compat with Ubuntu 14.04 which ships libcap w/o .pc file
-        libcap = cc.find_library('cap')
-endif
+libcap = dependency('libcap')
 
 want_polkit = get_option('polkit')
 install_polkit = false
