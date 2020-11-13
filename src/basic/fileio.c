@@ -16,7 +16,6 @@
 #include "alloc-util.h"
 #include "ctype.h"
 #include "def.h"
-#include "env-util.h"
 #include "escape.h"
 #include "fd-util.h"
 #include "fileio.h"
@@ -512,53 +511,6 @@ int parse_env_file(
         return r;
 }
 
-static int load_env_file_push(
-                const char *filename, unsigned line,
-                const char *key, char *value,
-                void *userdata,
-                int *n_pushed) {
-        char ***m = userdata;
-        char *p;
-        int r;
-
-        r = check_utf8ness_and_warn(filename, line, key, value);
-        if (r < 0)
-                return r;
-
-        p = strjoin(key, "=", value);
-        if (!p)
-                return -ENOMEM;
-
-        r = strv_env_replace(m, p);
-        if (r < 0) {
-                free(p);
-                return r;
-        }
-
-        if (n_pushed)
-                (*n_pushed)++;
-
-        free(value);
-        return 0;
-}
-
-int load_env_file(FILE *f, const char *fname, const char *newline, char ***rl) {
-        char **m = NULL;
-        int r;
-
-        if (!newline)
-                newline = NEWLINE;
-
-        r = parse_env_file_internal(f, fname, newline, load_env_file_push, &m, NULL);
-        if (r < 0) {
-                strv_free(m);
-                return r;
-        }
-
-        *rl = m;
-        return 0;
-}
-
 static int load_env_file_push_pairs(
                 const char *filename, unsigned line,
                 const char *key, char *value,
@@ -608,79 +560,6 @@ int load_env_file_pairs(FILE *f, const char *fname, const char *newline, char **
         return 0;
 }
 
-/**
- * Retrieve one field from a file like /proc/self/status.  pattern
- * should not include whitespace or the delimiter (':'). pattern matches only
- * the beginning of a line. Whitespace before ':' is skipped. Whitespace and
- * zeros after the ':' will be skipped. field must be freed afterwards.
- * terminator specifies the terminating characters of the field value (not
- * included in the value).
- */
-int get_proc_field(const char *filename, const char *pattern, const char *terminator, char **field) {
-        _cleanup_free_ char *status = NULL;
-        char *t, *f;
-        size_t len;
-        int r;
-
-        assert(terminator);
-        assert(filename);
-        assert(pattern);
-        assert(field);
-
-        r = read_full_file(filename, &status, NULL);
-        if (r < 0)
-                return r;
-
-        t = status;
-
-        do {
-                bool pattern_ok;
-
-                do {
-                        t = strstr(t, pattern);
-                        if (!t)
-                                return -ENOENT;
-
-                        /* Check that pattern occurs in beginning of line. */
-                        pattern_ok = (t == status || t[-1] == '\n');
-
-                        t += strlen(pattern);
-
-                } while (!pattern_ok);
-
-                t += strspn(t, " \t");
-                if (!*t)
-                        return -ENOENT;
-
-        } while (*t != ':');
-
-        t++;
-
-        if (*t) {
-                t += strspn(t, " \t");
-
-                /* Also skip zeros, because when this is used for
-                 * capabilities, we don't want the zeros. This way the
-                 * same capability set always maps to the same string,
-                 * irrespective of the total capability set size. For
-                 * other numbers it shouldn't matter. */
-                t += strspn(t, "0");
-                /* Back off one char if there's nothing but whitespace
-                   and zeros */
-                if (!*t || isspace(*t))
-                        t--;
-        }
-
-        len = strcspn(t, terminator);
-
-        f = strndup(t, len);
-        if (!f)
-                return -ENOMEM;
-
-        *field = f;
-        return 0;
-}
-
 int fflush_and_check(FILE *f) {
         assert(f);
 
@@ -689,25 +568,6 @@ int fflush_and_check(FILE *f) {
 
         if (ferror(f))
                 return errno > 0 ? -errno : -EIO;
-
-        return 0;
-}
-
-int fflush_sync_and_check(FILE *f) {
-        int r;
-
-        assert(f);
-
-        r = fflush_and_check(f);
-        if (r < 0)
-                return r;
-
-        if (fsync(fileno(f)) < 0)
-                return -errno;
-
-        r = fsync_directory_of_file(fileno(f));
-        if (r < 0)
-                return r;
 
         return 0;
 }
@@ -739,46 +599,6 @@ int fputs_with_space(FILE *f, const char *s, const char *separator, bool *space)
         }
 
         return fputs(s, f);
-}
-
-int read_nul_string(FILE *f, char **ret) {
-        _cleanup_free_ char *x = NULL;
-        size_t allocated = 0, n = 0;
-
-        assert(f);
-        assert(ret);
-
-        /* Reads a NUL-terminated string from the specified file. */
-
-        for (;;) {
-                int c;
-
-                if (!GREEDY_REALLOC(x, allocated, n+2))
-                        return -ENOMEM;
-
-                c = fgetc(f);
-                if (c == 0) /* Terminate at NUL byte */
-                        break;
-                if (c == EOF) {
-                        if (ferror(f))
-                                return -errno;
-                        break; /* Terminate at EOF */
-                }
-
-                x[n++] = (char) c;
-        }
-
-        if (x)
-                x[n] = 0;
-        else {
-                x = new0(char, 1);
-                if (!x)
-                        return -ENOMEM;
-        }
-
-        *ret = TAKE_PTR(x);
-
-        return 0;
 }
 
 DEFINE_TRIVIAL_CLEANUP_FUNC(FILE*, funlockfile);
