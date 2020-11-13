@@ -291,7 +291,10 @@ conf.set('GPERF_LEN_TYPE', gperf_len_type,
 ############################################################
 
 if not cc.has_header('sys/capability.h')
-        error('POSIX caps headers not found')
+        libcap = dependency('libcap')
+        if not libcap.found()
+                error('POSIX caps headers not found')
+        endif
 endif
 foreach header : ['crypt.h',
                   'linux/memfd.h',
