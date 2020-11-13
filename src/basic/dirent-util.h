@@ -18,12 +18,3 @@
                 } else if (hidden_or_backup_file((de)->d_name))         \
                         continue;                                       \
                 else
-
-#define FOREACH_DIRENT_ALL(de, d, on_error)                             \
-        for (errno = 0, de = readdir(d);; errno = 0, de = readdir(d))   \
-                if (!de) {                                              \
-                        if (errno > 0) {                                \
-                                on_error;                               \
-                        }                                               \
-                        break;                                          \
-                } else
