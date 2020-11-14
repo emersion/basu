@@ -59,7 +59,6 @@ int json_variant_new_unsigned(JsonVariant **ret, uintmax_t u);
 int json_variant_new_real(JsonVariant **ret, long double d);
 int json_variant_new_boolean(JsonVariant **ret, bool b);
 int json_variant_new_array(JsonVariant **ret, JsonVariant **array, size_t n);
-int json_variant_new_array_strv(JsonVariant **ret, char **l);
 int json_variant_new_object(JsonVariant **ret, JsonVariant **array, size_t n);
 int json_variant_new_null(JsonVariant **ret);
 
@@ -111,38 +110,19 @@ enum {
 
 void json_variant_dump(JsonVariant *v, unsigned flags, FILE *f, const char *prefix);
 
-int json_parse(const char *string, JsonVariant **ret, unsigned *ret_line, unsigned *ret_column);
-
 enum {
         _JSON_BUILD_STRING,
-        _JSON_BUILD_INTEGER,
-        _JSON_BUILD_UNSIGNED,
-        _JSON_BUILD_REAL,
-        _JSON_BUILD_BOOLEAN,
-        _JSON_BUILD_ARRAY_BEGIN,
-        _JSON_BUILD_ARRAY_END,
         _JSON_BUILD_OBJECT_BEGIN,
         _JSON_BUILD_OBJECT_END,
         _JSON_BUILD_PAIR,
-        _JSON_BUILD_NULL,
         _JSON_BUILD_VARIANT,
-        _JSON_BUILD_LITERAL,
-        _JSON_BUILD_STRV,
         _JSON_BUILD_MAX,
 };
 
 #define JSON_BUILD_STRING(s) _JSON_BUILD_STRING, ({ const char *_x = s; _x; })
-#define JSON_BUILD_INTEGER(i) _JSON_BUILD_INTEGER, ({ intmax_t _x = i; _x; })
-#define JSON_BUILD_UNSIGNED(u) _JSON_BUILD_UNSIGNED, ({ uintmax_t _x = u; _x; })
-#define JSON_BUILD_REAL(d) _JSON_BUILD_REAL, ({ long double _x = d; _x; })
-#define JSON_BUILD_BOOLEAN(b) _JSON_BUILD_BOOLEAN, ({ bool _x = b; _x; })
-#define JSON_BUILD_ARRAY(...) _JSON_BUILD_ARRAY_BEGIN, __VA_ARGS__, _JSON_BUILD_ARRAY_END
 #define JSON_BUILD_OBJECT(...) _JSON_BUILD_OBJECT_BEGIN, __VA_ARGS__, _JSON_BUILD_OBJECT_END
 #define JSON_BUILD_PAIR(n, ...) _JSON_BUILD_PAIR, ({ const char *_x = n; _x; }), __VA_ARGS__
-#define JSON_BUILD_NULL _JSON_BUILD_NULL
 #define JSON_BUILD_VARIANT(v) _JSON_BUILD_VARIANT, ({ JsonVariant *_x = v; _x; })
-#define JSON_BUILD_LITERAL(l) _JSON_BUILD_LITERAL, ({ const char *_x = l; _x; })
-#define JSON_BUILD_STRV(l) _JSON_BUILD_STRV, ({ char **_x = l; _x; })
 
 int json_build(JsonVariant **ret, ...);
 int json_buildv(JsonVariant **ret, va_list ap);
