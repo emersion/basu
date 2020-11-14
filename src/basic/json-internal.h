@@ -21,8 +21,6 @@ typedef union JsonValue  {
 assert_cc(sizeof(JsonValue) == 16U);
 #endif
 
-#define JSON_VALUE_NULL ((JsonValue) {})
-
 /* We use fake JsonVariant objects for some special values, in order to avoid memory allocations for them. Note that
  * effectively this means that there are multiple ways to encode the same objects: via these magic values or as
  * properly allocated JsonVariant. We convert between both on-the-fly as necessary. */
@@ -41,23 +39,3 @@ assert_cc(sizeof(JsonValue) == 16U);
  * architectures we support. That's because we rely on the fact that malloc() will never allocate from the first memory
  * page, as it is a faulting page for catching NULL pointer dereferences. */
 assert_cc((uintptr_t) _JSON_VARIANT_MAGIC_MAX < 4096U);
-
-enum { /* JSON tokens */
-        JSON_TOKEN_END,
-        JSON_TOKEN_COLON,
-        JSON_TOKEN_COMMA,
-        JSON_TOKEN_OBJECT_OPEN,
-        JSON_TOKEN_OBJECT_CLOSE,
-        JSON_TOKEN_ARRAY_OPEN,
-        JSON_TOKEN_ARRAY_CLOSE,
-        JSON_TOKEN_STRING,
-        JSON_TOKEN_REAL,
-        JSON_TOKEN_INTEGER,
-        JSON_TOKEN_UNSIGNED,
-        JSON_TOKEN_BOOLEAN,
-        JSON_TOKEN_NULL,
-        _JSON_TOKEN_MAX,
-        _JSON_TOKEN_INVALID = -1,
-};
-
-int json_tokenize(const char **p, char **ret_string, JsonValue *ret_value, unsigned *ret_line, unsigned *ret_column, void **state, unsigned *line, unsigned *column);
