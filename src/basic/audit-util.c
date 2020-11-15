@@ -1,15 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <errno.h>
-#include <linux/netlink.h>
-#include <stdio.h>
-#include <sys/socket.h>
-
 #include "alloc-util.h"
 #include "audit-util.h"
-#include "fd-util.h"
 #include "fileio.h"
-#include "macro.h"
 #include "parse-util.h"
 #include "process-util.h"
 #include "user-util.h"
