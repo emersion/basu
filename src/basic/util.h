@@ -40,9 +40,6 @@ static inline const char* true_false(bool b) {
         return b ? "true" : "false";
 }
 
-#define NULSTR_FOREACH(i, l)                                    \
-        for ((i) = (l); (i) && *(i); (i) = strchr((i), 0)+1)
-
 extern int saved_argc;
 extern char **saved_argv;
 

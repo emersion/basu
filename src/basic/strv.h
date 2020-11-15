@@ -30,10 +30,6 @@ int strv_push(char ***l, char *value);
 
 int strv_consume(char ***l, char *value);
 
-bool strv_is_uniq(char **l);
-
-bool strv_equal(char **a, char **b);
-
 #define strv_contains(l, s) (!!strv_find((l), (s)))
 
 char **strv_new_internal(const char *x, ...) _sentinel_;
@@ -42,17 +38,11 @@ char **strv_new_ap(const char *x, va_list ap);
 
 #define STRV_IGNORE ((const char *) -1)
 
-static inline const char* STRV_IFNOTNULL(const char *x) {
-        return x ? x : STRV_IGNORE;
-}
-
 static inline bool strv_isempty(char * const *l) {
         return !l || !*l;
 }
 
 char **strv_parse_nulstr(const char *s, size_t l);
-
-bool strv_overlap(char **a, char **b) _pure_;
 
 #define STRV_FOREACH(s, l)                      \
         for ((s) = (l); (s) && *(s); (s)++)

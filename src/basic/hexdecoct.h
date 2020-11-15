@@ -17,9 +17,3 @@ int unhexchar(char c) _const_;
 
 char *hexmem(const void *p, size_t l);
 int unhexmem(const char *p, size_t l, void **mem, size_t *len);
-
-char base32hexchar(int x) _const_;
-
-char base64char(int x) _const_;
-
-int unbase64mem(const char *p, size_t l, void **mem, size_t *len);

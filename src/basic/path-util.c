@@ -27,14 +27,6 @@
 #include "time-util.h"
 #include "utf8.h"
 
-bool path_is_absolute(const char *p) {
-        return p[0] == '/';
-}
-
-bool is_path(const char *p) {
-        return !!strchr(p, '/');
-}
-
 char* path_startswith(const char *path, const char *prefix) {
         assert(path);
         assert(prefix);
@@ -124,64 +116,6 @@ int path_compare(const char *a, const char *b) {
         }
 }
 
-bool path_equal(const char *a, const char *b) {
-        return path_compare(a, b) == 0;
-}
-
-bool path_equal_or_files_same(const char *a, const char *b, int flags) {
-        return path_equal(a, b) || files_same(a, b, flags) > 0;
-}
-
-bool filename_is_valid(const char *p) {
-        const char *e;
-
-        if (isempty(p))
-                return false;
-
-        if (dot_or_dot_dot(p))
-                return false;
-
-        e = strchrnul(p, '/');
-        if (*e != 0)
-                return false;
-
-        if (e - p > FILENAME_MAX) /* FILENAME_MAX is counted *without* the trailing NUL byte */
-                return false;
-
-        return true;
-}
-
-bool path_is_valid(const char *p) {
-
-        if (isempty(p))
-                return false;
-
-        if (strlen(p) >= PATH_MAX) /* PATH_MAX is counted *with* the trailing NUL byte */
-                return false;
-
-        return true;
-}
-
-bool path_is_normalized(const char *p) {
-
-        if (!path_is_valid(p))
-                return false;
-
-        if (dot_or_dot_dot(p))
-                return false;
-
-        if (startswith(p, "../") || endswith(p, "/..") || strstr(p, "/../"))
-                return false;
-
-        if (startswith(p, "./") || endswith(p, "/.") || strstr(p, "/./"))
-                return false;
-
-        if (strstr(p, "//"))
-                return false;
-
-        return true;
-}
-
 bool hidden_or_backup_file(const char *filename) {
         const char *p;
 
@@ -230,28 +164,3 @@ bool hidden_or_backup_file(const char *filename) {
                           "old",
                           "new");
 }
-
-bool dot_or_dot_dot(const char *path) {
-        if (!path)
-                return false;
-        if (path[0] != '.')
-                return false;
-        if (path[1] == 0)
-                return true;
-        if (path[1] != '.')
-                return false;
-
-        return path[2] == 0;
-}
-
-bool empty_or_root(const char *root) {
-
-        /* For operations relative to some root directory, returns true if the specified root directory is redundant,
-         * i.e. either / or NULL or the empty string or any equivalent. */
-
-        if (!root)
-                return true;
-
-        return root[strspn(root, "/")] == 0;
-}
-

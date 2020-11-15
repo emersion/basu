@@ -133,12 +133,6 @@ static inline void *ordered_hashmap_remove(OrderedHashmap *h, const void *key) {
         return internal_hashmap_remove(HASHMAP_BASE(h), key);
 }
 
-int internal_hashmap_move(HashmapBase *h, HashmapBase *other);
-/* Unlike hashmap_merge, hashmap_move does not allow mixing the types. */
-static inline int hashmap_move(Hashmap *h, Hashmap *other) {
-        return internal_hashmap_move(HASHMAP_BASE(h), HASHMAP_BASE(other));
-}
-
 unsigned internal_hashmap_size(HashmapBase *h) _pure_;
 static inline unsigned hashmap_size(Hashmap *h) {
         return internal_hashmap_size(HASHMAP_BASE(h));

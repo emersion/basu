@@ -166,42 +166,6 @@ char *ascii_strlower(char *t) {
         return t;
 }
 
-bool chars_intersect(const char *a, const char *b) {
-        const char *p;
-
-        /* Returns true if any of the chars in a are in b. */
-        for (p = a; *p; p++)
-                if (strchr(b, *p))
-                        return true;
-
-        return false;
-}
-
-bool string_has_cc(const char *p, const char *ok) {
-        const char *t;
-
-        assert(p);
-
-        /*
-         * Check if a string contains control characters. If 'ok' is
-         * non-NULL it may be a string containing additional CCs to be
-         * considered OK.
-         */
-
-        for (t = p; *t; t++) {
-                if (ok && strchr(ok, *t))
-                        continue;
-
-                if (*t > 0 && *t < ' ')
-                        return true;
-
-                if (*t == 127)
-                        return true;
-        }
-
-        return false;
-}
-
 static int write_ellipsis(char *buf, bool unicode) {
         if (unicode || is_locale_utf8()) {
                 buf[0] = 0xe2; /* tri-dot ellipsis: … */
@@ -438,19 +402,6 @@ char *cellescape(char *buf, size_t len, const char *s) {
  done:
         buf[i] = '\0';
         return buf;
-}
-
-bool nulstr_contains(const char *nulstr, const char *needle) {
-        const char *i;
-
-        if (!nulstr)
-                return false;
-
-        NULSTR_FOREACH(i, nulstr)
-                if (streq(i, needle))
-                        return true;
-
-        return false;
 }
 
 char *strextend_with_separator(char **x, const char *separator, ...) {

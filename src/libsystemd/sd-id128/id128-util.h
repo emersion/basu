@@ -8,8 +8,6 @@
 #include "hash-funcs.h"
 #include "macro.h"
 
-bool id128_is_valid(const char *s) _pure_;
-
 typedef enum Id128Format {
         ID128_ANY,
         ID128_PLAIN,  /* formatted as 32 hex chars as-is */

@@ -1291,57 +1291,6 @@ unsigned internal_hashmap_size(HashmapBase *h) {
         return n_entries(h);
 }
 
-/*
- * The same as hashmap_merge(), but every new item from other is moved to h.
- * Keys already in h are skipped and stay in other.
- * Returns: 0 on success.
- *          -ENOMEM on alloc failure, in which case no move has been done.
- */
-int internal_hashmap_move(HashmapBase *h, HashmapBase *other) {
-        struct swap_entries swap;
-        struct hashmap_base_entry *e, *n;
-        Iterator i;
-        unsigned idx;
-        int r;
-
-        assert(h);
-
-        if (!other)
-                return 0;
-
-        assert(other->type == h->type);
-
-        /*
-         * This reserves buckets for the worst case, where none of other's
-         * entries are yet present in h. This is preferable to risking
-         * an allocation failure in the middle of the moving and having to
-         * rollback or return a partial result.
-         */
-        r = resize_buckets(h, n_entries(other));
-        if (r < 0)
-                return r;
-
-        HASHMAP_FOREACH_IDX(idx, other, i) {
-                unsigned h_hash;
-
-                e = bucket_at(other, idx);
-                h_hash = bucket_hash(h, e->key);
-                if (bucket_scan(h, h_hash, e->key) != IDX_NIL)
-                        continue;
-
-                n = &bucket_at_swap(&swap, IDX_PUT)->p.b;
-                n->key = e->key;
-                if (h->type != HASHMAP_TYPE_SET)
-                        ((struct plain_hashmap_entry*) n)->value =
-                                ((struct plain_hashmap_entry*) e)->value;
-                assert_se(hashmap_put_boldly(h, h_hash, &swap, false) == 1);
-
-                remove_entry(other, idx);
-        }
-
-        return 0;
-}
-
 char **internal_hashmap_get_strv(HashmapBase *h) {
         char **sv;
         Iterator i;

@@ -33,10 +33,6 @@ static int log_max_level[] = {LOG_INFO, LOG_INFO};
 assert_cc(ELEMENTSOF(log_max_level) == _LOG_REALM_MAX);
 
 
-/* Akin to glibc's __abort_msg; which is private and we hence cannot
- * use here. */
-static char *log_abort_msg = NULL;
-
 /* An assert to use in logging functions that does not call recursively
  * into our logging functions (since that might lead to a loop). */
 #define assert_raw(expr)                                                \
@@ -183,8 +179,6 @@ static void log_assert(
         DISABLE_WARNING_FORMAT_NONLITERAL;
         (void) snprintf(buffer, sizeof buffer, format, text, file, line, func);
         REENABLE_WARNING;
-
-        log_abort_msg = buffer;
 
         log_dispatch_internal(level, 0, file, line, func, NULL, NULL, NULL, NULL, buffer);
 }

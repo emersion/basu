@@ -360,8 +360,6 @@ bool bus_pid_changed(sd_bus *bus);
 
 char *bus_address_escape(const char *v);
 
-int bus_attach_io_events(sd_bus *b);
-
 void bus_close_io_fds(sd_bus *b);
 
 #define OBJECT_PATH_FOREACH_PREFIX(prefix, path)                        \

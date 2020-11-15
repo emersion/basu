@@ -274,11 +274,3 @@ void *prioq_pop(Prioq *q) {
         remove_item(q, q->items);
         return data;
 }
-
-bool prioq_isempty(Prioq *q) {
-
-        if (!q)
-                return true;
-
-        return q->n_items <= 0;
-}

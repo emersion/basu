@@ -36,12 +36,8 @@ struct timespec *timespec_store(struct timespec *ts, usec_t u);
 
 struct timeval *timeval_store(struct timeval *tv, usec_t u);
 
-char *format_timestamp_relative(char *buf, size_t l, usec_t t);
-
 int parse_sec(const char *t, usec_t *usec);
 int parse_time(const char *t, usec_t *usec, usec_t default_unit);
-
-usec_t usec_shift_clock(usec_t, clockid_t from, clockid_t to);
 
 static inline usec_t usec_add(usec_t a, usec_t b) {
         usec_t c;
