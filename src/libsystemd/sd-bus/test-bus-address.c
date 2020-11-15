@@ -1,7 +1,6 @@
 #include "sd-bus.h"
 
 #include "bus-internal.h"
-#include "log.h"
 #include "string-util.h"
 #include "strv.h"
 

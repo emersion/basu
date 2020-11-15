@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "alloc-util.h"
-#include "macro.h"
 #include "util.h"
 
 void* memdup(const void *p, size_t l) {

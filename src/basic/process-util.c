@@ -2,24 +2,18 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include <limits.h>
 #include <sched.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
-#include <sys/mount.h>
-#include <sys/personality.h>
 #include <sys/prctl.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <syslog.h>
 #include <unistd.h>
 #if HAVE_VALGRIND_VALGRIND_H
-#include <valgrind/valgrind.h>
 #endif
 
 #include "alloc-util.h"
@@ -28,16 +22,7 @@
 #include "fd-util.h"
 #include "fileio.h"
 #include "fs-util.h"
-#include "log.h"
-#include "macro.h"
-#include "missing.h"
 #include "process-util.h"
-#include "stat-util.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "terminal-util.h"
-#include "user-util.h"
-#include "util.h"
 
 static int reset_all_signal_handlers(void) {
         static const struct sigaction sa = {

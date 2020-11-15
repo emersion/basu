@@ -7,12 +7,9 @@
 #include <elf.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <linux/random.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 
 #if HAVE_SYS_AUXV_H
 #  include <sys/auxv.h>
@@ -28,7 +25,6 @@
 #include "io-util.h"
 #include "missing.h"
 #include "random-util.h"
-#include "time-util.h"
 
 
 int rdrand64(uint64_t *ret) {

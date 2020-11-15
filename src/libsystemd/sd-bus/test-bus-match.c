@@ -3,8 +3,6 @@
 #include "bus-match.h"
 #include "bus-message.h"
 #include "bus-slot.h"
-#include "log.h"
-#include "macro.h"
 #include "tests.h"
 
 static bool mask[32];

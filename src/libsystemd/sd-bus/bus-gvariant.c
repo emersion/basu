@@ -7,7 +7,6 @@
 
 #include "bus-gvariant.h"
 #include "bus-signature.h"
-#include "bus-type.h"
 
 int bus_gvariant_get_size(const char *signature) {
         const char *p;

@@ -4,34 +4,16 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include "alloc-util.h"
-#include "ctype.h"
 #include "def.h"
 #include "escape.h"
 #include "fd-util.h"
 #include "fileio.h"
-#include "fs-util.h"
-#include "hexdecoct.h"
-#include "log.h"
-#include "macro.h"
-#include "missing.h"
-#include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "random-util.h"
-#include "stdio-util.h"
-#include "string-util.h"
-#include "strv.h"
-#include "time-util.h"
 #include "utf8.h"
 
 #define READ_FULL_BYTES_MAX (4U*1024U*1024U)

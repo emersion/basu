@@ -6,16 +6,10 @@
 #include <string.h>
 
 #include "alloc-util.h"
-#include "fileio.h"
 #include "hashmap.h"
-#include "macro.h"
 #include "process-util.h"
 #include "random-util.h"
 #include "set.h"
-#include "siphash24.h"
-#include "string-util.h"
-#include "strv.h"
-#include "util.h"
 
 #if ENABLE_DEBUG_HASHMAP
 #include <pthread.h>

@@ -4,7 +4,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,12 +11,7 @@
 #include "escape.h"
 #include "gunicode.h"
 #include "locale-util.h"
-#include "macro.h"
-#include "string-util.h"
-#include "terminal-util.h"
 #include "utf8.h"
-#include "util.h"
-#include "fileio.h"
 
 int strcmp_ptr(const char *a, const char *b) {
 

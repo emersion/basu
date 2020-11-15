@@ -9,10 +9,7 @@
 #include "bus-dump.h"
 #include "bus-internal.h"
 #include "bus-message.h"
-#include "log.h"
-#include "macro.h"
 #include "strv.h"
-#include "util.h"
 
 struct context {
         int fds[2];

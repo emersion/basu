@@ -5,19 +5,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #if HAVE_LINUX_MEMFD_H
-#include <linux/memfd.h>
 #endif
-#include <stdio.h>
-#include <sys/mman.h>
-#include <sys/prctl.h>
 
 #include "alloc-util.h"
-#include "fd-util.h"
-#include "macro.h"
 #include "memfd-util.h"
-#include "missing.h"
-#include "string-util.h"
-#include "utf8.h"
 
 int memfd_set_sealed(int fd) {
         int r;

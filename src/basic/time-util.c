@@ -4,8 +4,6 @@
 #include <sys/time.h>
 
 #include "path-util.h"
-#include "string-util.h"
-#include "time-util.h"
 
 static clockid_t map_clock_id(clockid_t c) {
 

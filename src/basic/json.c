@@ -6,21 +6,11 @@
 #include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 
 #include "alloc-util.h"
-#include "fd-util.h"
-#include "fileio.h"
 #include "float.h"
-#include "hexdecoct.h"
 #include "json-internal.h"
-#include "json.h"
-#include "macro.h"
-#include "string-table.h"
-#include "string-util.h"
-#include "strv.h"
 #include "terminal-util.h"
-#include "utf8.h"
 
 /* Refuse putting together variants with a larger depth than 16K by default (as a protection against overflowing stacks
  * if code processes JSON objects recursively. Note that we store the depth in an uint16_t, hence make sure this

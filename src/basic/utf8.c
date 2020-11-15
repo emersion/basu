@@ -29,9 +29,6 @@
 #include <string.h>
 
 #include "alloc-util.h"
-#include "gunicode.h"
-#include "hexdecoct.h"
-#include "macro.h"
 #include "utf8.h"
 
 bool unichar_is_valid(char32_t ch) {
