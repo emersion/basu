@@ -77,15 +77,11 @@ char *strjoin_real(const char *x, ...) _sentinel_;
 char ascii_tolower(char x);
 char *ascii_strlower(char *s);
 
-bool chars_intersect(const char *a, const char *b) _pure_;
-
 static inline bool _pure_ in_charset(const char *s, const char* charset) {
         assert(s);
         assert(charset);
         return s[strspn(s, charset)] == '\0';
 }
-
-bool string_has_cc(const char *p, const char *ok) _pure_;
 
 char *ellipsize_mem(const char *s, size_t old_length_bytes, size_t new_length_columns, unsigned percent);
 static inline char *ellipsize(const char *s, size_t length, unsigned percent) {
@@ -93,8 +89,6 @@ static inline char *ellipsize(const char *s, size_t length, unsigned percent) {
 }
 
 char *cellescape(char *buf, size_t len, const char *s);
-
-bool nulstr_contains(const char *nulstr, const char *needle);
 
 char *strextend_with_separator(char **x, const char *separator, ...) _sentinel_;
 

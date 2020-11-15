@@ -20,5 +20,3 @@ int prioq_remove(Prioq *q, void *data, unsigned *idx);
 
 void *prioq_peek(Prioq *q) _pure_;
 void *prioq_pop(Prioq *q);
-
-bool prioq_isempty(Prioq *q) _pure_;

@@ -65,8 +65,6 @@
 #  define SO_PEERGROUPS 59
 #endif
 
-typedef int32_t key_serial_t;
-
 #ifndef KEYCTL_DESCRIBE
 #define KEYCTL_DESCRIBE 6
 #endif

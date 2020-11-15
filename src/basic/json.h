@@ -94,11 +94,6 @@ JsonVariant *json_variant_by_key_full(JsonVariant *v, const char *key, JsonVaria
 
 bool json_variant_equal(JsonVariant *a, JsonVariant *b);
 
-struct json_variant_foreach_state {
-        JsonVariant *variant;
-        size_t idx;
-};
-
 enum {
         JSON_FORMAT_NEWLINE = 1 << 0, /* suffix with newline */
         JSON_FORMAT_PRETTY  = 1 << 1, /* add internal whitespace to appeal to human readers */
@@ -126,6 +121,3 @@ enum {
 
 int json_build(JsonVariant **ret, ...);
 int json_buildv(JsonVariant **ret, va_list ap);
-
-const char *json_variant_type_to_string(JsonVariantType t);
-JsonVariantType json_variant_type_from_string(const char *s);

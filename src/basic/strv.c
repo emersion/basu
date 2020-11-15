@@ -198,16 +198,6 @@ int strv_extend(char ***l, const char *value) {
         return strv_consume(l, v);
 }
 
-bool strv_is_uniq(char **l) {
-        char **i;
-
-        STRV_FOREACH(i, l)
-                if (strv_find(i+1, *i))
-                        return false;
-
-        return true;
-}
-
 char **strv_parse_nulstr(const char *s, size_t l) {
         /* l is the length of the input data, which will be split at NULs into
          * elements of the resulting strv. Hence, the number of items in the resulting strv
@@ -265,16 +255,6 @@ char **strv_parse_nulstr(const char *s, size_t l) {
         return v;
 }
 
-bool strv_overlap(char **a, char **b) {
-        char **i;
-
-        STRV_FOREACH(i, a)
-                if (strv_contains(b, *i))
-                        return true;
-
-        return false;
-}
-
 static int str_compare(char * const *a, char * const *b) {
         return strcmp(*a, *b);
 }
@@ -282,21 +262,6 @@ static int str_compare(char * const *a, char * const *b) {
 char **strv_sort(char **l) {
         typesafe_qsort(l, strv_length(l), str_compare);
         return l;
-}
-
-bool strv_equal(char **a, char **b) {
-
-        if (strv_isempty(a))
-                return strv_isempty(b);
-
-        if (strv_isempty(b))
-                return false;
-
-        for ( ; *a || *b; ++a, ++b)
-                if (!streq_ptr(*a, *b))
-                        return false;
-
-        return true;
 }
 
 bool strv_fnmatch(char* const* patterns, const char *s, int flags) {
