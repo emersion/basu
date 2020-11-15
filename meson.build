@@ -233,8 +233,6 @@ foreach ident : [
         ['gettid',            '''#include <sys/types.h>
                                  #include <unistd.h>'''],
         ['setns',             '''#include <sched.h>'''],
-        ['keyctl',            '''#include <sys/types.h>
-                                 #include <keyutils.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],
         ['reallocarray',      '''#include <malloc.h>'''],
 ]
