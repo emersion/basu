@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
+#include <sys/sysmacros.h>
+
 #include "alloc-util.h"
 #include "env-util.h"
 #include "fileio.h"
