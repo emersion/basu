@@ -14,6 +14,10 @@
 #include "strv.h"
 #include "user-util.h"
 
+#if HAVE_LIBCAP
+#include "capability-util.h"
+#endif
+
 _public_ int sd_bus_get_unique_name(sd_bus *bus, const char **unique) {
         int r;
 

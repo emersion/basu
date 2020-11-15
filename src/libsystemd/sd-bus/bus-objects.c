@@ -319,7 +319,11 @@ static int check_access(sd_bus *bus, sd_bus_message *m, struct vtable_member *c,
         if (cap == 0)
                 cap = CAPABILITY_SHIFT(c->parent->vtable[0].flags);
         if (cap == 0)
+#if HAVE_LIBCAP
                 cap = CAP_SYS_ADMIN;
+#else
+                return -ENOTSUP;
+#endif
         else
                 cap--;
 
