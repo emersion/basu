@@ -233,13 +233,8 @@ foreach ident : [
         ['gettid',            '''#include <sys/types.h>
                                  #include <unistd.h>'''],
         ['setns',             '''#include <sched.h>'''],
-        ['renameat2',         '''#include <stdio.h>
-                                 #include <fcntl.h>'''],
-        ['kcmp',              '''#include <linux/kcmp.h>'''],
         ['keyctl',            '''#include <sys/types.h>
                                  #include <keyutils.h>'''],
-        ['copy_file_range',   '''#include <sys/syscall.h>
-                                 #include <unistd.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],
         ['reallocarray',      '''#include <malloc.h>'''],
 ]
