@@ -1,45 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <linux/kd.h>
-#include <linux/tiocl.h>
-#include <linux/vt.h>
-#include <poll.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/sysmacros.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/utsname.h>
-#include <termios.h>
-#include <unistd.h>
-
 #include "alloc-util.h"
-#include "def.h"
 #include "env-util.h"
-#include "fd-util.h"
 #include "fileio.h"
 #include "fs-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "macro.h"
-#include "parse-util.h"
 #include "path-util.h"
 #include "process-util.h"
-#include "socket-util.h"
-#include "stat-util.h"
-#include "string-util.h"
-#include "strv.h"
 #include "terminal-util.h"
-#include "time-util.h"
-#include "util.h"
 
 static volatile int cached_on_tty = -1;
 static volatile int cached_colors_enabled = -1;
