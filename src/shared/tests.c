@@ -1,19 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <sched.h>
-#include <signal.h>
 #include <stdlib.h>
-#include <sys/mount.h>
-#include <sys/wait.h>
 #include <util.h>
 
-#include "alloc-util.h"
 #include "env-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "log.h"
-#include "path-util.h"
-#include "strv.h"
 #include "tests.h"
 
 bool slow_tests_enabled(void) {

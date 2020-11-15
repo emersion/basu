@@ -8,13 +8,10 @@
 #include "cap-list.h"
 #include "capability-util.h"
 #include "fileio.h"
-#include "format-util.h"
 #include "locale-util.h"
-#include "macro.h"
 #include "string-util.h"
 #include "strv.h"
 #include "terminal-util.h"
-#include "util.h"
 
 static char *indent(unsigned level, unsigned flags) {
         char *p;

@@ -6,7 +6,6 @@
 
 #include "bus-internal.h"
 #include "bus-message.h"
-#include "refcnt.h"
 #include "tests.h"
 
 static bool use_system_bus = false;

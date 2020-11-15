@@ -16,14 +16,12 @@
 #include "fileio.h"
 #include "json.h"
 #include "locale-util.h"
-#include "log.h"
 #include "parse-util.h"
 #include "path-util.h"
 #include "set.h"
 #include "strv.h"
 #include "terminal-util.h"
 #include "user-util.h"
-#include "util.h"
 #include "verbs.h"
 
 typedef enum BusTransport {

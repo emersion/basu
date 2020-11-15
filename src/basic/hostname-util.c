@@ -1,18 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <errno.h>
 #include <limits.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/utsname.h>
-#include <unistd.h>
 
 #include "alloc-util.h"
-#include "def.h"
-#include "fd-util.h"
-#include "fileio.h"
 #include "hostname-util.h"
-#include "macro.h"
 #include "string-util.h"
 
 static bool hostname_valid_char(char c) {

@@ -5,7 +5,6 @@
 #include "sd-bus.h"
 
 #include "bus-common-errors.h"
-#include "bus-error.h"
 #include "errno-list.h"
 #include "string-util.h"
 #include "errno.h"

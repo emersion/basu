@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
 #if HAVE_VALGRIND_MEMCHECK_H
-#include <valgrind/memcheck.h>
 #endif
 
 #include <errno.h>
@@ -13,9 +12,7 @@
 #include "bus-control.h"
 #include "bus-internal.h"
 #include "bus-message.h"
-#include "capability-util.h"
 #include "process-util.h"
-#include "stdio-util.h"
 #include "string-util.h"
 #include "strv.h"
 #include "user-util.h"

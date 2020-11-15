@@ -6,9 +6,6 @@
 #include "sd-bus.h"
 
 #include "bus-internal.h"
-#include "log.h"
-#include "macro.h"
-#include "util.h"
 #include "string-util.h"
 
 struct context {

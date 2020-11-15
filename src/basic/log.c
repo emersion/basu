@@ -2,32 +2,20 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <inttypes.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <sys/uio.h>
-#include <sys/un.h>
 #include <unistd.h>
 
 #include "alloc-util.h"
-#include "fd-util.h"
-#include "format-util.h"
 #include "io-util.h"
-#include "log.h"
-#include "macro.h"
-#include "missing.h"
-#include "parse-util.h"
 #include "process-util.h"
 #include "socket-util.h"
 #include "stdio-util.h"
 #include "string-table.h"
-#include "string-util.h"
 #include "syslog-util.h"
-#include "utf8.h"
 
 static int log_max_level[] = {LOG_INFO, LOG_INFO};
 assert_cc(ELEMENTSOF(log_max_level) == _LOG_REALM_MAX);

@@ -4,10 +4,7 @@
 #include <netdb.h>
 #include <poll.h>
 #include <pthread.h>
-#include <signal.h>
 #include <stdlib.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
 #include <unistd.h>
 
 #include "sd-bus.h"
@@ -16,26 +13,19 @@
 #include "bus-container.h"
 #include "bus-control.h"
 #include "bus-internal.h"
-#include "bus-kernel.h"
 #include "bus-label.h"
 #include "bus-message.h"
 #include "bus-objects.h"
-#include "bus-protocol.h"
 #include "bus-slot.h"
 #include "bus-socket.h"
 #include "bus-track.h"
 #include "bus-type.h"
-#include "def.h"
 #include "fd-util.h"
 #include "hexdecoct.h"
 #include "hostname-util.h"
-#include "macro.h"
-#include "missing.h"
 #include "parse-util.h"
 #include "process-util.h"
-#include "string-util.h"
 #include "strv.h"
-#include "util.h"
 
 #define log_debug_bus_message(m)                                         \
         do {                                                             \

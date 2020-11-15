@@ -1,18 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
 #include <errno.h>
-#include <limits.h>
 #include <mqueue.h>
 #include <netinet/in.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
-#include <unistd.h>
 
 #include "sd-daemon.h"
 

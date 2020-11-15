@@ -17,9 +17,7 @@
 #include "memfd-util.h"
 #include "string-util.h"
 #include "strv.h"
-#include "time-util.h"
 #include "utf8.h"
-#include "util.h"
 
 static int message_append_basic(sd_bus_message *m, char type, const void *p, const void **stored);
 

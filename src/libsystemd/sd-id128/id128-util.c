@@ -6,10 +6,8 @@
 
 #include "fd-util.h"
 #include "fs-util.h"
-#include "hexdecoct.h"
 #include "id128-util.h"
 #include "io-util.h"
-#include "stdio-util.h"
 
 int id128_read_fd(int fd, Id128Format f, sd_id128_t *ret) {
         char buffer[36 + 2];

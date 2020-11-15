@@ -9,7 +9,6 @@
 #include "fd-util.h"
 #include "fileio.h"
 #include "string-util.h"
-#include "util.h"
 
 int introspect_begin(struct introspect *i, bool trusted) {
         assert(i);

@@ -3,20 +3,15 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "alloc-util.h"
-#include "fd-util.h"
 #include "fileio.h"
 #include "format-util.h"
-#include "macro.h"
-#include "missing.h"
 #include "parse-util.h"
 #include "string-util.h"
 #include "user-util.h"

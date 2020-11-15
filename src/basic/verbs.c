@@ -3,11 +3,9 @@
 #include <errno.h>
 #include <getopt.h>
 #include <stdbool.h>
-#include <stddef.h>
 #include <string.h>
 
 #include "log.h"
-#include "macro.h"
 #include "process-util.h"
 #include "string-util.h"
 #include "verbs.h"

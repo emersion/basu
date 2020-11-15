@@ -3,25 +3,13 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/resource.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "alloc-util.h"
 #include "dirent-util.h"
 #include "fd-util.h"
-#include "fileio.h"
 #include "fs-util.h"
-#include "io-util.h"
-#include "macro.h"
-#include "memfd-util.h"
-#include "missing.h"
 #include "parse-util.h"
-#include "path-util.h"
-#include "process-util.h"
-#include "socket-util.h"
-#include "stdio-util.h"
-#include "util.h"
 
 int close_nointr(int fd) {
         assert(fd >= 0);

@@ -4,10 +4,7 @@
 
 #include "alloc-util.h"
 #include "bus-internal.h"
-#include "bus-match.h"
 #include "bus-message.h"
-#include "fd-util.h"
-#include "fileio.h"
 #include "hexdecoct.h"
 #include "string-util.h"
 #include "strv.h"
