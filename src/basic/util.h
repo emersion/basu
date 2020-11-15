@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 #pragma once
 
-#include <alloca.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -16,7 +15,6 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/statfs.h>
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <time.h>
