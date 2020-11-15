@@ -1,32 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <ctype.h>
 #include <errno.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 #include <sys/time.h>
-#include <sys/timerfd.h>
-#include <sys/timex.h>
-#include <sys/types.h>
-#include <unistd.h>
 
-#include "alloc-util.h"
-#include "def.h"
-#include "fd-util.h"
-#include "fileio.h"
-#include "fs-util.h"
-#include "io-util.h"
-#include "log.h"
-#include "macro.h"
-#include "parse-util.h"
 #include "path-util.h"
-#include "process-util.h"
-#include "stat-util.h"
 #include "string-util.h"
-#include "strv.h"
 #include "time-util.h"
 
 static clockid_t map_clock_id(clockid_t c) {
@@ -249,112 +227,4 @@ int parse_time(const char *t, usec_t *usec, usec_t default_unit) {
 
 int parse_sec(const char *t, usec_t *usec) {
         return parse_time(t, usec, USEC_PER_SEC);
-}
-
-bool timezone_is_valid(const char *name, int log_level) {
-        bool slash = false;
-        const char *p, *t;
-        _cleanup_close_ int fd = -1;
-        char buf[4];
-        int r;
-
-        if (isempty(name))
-                return false;
-
-        if (name[0] == '/')
-                return false;
-
-        for (p = name; *p; p++) {
-                if (!(*p >= '0' && *p <= '9') &&
-                    !(*p >= 'a' && *p <= 'z') &&
-                    !(*p >= 'A' && *p <= 'Z') &&
-                    !IN_SET(*p, '-', '_', '+', '/'))
-                        return false;
-
-                if (*p == '/') {
-
-                        if (slash)
-                                return false;
-
-                        slash = true;
-                } else
-                        slash = false;
-        }
-
-        if (slash)
-                return false;
-
-        if (p - name >= PATH_MAX)
-                return false;
-
-        t = strjoina("/usr/share/zoneinfo/", name);
-
-        fd = open(t, O_RDONLY|O_CLOEXEC);
-        if (fd < 0) {
-                log_full_errno(log_level, errno, "Failed to open timezone file '%s': %m", t);
-                return false;
-        }
-
-        r = fd_verify_regular(fd);
-        if (r < 0) {
-                log_full_errno(log_level, r, "Timezone file '%s' is not  a regular file: %m", t);
-                return false;
-        }
-
-        r = loop_read_exact(fd, buf, 4, false);
-        if (r < 0) {
-                log_full_errno(log_level, r, "Failed to read from timezone file '%s': %m", t);
-                return false;
-        }
-
-        /* Magic from tzfile(5) */
-        if (memcmp(buf, "TZif", 4) != 0) {
-                log_full(log_level, "Timezone file '%s' has wrong magic bytes", t);
-                return false;
-        }
-
-        return true;
-}
-
-bool clock_boottime_supported(void) {
-        static int supported = -1;
-
-        /* Note that this checks whether CLOCK_BOOTTIME is available in general as well as available for timerfds()! */
-
-        if (supported < 0) {
-                int fd;
-
-                fd = timerfd_create(CLOCK_BOOTTIME, TFD_NONBLOCK|TFD_CLOEXEC);
-                if (fd < 0)
-                        supported = false;
-                else {
-                        safe_close(fd);
-                        supported = true;
-                }
-        }
-
-        return supported;
-}
-
-bool clock_supported(clockid_t clock) {
-        struct timespec ts;
-
-        switch (clock) {
-
-        case CLOCK_MONOTONIC:
-        case CLOCK_REALTIME:
-                return true;
-
-        case CLOCK_BOOTTIME:
-                return clock_boottime_supported();
-
-        case CLOCK_BOOTTIME_ALARM:
-                if (!clock_boottime_supported())
-                        return false;
-
-                _fallthrough_;
-        default:
-                /* For everything else, check properly */
-                return clock_gettime(clock, &ts) >= 0;
-        }
 }

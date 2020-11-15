@@ -14,8 +14,6 @@ typedef uint64_t nsec_t;
 #define PRI_USEC PRIu64
 #define USEC_FMT "%" PRI_USEC
 
-#include "macro.h"
-
 #define USEC_INFINITY ((usec_t) -1)
 
 #define USEC_PER_SEC  ((usec_t) 1000000ULL)
@@ -42,13 +40,6 @@ char *format_timestamp_relative(char *buf, size_t l, usec_t t);
 
 int parse_sec(const char *t, usec_t *usec);
 int parse_time(const char *t, usec_t *usec, usec_t default_unit);
-
-bool ntp_synced(void);
-
-bool timezone_is_valid(const char *name, int log_level);
-
-bool clock_boottime_supported(void);
-bool clock_supported(clockid_t clock);
 
 usec_t usec_shift_clock(usec_t, clockid_t from, clockid_t to);
 
