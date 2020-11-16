@@ -11,6 +11,7 @@
 #include "escape.h"
 #include "gunicode.h"
 #include "locale-util.h"
+#include "string-util.h"
 #include "utf8.h"
 
 int strcmp_ptr(const char *a, const char *b) {

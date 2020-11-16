@@ -2,15 +2,12 @@
 #pragma once
 
 #include <netinet/in.h>
-#include <stdbool.h>
 #include <stddef.h>
-#include <sys/socket.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/un.h>
 
 #include "macro.h"
-#include "missing.h"
-#include "util.h"
 
 union sockaddr_union {
         /* The minimal, abstract version */

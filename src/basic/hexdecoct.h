@@ -1,10 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 #pragma once
 
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <sys/types.h>
 
 #include "macro.h"
 

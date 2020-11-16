@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
+#include <linux/capability.h>
+
 #include "alloc-util.h"
 #include "bus-internal.h"
 #include "bus-introspect.h"

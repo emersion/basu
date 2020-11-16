@@ -1,10 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 #pragma once
 
-#include <stdarg.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <sys/types.h>
 
 /* Regular colors */
 #define ANSI_BLACK   "\x1B[0;30m"

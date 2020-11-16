@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-#include "hashmap.h"
 #include "macro.h"
 
 typedef struct Prioq Prioq;

@@ -3,10 +3,8 @@
 
 #include <limits.h>
 #include <stdbool.h>
-#include <stddef.h>
 
 #include "hash-funcs.h"
-#include "macro.h"
 #include "util.h"
 
 /*

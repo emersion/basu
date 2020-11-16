@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
-#include "macro.h"
 #include "string-util.h"
 #include "util.h"
 

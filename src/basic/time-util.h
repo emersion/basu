@@ -1,12 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 #pragma once
 
-#include <inttypes.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <time.h>
+
+#include "macro.h"
 
 typedef uint64_t usec_t;
 typedef uint64_t nsec_t;

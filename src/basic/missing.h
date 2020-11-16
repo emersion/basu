@@ -3,17 +3,7 @@
 
 /* Missing glibc definitions to access certain kernel APIs */
 
-#include <errno.h>
-#include <fcntl.h>
-#include <inttypes.h>
 #include <linux/capability.h>
-#include <stdlib.h>
-#include <sys/resource.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
-#include <sys/syscall.h>
-#include <sys/time.h>
-#include <uchar.h>
 #include <unistd.h>
 
 #if HAVE_AUDIT

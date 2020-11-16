@@ -18,7 +18,9 @@
 #include "parse-util.h"
 #include "process-util.h"
 #include "stat-util.h"
+#include "string-util.h"
 #include "user-util.h"
+#include "util.h"
 
 int saved_argc = 0;
 char **saved_argv = NULL;

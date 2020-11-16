@@ -17,6 +17,7 @@
 #include "path-util.h"
 #include "process-util.h"
 #include "stdio-util.h"
+#include "string-util.h"
 #include "user-util.h"
 #include "utf8.h"
 
