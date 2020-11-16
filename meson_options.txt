@@ -9,6 +9,12 @@ option('rootlibdir', type : 'string',
        description : '''[/usr]/lib/x86_64-linux-gnu or such''')
 option('rootprefix', type : 'string',
        description : '''override the root prefix''')
+option('docdir', type : 'string',
+       description : 'documentation directory')
+
+option('man', type : 'combo', choices : ['auto', 'true', 'false'],
+       value : 'false',
+       description : 'build and install man pages')
 
 option('debug-extra', type : 'array', choices : ['hashmap'], value : [],
        description : 'enable extra debugging')

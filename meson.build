@@ -62,6 +62,7 @@ endif
 bindir = join_paths(prefixdir, get_option('bindir'))
 libdir = join_paths(prefixdir, get_option('libdir'))
 includedir = join_paths(prefixdir, get_option('includedir'))
+datadir = join_paths(prefixdir, get_option('datadir'))
 
 rootbindir = join_paths(rootprefixdir, 'bin')
 rootsbindir = join_paths(rootprefixdir, split_bin ? 'sbin' : 'bin')
@@ -70,6 +71,11 @@ rootlibexecdir = join_paths(rootprefixdir, 'lib/systemd')
 rootlibdir = get_option('rootlibdir')
 if rootlibdir == ''
         rootlibdir = join_paths(rootprefixdir, libdir.split('/')[-1])
+endif
+
+docdir = get_option('docdir')
+if docdir == ''
+        docdir = join_paths(datadir, 'doc/systemd')
 endif
 
 # Dirs of external packages
@@ -427,11 +433,16 @@ includes = include_directories(
 
 add_project_arguments('-include', meson.current_build_dir() / 'config.h', language : 'c')
 
+make_directive_index_py = find_program('tools/make-directive-index.py')
+make_man_index_py = find_program('tools/make-man-index.py')
+xml_helper_py = find_program('tools/xml_helper.py')
+
 subdir('src/basic')
 subdir('src/shared')
 subdir('src/libsystemd')
 subdir('src/systemd')
 subdir('src/test')
+subdir('man')
 
 foreach tuple : tests
         sources = tuple[0]
