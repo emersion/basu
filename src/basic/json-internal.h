@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include "json.h"
 
 /* This header should include all prototypes only the JSON parser itself and

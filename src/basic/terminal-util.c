@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
 #include <sys/sysmacros.h>
+#include <unistd.h>
 
 #include "alloc-util.h"
 #include "env-util.h"
@@ -8,6 +9,7 @@
 #include "fs-util.h"
 #include "path-util.h"
 #include "process-util.h"
+#include "string-util.h"
 #include "terminal-util.h"
 
 static volatile int cached_on_tty = -1;

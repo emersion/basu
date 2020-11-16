@@ -3,9 +3,7 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <stdbool.h>
 
-#include "macro.h"
 #include "path-util.h"
 
 #define FOREACH_DIRENT(de, d, on_error)                                 \

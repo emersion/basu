@@ -16,6 +16,7 @@
 #include "stdio-util.h"
 #include "string-table.h"
 #include "syslog-util.h"
+#include "util.h"
 
 static int log_max_level[] = {LOG_INFO, LOG_INFO};
 assert_cc(ELEMENTSOF(log_max_level) == _LOG_REALM_MAX);

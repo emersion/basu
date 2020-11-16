@@ -3,11 +3,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <uchar.h>
 
 #include "macro.h"
-#include "missing.h"
 
 #define UTF8_REPLACEMENT_CHARACTER "\xef\xbf\xbd"
 

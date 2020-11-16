@@ -14,6 +14,7 @@
 #include "escape.h"
 #include "fd-util.h"
 #include "fileio.h"
+#include "string-util.h"
 #include "utf8.h"
 
 #define READ_FULL_BYTES_MAX (4U*1024U*1024U)

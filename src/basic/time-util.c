@@ -1,9 +1,12 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
 #include <errno.h>
+#include <string.h>
 #include <sys/time.h>
 
-#include "path-util.h"
+#include "macro.h"
+#include "string-util.h"
+#include "time-util.h"
 
 static clockid_t map_clock_id(clockid_t c) {
 

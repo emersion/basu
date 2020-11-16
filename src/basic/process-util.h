@@ -3,18 +3,14 @@
 
 #include <alloca.h>
 #include <errno.h>
-#include <sched.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/resource.h>
 #include <sys/types.h>
 
 #include "format-util.h"
-#include "macro.h"
-#include "time-util.h"
 
 #define procfs_file_alloca(pid, field)                                  \
         ({                                                              \

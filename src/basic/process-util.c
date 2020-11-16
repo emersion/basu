@@ -23,6 +23,8 @@
 #include "fileio.h"
 #include "fs-util.h"
 #include "process-util.h"
+#include "string-util.h"
+#include "util.h"
 
 static int reset_all_signal_handlers(void) {
         static const struct sigaction sa = {
