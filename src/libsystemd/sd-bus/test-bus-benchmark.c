@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
+#include <sys/resource.h>
 #include <sys/wait.h>
 
 #include "sd-bus.h"
