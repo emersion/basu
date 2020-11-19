@@ -14,8 +14,6 @@ sd_daemon = files('''
 libsystemd_sources = files('''
         sd-bus/bus-common-errors.c
         sd-bus/bus-common-errors.h
-        sd-bus/bus-container.c
-        sd-bus/bus-container.h
         sd-bus/bus-control.c
         sd-bus/bus-control.h
         sd-bus/bus-convenience.c

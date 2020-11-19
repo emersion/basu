@@ -10,7 +10,6 @@
 #include "sd-bus.h"
 
 #include "alloc-util.h"
-#include "bus-container.h"
 #include "bus-control.h"
 #include "bus-internal.h"
 #include "bus-label.h"
@@ -1059,7 +1058,7 @@ static int bus_start_address(sd_bus *b) {
                 if (b->exec_path)
                         r = bus_socket_exec(b);
                 else if ((b->nspid > 0 || b->machine) && b->sockaddr.sa.sa_family != AF_UNSPEC)
-                        r = bus_container_connect_socket(b);
+                        r = -ENOSYS; /* support for containers is stubbed out */
                 else if (b->sockaddr.sa.sa_family != AF_UNSPEC)
                         r = bus_socket_connect(b);
                 else
