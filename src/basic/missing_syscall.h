@@ -106,30 +106,3 @@ static inline pid_t missing_gettid(void) {
 
 #  define gettid missing_gettid
 #endif
-
-/* ======================================================================= */
-
-#if !HAVE_SETNS
-#  ifndef __NR_setns
-#    if defined(__x86_64__)
-#      define __NR_setns 308
-#    elif defined(__i386__)
-#      define __NR_setns 346
-#    elif defined(__arc__)
-#      define __NR_setns 268
-#    else
-#      error "__NR_setns is not defined"
-#    endif
-#  endif
-
-static inline int missing_setns(int fd, int nstype) {
-#  ifdef __NR_setns
-        return syscall(__NR_setns, fd, nstype);
-#  else
-        errno = ENOSYS;
-        return -1;
-#  endif
-}
-
-#  define setns missing_setns
-#endif
