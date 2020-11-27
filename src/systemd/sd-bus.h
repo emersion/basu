@@ -123,13 +123,11 @@ int sd_bus_open_user(sd_bus **ret);
 int sd_bus_open_user_with_description(sd_bus **ret, const char *description);
 int sd_bus_open_system(sd_bus **ret);
 int sd_bus_open_system_with_description(sd_bus **ret, const char *description);
-int sd_bus_open_system_remote(sd_bus **ret, const char *host);
 
 int sd_bus_new(sd_bus **ret);
 
 int sd_bus_set_address(sd_bus *bus, const char *address);
 int sd_bus_set_fd(sd_bus *bus, int input_fd, int output_fd);
-int sd_bus_set_exec(sd_bus *bus, const char *path, char *const argv[]);
 int sd_bus_get_address(sd_bus *bus, const char **address);
 int sd_bus_set_bus_client(sd_bus *bus, int b);
 int sd_bus_is_bus_client(sd_bus *bus);

@@ -160,9 +160,6 @@ static sd_bus* bus_free(sd_bus *b) {
         free(b->description);
         free(b->patch_sender);
 
-        free(b->exec_path);
-        strv_free(b->exec_argv);
-
         close_many(b->fds, b->n_fds);
         free(b->fds);
 
@@ -241,28 +238,6 @@ _public_ int sd_bus_set_fd(sd_bus *bus, int input_fd, int output_fd) {
         bus->input_fd = input_fd;
         bus->output_fd = output_fd;
         return 0;
-}
-
-_public_ int sd_bus_set_exec(sd_bus *bus, const char *path, char *const argv[]) {
-        _cleanup_strv_free_ char **a = NULL;
-        int r;
-
-        assert_return(bus, -EINVAL);
-        assert_return(bus = bus_resolve(bus), -ENOPKG);
-        assert_return(bus->state == BUS_UNSET, -EPERM);
-        assert_return(path, -EINVAL);
-        assert_return(!strv_isempty(argv), -EINVAL);
-        assert_return(!bus_pid_changed(bus), -ECHILD);
-
-        a = strv_copy(argv);
-        if (!a)
-                return -ENOMEM;
-
-        r = free_and_strdup(&bus->exec_path, path);
-        if (r < 0)
-                return r;
-
-        return strv_free_and_replace(bus->exec_argv, a);
 }
 
 _public_ int sd_bus_set_bus_client(sd_bus *bus, int b) {
@@ -793,106 +768,11 @@ static int parse_tcp_address(sd_bus *b, const char **p, char **guid) {
         return 0;
 }
 
-static int parse_exec_address(sd_bus *b, const char **p, char **guid) {
-        char *path = NULL;
-        unsigned n_argv = 0, j;
-        char **argv = NULL;
-        size_t allocated = 0;
-        int r;
-
-        assert(b);
-        assert(p);
-        assert(*p);
-        assert(guid);
-
-        while (!IN_SET(**p, 0, ';')) {
-                r = parse_address_key(p, "guid", guid);
-                if (r < 0)
-                        goto fail;
-                else if (r > 0)
-                        continue;
-
-                r = parse_address_key(p, "path", &path);
-                if (r < 0)
-                        goto fail;
-                else if (r > 0)
-                        continue;
-
-                if (startswith(*p, "argv")) {
-                        unsigned ul;
-
-                        errno = 0;
-                        ul = strtoul(*p + 4, (char**) p, 10);
-                        if (errno > 0 || **p != '=' || ul > 256) {
-                                r = -EINVAL;
-                                goto fail;
-                        }
-
-                        (*p)++;
-
-                        if (ul >= n_argv) {
-                                if (!GREEDY_REALLOC0(argv, allocated, ul + 2)) {
-                                        r = -ENOMEM;
-                                        goto fail;
-                                }
-
-                                n_argv = ul + 1;
-                        }
-
-                        r = parse_address_key(p, NULL, argv + ul);
-                        if (r < 0)
-                                goto fail;
-
-                        continue;
-                }
-
-                skip_address_key(p);
-        }
-
-        if (!path) {
-                r = -EINVAL;
-                goto fail;
-        }
-
-        /* Make sure there are no holes in the array, with the
-         * exception of argv[0] */
-        for (j = 1; j < n_argv; j++)
-                if (!argv[j]) {
-                        r = -EINVAL;
-                        goto fail;
-                }
-
-        if (argv && argv[0] == NULL) {
-                argv[0] = strdup(path);
-                if (!argv[0]) {
-                        r = -ENOMEM;
-                        goto fail;
-                }
-        }
-
-        b->exec_path = path;
-        b->exec_argv = argv;
-
-        b->is_local = false;
-
-        return 0;
-
-fail:
-        for (j = 0; j < n_argv; j++)
-                free(argv[j]);
-
-        free(argv);
-        free(path);
-        return r;
-}
-
 static void bus_reset_parsed_address(sd_bus *b) {
         assert(b);
 
         zero(b->sockaddr);
         b->sockaddr_size = 0;
-        b->exec_argv = strv_free(b->exec_argv);
-        b->exec_path = mfree(b->exec_path);
         b->server_id = SD_ID128_NULL;
 }
 
@@ -936,15 +816,6 @@ static int bus_parse_next_address(sd_bus *b) {
 
                         break;
 
-                } else if (startswith(a, "unixexec:")) {
-
-                        a += 9;
-                        r = parse_exec_address(b, &a, &guid);
-                        if (r < 0)
-                                return r;
-
-                        break;
-
                 }
 
                 a = strchr(a, ';');
@@ -962,13 +833,6 @@ static int bus_parse_next_address(sd_bus *b) {
         return 1;
 }
 
-static void bus_kill_exec(sd_bus *bus) {
-        if (pid_is_valid(bus->busexec_pid) > 0) {
-                sigterm_wait(bus->busexec_pid);
-                bus->busexec_pid = 0;
-        }
-}
-
 static int bus_start_address(sd_bus *b) {
         int r;
 
@@ -977,15 +841,10 @@ static int bus_start_address(sd_bus *b) {
         for (;;) {
                 bus_close_io_fds(b);
 
-                bus_kill_exec(b);
-
                 /* If you provide multiple different bus-addresses, we
                  * try all of them in order and use the first one that
                  * succeeds. */
-
-                if (b->exec_path)
-                        r = bus_socket_exec(b);
-                else if (b->sockaddr.sa.sa_family != AF_UNSPEC)
+                if (b->sockaddr.sa.sa_family != AF_UNSPEC)
                         r = bus_socket_connect(b);
                 else
                         goto next;
@@ -1058,7 +917,7 @@ _public_ int sd_bus_start(sd_bus *bus) {
 
         if (bus->input_fd >= 0)
                 r = bus_start_fd(bus);
-        else if (bus->address || bus->sockaddr.sa.sa_family != AF_UNSPEC || bus->exec_path)
+        else if (bus->address || bus->sockaddr.sa.sa_family != AF_UNSPEC)
                 r = bus_start_address(bus);
         else
                 return -EINVAL;
@@ -1241,124 +1100,6 @@ _public_ int sd_bus_open_user(sd_bus **ret) {
         return sd_bus_open_user_with_description(ret, NULL);
 }
 
-int bus_set_address_system_remote(sd_bus *b, const char *host) {
-        _cleanup_free_ char *e = NULL;
-        char *m = NULL, *c = NULL, *a, *rbracket = NULL, *p = NULL;
-
-        assert(b);
-        assert(host);
-
-        /* Skip ":"s in ipv6 addresses */
-        if (*host == '[') {
-                char *t;
-
-                rbracket = strchr(host, ']');
-                if (!rbracket)
-                        return -EINVAL;
-                t = strndupa(host + 1, rbracket - host - 1);
-                e = bus_address_escape(t);
-                if (!e)
-                        return -ENOMEM;
-        } else if ((a = strchr(host, '@'))) {
-                if (*(a + 1) == '[') {
-                        _cleanup_free_ char *t = NULL;
-
-                        rbracket = strchr(a + 1, ']');
-                        if (!rbracket)
-                                return -EINVAL;
-                        t = new0(char, strlen(host));
-                        if (!t)
-                                return -ENOMEM;
-                        strncat(t, host, a - host + 1);
-                        strncat(t, a + 2, rbracket - a - 2);
-                        e = bus_address_escape(t);
-                        if (!e)
-                                return -ENOMEM;
-                } else if (*(a + 1) == '\0' || strchr(a + 1, '@'))
-                        return -EINVAL;
-        }
-
-        /* Let's see if a port was given */
-        m = strchr(rbracket ? rbracket + 1 : host, ':');
-        if (m) {
-                char *t;
-                bool got_forward_slash = false;
-
-                p = m + 1;
-
-                t = strchr(p, '/');
-                if (t) {
-                        p = strndupa(p, t - p);
-                        got_forward_slash = true;
-                }
-
-                if (!in_charset(p, "0123456789") || *p == '\0') {
-                        if (!machine_name_is_valid(p) || got_forward_slash)
-                                return -EINVAL;
-
-                        m = TAKE_PTR(p);
-                        goto interpret_port_as_machine_old_syntax;
-                }
-        }
-
-        /* Let's see if a machine was given */
-        m = strchr(rbracket ? rbracket + 1 : host, '/');
-        if (m) {
-                m++;
-interpret_port_as_machine_old_syntax:
-                /* Let's make sure this is not a port of some kind,
-                 * and is a valid machine name. */
-                if (!in_charset(m, "0123456789") && machine_name_is_valid(m))
-                        c = strjoina(",argv", p ? "7" : "5", "=--machine=", m);
-        }
-
-        if (!e) {
-                char *t;
-
-                t = strndupa(host, strcspn(host, ":/"));
-
-                e = bus_address_escape(t);
-                if (!e)
-                        return -ENOMEM;
-        }
-
-        a = strjoin("unixexec:path=ssh,argv1=-xT", p ? ",argv2=-p,argv3=" : "", strempty(p),
-                                ",argv", p ? "4" : "2", "=--,argv", p ? "5" : "3", "=", e,
-                                ",argv", p ? "6" : "4", "=systemd-stdio-bridge", c);
-        if (!a)
-                return -ENOMEM;
-
-        return free_and_replace(b->address, a);
-}
-
-_public_ int sd_bus_open_system_remote(sd_bus **ret, const char *host) {
-        _cleanup_(bus_freep) sd_bus *b = NULL;
-        int r;
-
-        assert_return(host, -EINVAL);
-        assert_return(ret, -EINVAL);
-
-        r = sd_bus_new(&b);
-        if (r < 0)
-                return r;
-
-        r = bus_set_address_system_remote(b, host);
-        if (r < 0)
-                return r;
-
-        b->bus_client = true;
-        b->trusted = false;
-        b->is_system = true;
-        b->is_local = false;
-
-        r = sd_bus_start(b);
-        if (r < 0)
-                return r;
-
-        *ret = TAKE_PTR(b);
-        return 0;
-}
-
 _public_ void sd_bus_close(sd_bus *bus) {
         if (!bus)
                 return;
@@ -1366,9 +1107,6 @@ _public_ void sd_bus_close(sd_bus *bus) {
                 return;
         if (bus_pid_changed(bus))
                 return;
-
-        /* Don't leave ssh hanging around */
-        bus_kill_exec(bus);
 
         bus_set_state(bus, BUS_CLOSED);
 
@@ -1382,9 +1120,6 @@ _public_ void sd_bus_close(sd_bus *bus) {
 _public_ sd_bus* sd_bus_flush_close_unref(sd_bus *bus) {
         if (!bus)
                 return NULL;
-
-        /* Have to do this before flush() to prevent hang */
-        bus_kill_exec(bus);
 
         sd_bus_flush(bus);
         sd_bus_close(bus);
