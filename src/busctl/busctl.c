@@ -27,7 +27,6 @@
 typedef enum BusTransport {
         BUS_TRANSPORT_LOCAL,
         BUS_TRANSPORT_REMOTE,
-        BUS_TRANSPORT_MACHINE,
         _BUS_TRANSPORT_MAX,
         _BUS_TRANSPORT_INVALID = -1
 } BusTransport;
@@ -120,10 +119,6 @@ static int acquire_bus(bool set_monitor, sd_bus **ret) {
 
                 case BUS_TRANSPORT_REMOTE:
                         r = bus_set_address_system_remote(bus, arg_host);
-                        break;
-
-                case BUS_TRANSPORT_MACHINE:
-                        r = bus_set_address_system_machine(bus, arg_host);
                         break;
 
                 default:
@@ -2115,7 +2110,6 @@ static int help(void) {
                "     --system             Connect to system bus\n"
                "     --user               Connect to user bus\n"
                "  -H --host=[USER@]HOST   Operate on remote host\n"
-               "  -M --machine=CONTAINER  Operate on local container\n"
                "     --address=ADDRESS    Connect to bus specified by address\n"
                "     --show-machine       Show machine ID column in list\n"
                "     --unique             Only show unique names\n"
@@ -2200,7 +2194,6 @@ static int parse_argv(int argc, char *argv[]) {
                 { "activatable",                     no_argument,       NULL, ARG_ACTIVATABLE                     },
                 { "match",                           required_argument, NULL, ARG_MATCH                           },
                 { "host",                            required_argument, NULL, 'H'                                 },
-                { "machine",                         required_argument, NULL, 'M'                                 },
                 { "size",                            required_argument, NULL, ARG_SIZE                            },
                 { "list",                            no_argument,       NULL, ARG_LIST                            },
                 { "quiet",                           no_argument,       NULL, 'q'                                 },
@@ -2289,11 +2282,6 @@ static int parse_argv(int argc, char *argv[]) {
 
                 case 'H':
                         arg_transport = BUS_TRANSPORT_REMOTE;
-                        arg_host = optarg;
-                        break;
-
-                case 'M':
-                        arg_transport = BUS_TRANSPORT_MACHINE;
                         arg_host = optarg;
                         break;
 

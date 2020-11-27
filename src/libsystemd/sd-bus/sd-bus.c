@@ -156,7 +156,6 @@ static sd_bus* bus_free(sd_bus *b) {
         free(b->unique_name);
         free(b->auth_buffer);
         free(b->address);
-        free(b->machine);
         free(b->cgroup_root);
         free(b->description);
         free(b->patch_sender);
@@ -887,67 +886,6 @@ fail:
         return r;
 }
 
-static int parse_container_unix_address(sd_bus *b, const char **p, char **guid) {
-        _cleanup_free_ char *machine = NULL, *pid = NULL;
-        int r;
-
-        assert(b);
-        assert(p);
-        assert(*p);
-        assert(guid);
-
-        while (!IN_SET(**p, 0, ';')) {
-                r = parse_address_key(p, "guid", guid);
-                if (r < 0)
-                        return r;
-                else if (r > 0)
-                        continue;
-
-                r = parse_address_key(p, "machine", &machine);
-                if (r < 0)
-                        return r;
-                else if (r > 0)
-                        continue;
-
-                r = parse_address_key(p, "pid", &pid);
-                if (r < 0)
-                        return r;
-                else if (r > 0)
-                        continue;
-
-                skip_address_key(p);
-        }
-
-        if (!machine == !pid)
-                return -EINVAL;
-
-        if (machine) {
-                if (!streq(machine, ".host") && !machine_name_is_valid(machine))
-                        return -EINVAL;
-
-                free_and_replace(b->machine, machine);
-        } else {
-                b->machine = mfree(b->machine);
-        }
-
-        if (pid) {
-                r = parse_pid(pid, &b->nspid);
-                if (r < 0)
-                        return r;
-        } else
-                b->nspid = 0;
-
-        b->sockaddr.un = (struct sockaddr_un) {
-                .sun_family = AF_UNIX,
-                /* Note that we use the old /var/run prefix here, to increase compatibility with really old containers */
-                .sun_path = "/var/run/dbus/system_bus_socket",
-        };
-        b->sockaddr_size = SOCKADDR_UN_LEN(b->sockaddr.un);
-        b->is_local = false;
-
-        return 0;
-}
-
 static void bus_reset_parsed_address(sd_bus *b) {
         assert(b);
 
@@ -956,8 +894,6 @@ static void bus_reset_parsed_address(sd_bus *b) {
         b->exec_argv = strv_free(b->exec_argv);
         b->exec_path = mfree(b->exec_path);
         b->server_id = SD_ID128_NULL;
-        b->machine = mfree(b->machine);
-        b->nspid = 0;
 }
 
 static int bus_parse_next_address(sd_bus *b) {
@@ -1009,14 +945,6 @@ static int bus_parse_next_address(sd_bus *b) {
 
                         break;
 
-                } else if (startswith(a, "x-machine-unix:")) {
-
-                        a += 15;
-                        r = parse_container_unix_address(b, &a, &guid);
-                        if (r < 0)
-                                return r;
-
-                        break;
                 }
 
                 a = strchr(a, ';');
@@ -1057,8 +985,6 @@ static int bus_start_address(sd_bus *b) {
 
                 if (b->exec_path)
                         r = bus_socket_exec(b);
-                else if ((b->nspid > 0 || b->machine) && b->sockaddr.sa.sa_family != AF_UNSPEC)
-                        r = -ENOSYS; /* support for containers is stubbed out */
                 else if (b->sockaddr.sa.sa_family != AF_UNSPEC)
                         r = bus_socket_connect(b);
                 else
@@ -1132,7 +1058,7 @@ _public_ int sd_bus_start(sd_bus *bus) {
 
         if (bus->input_fd >= 0)
                 r = bus_start_fd(bus);
-        else if (bus->address || bus->sockaddr.sa.sa_family != AF_UNSPEC || bus->exec_path || bus->machine)
+        else if (bus->address || bus->sockaddr.sa.sa_family != AF_UNSPEC || bus->exec_path)
                 r = bus_start_address(bus);
         else
                 return -EINVAL;
@@ -1417,53 +1343,6 @@ _public_ int sd_bus_open_system_remote(sd_bus **ret, const char *host) {
                 return r;
 
         r = bus_set_address_system_remote(b, host);
-        if (r < 0)
-                return r;
-
-        b->bus_client = true;
-        b->trusted = false;
-        b->is_system = true;
-        b->is_local = false;
-
-        r = sd_bus_start(b);
-        if (r < 0)
-                return r;
-
-        *ret = TAKE_PTR(b);
-        return 0;
-}
-
-int bus_set_address_system_machine(sd_bus *b, const char *machine) {
-        _cleanup_free_ char *e = NULL;
-        char *a;
-
-        assert(b);
-        assert(machine);
-
-        e = bus_address_escape(machine);
-        if (!e)
-                return -ENOMEM;
-
-        a = strjoin("x-machine-unix:machine=", e);
-        if (!a)
-                return -ENOMEM;
-
-        return free_and_replace(b->address, a);
-}
-
-_public_ int sd_bus_open_system_machine(sd_bus **ret, const char *machine) {
-        _cleanup_(bus_freep) sd_bus *b = NULL;
-        int r;
-
-        assert_return(machine, -EINVAL);
-        assert_return(ret, -EINVAL);
-        assert_return(streq(machine, ".host") || machine_name_is_valid(machine), -EINVAL);
-
-        r = sd_bus_new(&b);
-        if (r < 0)
-                return r;
-
-        r = bus_set_address_system_machine(b, machine);
         if (r < 0)
                 return r;
 
