@@ -3,10 +3,6 @@
 ############################################################
 
 tests += [
-        [['src/libsystemd/sd-bus/test-bus-address.c'],
-         [],
-         [threads]],
-
         [['src/libsystemd/sd-bus/test-bus-signature.c'],
          [],
          [threads]],

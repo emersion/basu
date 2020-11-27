@@ -45,8 +45,6 @@ DEFINE_TRIVIAL_CLEANUP_FUNC(DIR*, closedir);
 int fd_nonblock(int fd, bool nonblock);
 int fd_cloexec(int fd, bool cloexec);
 
-int close_all_fds(const int except[], size_t n_except);
-
 int fd_move_above_stdio(int fd);
 
 int rearrange_stdio(int original_input_fd, int original_output_fd, int original_error_fd);

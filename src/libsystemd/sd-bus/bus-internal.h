@@ -266,9 +266,6 @@ struct sd_bus {
         int *fds;
         size_t n_fds;
 
-        char *exec_path;
-        char **exec_argv;
-
         unsigned iteration_counter;
 
         /* We do locking around the memfd cache, since we want to
@@ -282,7 +279,6 @@ struct sd_bus {
         unsigned n_memfd_cache;
 
         pid_t original_pid;
-        pid_t busexec_pid;
 
         sd_bus_message *current_message;
         sd_bus_slot *current_slot;
@@ -371,7 +367,6 @@ void bus_close_io_fds(sd_bus *b);
 
 int bus_set_address_system(sd_bus *bus);
 int bus_set_address_user(sd_bus *bus);
-int bus_set_address_system_remote(sd_bus *b, const char *host);
 
 int bus_maybe_reply_error(sd_bus_message *m, int r, sd_bus_error *error);
 
