@@ -124,7 +124,6 @@ int sd_bus_open_user_with_description(sd_bus **ret, const char *description);
 int sd_bus_open_system(sd_bus **ret);
 int sd_bus_open_system_with_description(sd_bus **ret, const char *description);
 int sd_bus_open_system_remote(sd_bus **ret, const char *host);
-int sd_bus_open_system_machine(sd_bus **ret, const char *machine);
 
 int sd_bus_new(sd_bus **ret);
 
