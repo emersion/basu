@@ -132,33 +132,6 @@ char *utf8_is_valid(const char *str) {
         return (char*) str;
 }
 
-char *utf8_escape_invalid(const char *str) {
-        char *p, *s;
-
-        assert(str);
-
-        p = s = malloc(strlen(str) * 4 + 1);
-        if (!p)
-                return NULL;
-
-        while (*str) {
-                int len;
-
-                len = utf8_encoded_valid_unichar(str);
-                if (len > 0) {
-                        s = mempcpy(s, str, len);
-                        str += len;
-                } else {
-                        s = stpcpy(s, UTF8_REPLACEMENT_CHARACTER);
-                        str += 1;
-                }
-        }
-
-        *s = '\0';
-
-        return p;
-}
-
 char *ascii_is_valid_n(const char *str, size_t len) {
         size_t i;
 

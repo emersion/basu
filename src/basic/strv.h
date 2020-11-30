@@ -85,11 +85,3 @@ bool strv_fnmatch(char* const* patterns, const char *s, int flags);
 
 char ***strv_free_free(char ***l);
 DEFINE_TRIVIAL_CLEANUP_FUNC(char***, strv_free_free);
-
-#define strv_free_and_replace(a, b)             \
-        ({                                      \
-                strv_free(a);                   \
-                (a) = (b);                      \
-                (b) = NULL;                     \
-                0;                              \
-        })

@@ -12,7 +12,6 @@ basic_sources = files('''
         capability-util.c
         capability-util.h
         def.h
-        dirent-util.h
         env-util.c
         env-util.h
         errno-list.c
@@ -34,8 +33,6 @@ basic_sources = files('''
         hashmap.h
         hexdecoct.c
         hexdecoct.h
-        hostname-util.c
-        hostname-util.h
         io-util.c
         io-util.h
         json-internal.h
@@ -66,8 +63,6 @@ basic_sources = files('''
         siphash24.h
         socket-util.c
         socket-util.h
-        stat-util.c
-        stat-util.h
         stdio-util.h
         string-table.h
         string-util.c

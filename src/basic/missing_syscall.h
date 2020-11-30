@@ -7,49 +7,6 @@
 
 /* ======================================================================= */
 
-#if !HAVE_MEMFD_CREATE
-#  ifndef __NR_memfd_create
-#    if defined __x86_64__
-#      define __NR_memfd_create 319
-#    elif defined __arm__
-#      define __NR_memfd_create 385
-#    elif defined __aarch64__
-#      define __NR_memfd_create 279
-#    elif defined __s390__
-#      define __NR_memfd_create 350
-#    elif defined _MIPS_SIM
-#      if _MIPS_SIM == _MIPS_SIM_ABI32
-#        define __NR_memfd_create 4354
-#      endif
-#      if _MIPS_SIM == _MIPS_SIM_NABI32
-#        define __NR_memfd_create 6318
-#      endif
-#      if _MIPS_SIM == _MIPS_SIM_ABI64
-#        define __NR_memfd_create 5314
-#      endif
-#    elif defined __i386__
-#      define __NR_memfd_create 356
-#    elif defined __arc__
-#      define __NR_memfd_create 279
-#    else
-#      warning "__NR_memfd_create unknown for your architecture"
-#    endif
-#  endif
-
-static inline int missing_memfd_create(const char *name, unsigned int flags) {
-#  ifdef __NR_memfd_create
-        return syscall(__NR_memfd_create, name, flags);
-#  else
-        errno = ENOSYS;
-        return -1;
-#  endif
-}
-
-#  define memfd_create missing_memfd_create
-#endif
-
-/* ======================================================================= */
-
 #if !HAVE_GETRANDOM
 #  ifndef __NR_getrandom
 #    if defined __x86_64__
