@@ -21,7 +21,6 @@
 #include "bus-type.h"
 #include "fd-util.h"
 #include "hexdecoct.h"
-#include "hostname-util.h"
 #include "parse-util.h"
 #include "process-util.h"
 #include "strv.h"

@@ -12,7 +12,6 @@
 #define WHITESPACE        " \t\n\r"
 #define NEWLINE           "\n\r"
 #define QUOTES            "\"\'"
-#define COMMENTS          "#;"
 #define DIGITS            "0123456789"
 
 #define streq(a,b) (strcmp((a),(b)) == 0)

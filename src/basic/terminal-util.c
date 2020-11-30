@@ -14,7 +14,6 @@
 
 static volatile int cached_on_tty = -1;
 static volatile int cached_colors_enabled = -1;
-static volatile int cached_underline_enabled = -1;
 
 bool on_tty(void) {
 
@@ -162,21 +161,6 @@ bool colors_enabled(void) {
         }
 
         return cached_colors_enabled;
-}
-
-bool underline_enabled(void) {
-
-        if (cached_underline_enabled < 0) {
-
-                /* The Linux console doesn't support underlining, turn it off, but only there. */
-
-                if (colors_enabled())
-                        cached_underline_enabled = !streq_ptr(getenv("TERM"), "linux");
-                else
-                        cached_underline_enabled = false;
-        }
-
-        return cached_underline_enabled;
 }
 
 static bool urlify_enabled(void) {

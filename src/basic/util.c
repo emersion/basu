@@ -11,13 +11,10 @@
 
 #include "alloc-util.h"
 #include "def.h"
-#include "dirent-util.h"
 #include "fd-util.h"
 #include "fileio.h"
-#include "hostname-util.h"
 #include "parse-util.h"
 #include "process-util.h"
-#include "stat-util.h"
 #include "string-util.h"
 #include "user-util.h"
 #include "util.h"

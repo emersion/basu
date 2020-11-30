@@ -229,7 +229,6 @@ foreach ident : ['secure_getenv', '__secure_getenv']
 endforeach
 
 foreach ident : [
-        ['memfd_create',      '''#include <sys/mman.h>'''],
         ['gettid',            '''#include <sys/types.h>
                                  #include <unistd.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],

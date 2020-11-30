@@ -72,13 +72,9 @@ _alloc_(2, 3) static inline void *memdup_multiply(const void *p, size_t size, si
 }
 
 void* greedy_realloc(void **p, size_t *allocated, size_t need, size_t size);
-void* greedy_realloc0(void **p, size_t *allocated, size_t need, size_t size);
 
 #define GREEDY_REALLOC(array, allocated, need)                          \
         greedy_realloc((void**) &(array), &(allocated), (need), sizeof((array)[0]))
-
-#define GREEDY_REALLOC0(array, allocated, need)                         \
-        greedy_realloc0((void**) &(array), &(allocated), (need), sizeof((array)[0]))
 
 /* Takes inspiration from Rusts's Option::take() method: reads and returns a pointer, but at the same time resets it to
  * NULL. See: https://doc.rust-lang.org/std/option/enum.Option.html#method.take */

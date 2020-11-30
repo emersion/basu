@@ -96,51 +96,6 @@ char* uid_to_name(uid_t uid) {
         return ret;
 }
 
-int reset_uid_gid(void) {
-        int r;
-
-        r = maybe_setgroups(0, NULL);
-        if (r < 0)
-                return r;
-
-        if (setresgid(0, 0, 0) < 0)
-                return -errno;
-
-        if (setresuid(0, 0, 0) < 0)
-                return -errno;
-
-        return 0;
-}
-
-int maybe_setgroups(size_t size, const gid_t *list) {
-        int r;
-
-        /* Check if setgroups is allowed before we try to drop all the auxiliary groups */
-        if (size == 0) { /* Dropping all aux groups? */
-                _cleanup_free_ char *setgroups_content = NULL;
-                bool can_setgroups;
-
-                r = read_one_line_file("/proc/self/setgroups", &setgroups_content);
-                if (r == -ENOENT)
-                        /* Old kernels don't have /proc/self/setgroups, so assume we can use setgroups */
-                        can_setgroups = true;
-                else if (r < 0)
-                        return r;
-                else
-                        can_setgroups = streq(setgroups_content, "allow");
-
-                if (!can_setgroups) {
-                        log_debug("Skipping setgroups(), /proc/self/setgroups is set to 'deny'");
-                        return 0;
-                }
-        }
-
-        if (setgroups(size, list) < 0)
-                return -errno;
-
-        return 0;
-}
-
 bool synthesize_nobody(void) {
 
 #ifdef NOLEGACY

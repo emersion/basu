@@ -59,22 +59,3 @@ void* greedy_realloc(void **p, size_t *allocated, size_t need, size_t size) {
         *allocated = newalloc;
         return q;
 }
-
-void* greedy_realloc0(void **p, size_t *allocated, size_t need, size_t size) {
-        size_t prev;
-        uint8_t *q;
-
-        assert(p);
-        assert(allocated);
-
-        prev = *allocated;
-
-        q = greedy_realloc(p, allocated, need, size);
-        if (!q)
-                return NULL;
-
-        if (*allocated > prev)
-                memzero(q + prev * size, (*allocated - prev) * size);
-
-        return q;
-}
