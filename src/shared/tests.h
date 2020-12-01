@@ -3,3 +3,4 @@
 
 void test_setup_logging(int level);
 int log_tests_skipped(const char *message);
+int log_tests_skipped_errno(int ret, const char *message);

@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#if HAVE_GLIB
-#include <glib.h>
-#endif
-
 #include "sd-bus.h"
 
 #include "alloc-util.h"
@@ -149,48 +145,9 @@ static int test_marshal(void) {
 
         assert_se(sd_bus_message_seal(m, 4711, 0) >= 0);
 
-#if HAVE_GLIB
-        {
-                GVariant *v;
-                char *t;
-
-#if !defined(GLIB_VERSION_2_36)
-                g_type_init();
-#endif
-
-                v = g_variant_new_from_data(G_VARIANT_TYPE("(yyyyuta{tv})"), m->header, sizeof(struct bus_header) + m->fields_size, false, NULL, NULL);
-                assert_se(g_variant_is_normal_form(v));
-                t = g_variant_print(v, TRUE);
-                printf("%s\n", t);
-                g_free(t);
-                g_variant_unref(v);
-
-                v = g_variant_new_from_data(G_VARIANT_TYPE("(a(usv))"), m->body.data, m->user_body_size, false, NULL, NULL);
-                assert_se(g_variant_is_normal_form(v));
-                t = g_variant_print(v, TRUE);
-                printf("%s\n", t);
-                g_free(t);
-                g_variant_unref(v);
-        }
-#endif
-
         assert_se(bus_message_dump(m, NULL, BUS_MESSAGE_DUMP_WITH_HEADER) >= 0);
 
         assert_se(bus_message_get_blob(m, &blob, &sz) >= 0);
-
-#if HAVE_GLIB
-        {
-                GVariant *v;
-                char *t;
-
-                v = g_variant_new_from_data(G_VARIANT_TYPE("(yyyyuta{tv}v)"), blob, sz, false, NULL, NULL);
-                assert_se(g_variant_is_normal_form(v));
-                t = g_variant_print(v, TRUE);
-                printf("%s\n", t);
-                g_free(t);
-                g_variant_unref(v);
-        }
-#endif
 
         assert_se(bus_message_from_malloc(bus, blob, sz, NULL, 0, NULL, &n) >= 0);
         blob = NULL;

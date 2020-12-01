@@ -165,6 +165,7 @@ static inline bool BUS_MESSAGE_IS_GVARIANT(sd_bus_message *m) {
         return m->header->version == 2;
 }
 
+int bus_message_get_blob(sd_bus_message *m, void **buffer, size_t *sz);
 int bus_message_read_strv_extend(sd_bus_message *m, char ***l);
 
 int bus_message_from_header(

@@ -3,18 +3,11 @@
 #include <math.h>
 #include <stdlib.h>
 
-#if HAVE_GLIB
-#include <gio/gio.h>
-#endif
-
-#if HAVE_DBUS
-#include <dbus/dbus.h>
-#endif
-
 #include "sd-bus.h"
 
 #include "alloc-util.h"
 #include "bus-dump.h"
+#include "bus-internal.h"
 #include "bus-label.h"
 #include "bus-message.h"
 #include "escape.h"
@@ -22,6 +15,79 @@
 #include "log.h"
 #include "tests.h"
 #include "util.h"
+#include "stdio-util.h"
+
+static int bus_path_encode_unique(sd_bus *b, const char *prefix, const char *sender_id, const char *external_id, char **ret_path) {
+        _cleanup_free_ char *sender_label = NULL, *external_label = NULL;
+        char external_buf[DECIMAL_STR_MAX(uint64_t)], *p;
+        int r;
+
+        assert_return(b || (sender_id && external_id), -EINVAL);
+        assert_return(object_path_is_valid(prefix), -EINVAL);
+        assert_return(ret_path, -EINVAL);
+
+        if (!sender_id) {
+                r = sd_bus_get_unique_name(b, &sender_id);
+                if (r < 0)
+                        return r;
+        }
+
+        if (!external_id) {
+                xsprintf(external_buf, "%"PRIu64, ++b->cookie);
+                external_id = external_buf;
+        }
+
+        sender_label = bus_label_escape(sender_id);
+        if (!sender_label)
+                return -ENOMEM;
+
+        external_label = bus_label_escape(external_id);
+        if (!external_label)
+                return -ENOMEM;
+
+        p = strjoin(prefix, "/", sender_label, "/", external_label);
+        if (!p)
+                return -ENOMEM;
+
+        *ret_path = p;
+        return 0;
+}
+
+static int bus_path_decode_unique(const char *path, const char *prefix, char **ret_sender, char **ret_external) {
+        const char *p, *q;
+        char *sender, *external;
+
+        assert(object_path_is_valid(path));
+        assert(object_path_is_valid(prefix));
+        assert(ret_sender);
+        assert(ret_external);
+
+        p = object_path_startswith(path, prefix);
+        if (!p) {
+                *ret_sender = NULL;
+                *ret_external = NULL;
+                return 0;
+        }
+
+        q = strchr(p, '/');
+        if (!q) {
+                *ret_sender = NULL;
+                *ret_external = NULL;
+                return 0;
+        }
+
+        sender = bus_label_unescape_n(p, q - p);
+        external = bus_label_unescape(q + 1);
+        if (!sender || !external) {
+                free(sender);
+                free(external);
+                return -ENOMEM;
+        }
+
+        *ret_sender = sender;
+        *ret_external = external;
+        return 1;
+}
 
 static void test_bus_path_encode_unique(void) {
         _cleanup_free_ char *a = NULL, *b = NULL, *c = NULL, *d = NULL, *e = NULL;
@@ -199,42 +265,6 @@ int main(int argc, char *argv[]) {
         h = cescape_length(buffer, sz);
         assert_se(h);
         log_info("message size = %zu, contents =\n%s", sz, h);
-
-#if HAVE_GLIB
-#ifndef __SANITIZE_ADDRESS__
-        {
-                GDBusMessage *g;
-                char *p;
-
-#if !defined(GLIB_VERSION_2_36)
-                g_type_init();
-#endif
-
-                g = g_dbus_message_new_from_blob(buffer, sz, 0, NULL);
-                p = g_dbus_message_print(g, 0);
-                log_info("%s", p);
-                g_free(p);
-                g_object_unref(g);
-        }
-#endif
-#endif
-
-#if HAVE_DBUS
-        {
-                DBusMessage *w;
-                DBusError error;
-
-                dbus_error_init(&error);
-
-                w = dbus_message_demarshal(buffer, sz, &error);
-                if (!w)
-                        log_error("%s", error.message);
-                else
-                        dbus_message_unref(w);
-
-                dbus_error_free(&error);
-        }
-#endif
 
         m = sd_bus_message_unref(m);
 

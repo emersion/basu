@@ -3,6 +3,10 @@
 ############################################################
 
 tests += [
+        [['src/libsystemd/sd-bus/test-bus-marshal.c'],
+         [],
+         []],
+
         [['src/libsystemd/sd-bus/test-bus-signature.c'],
          [],
          [threads]],
@@ -24,9 +28,18 @@ tests += [
          [],
          [threads]],
 
+        [['src/libsystemd/sd-bus/test-bus-gvariant.c'],
+         [],
+         []],
+
         [['src/libsystemd/sd-bus/test-bus-objects.c'],
          [],
          [threads]],
+
+        [['src/libsystemd/sd-bus/test-bus-vtable.c',
+          'src/libsystemd/sd-bus/test-vtable-data.h'],
+         [],
+         []],
 
         [['src/libsystemd/sd-bus/test-bus-creds.c'],
          [],
@@ -40,6 +53,12 @@ tests += [
          [],
          [threads],
          '', 'manual'],
+
+
+        [['src/libsystemd/sd-bus/test-bus-introspect.c',
+          'src/libsystemd/sd-bus/test-vtable-data.h'],
+         [],
+         []],
 ]
 
 if cxx_cmd != ''
