@@ -232,7 +232,7 @@ foreach ident : [
         ['gettid',            '''#include <sys/types.h>
                                  #include <unistd.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],
-        ['reallocarray',      '''#include <malloc.h>'''],
+        ['reallocarray',      '''#include <stdlib.h>'''],
 ]
 
         have = cc.has_function(ident[0], prefix : ident[1], args : '-D_GNU_SOURCE')
