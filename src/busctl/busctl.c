@@ -2089,13 +2089,6 @@ static int set_property(int argc, char **argv, void *userdata) {
 }
 
 static int help(void) {
-        _cleanup_free_ char *link = NULL;
-        int r;
-
-        r = terminal_urlify_man("busctl", "1", &link);
-        if (r < 0)
-                return log_oom();
-
         printf("%s [OPTIONS...] {COMMAND} ...\n\n"
                "Introspect the bus.\n\n"
                "  -h --help               Show this help\n"
@@ -2139,7 +2132,7 @@ static int help(void) {
                "  help                    Show this help\n"
                "\nSee the %s for details.\n"
                , program_invocation_short_name
-               , link
+               , "busctl(1) man page"
         );
 
         return 0;

@@ -48,6 +48,3 @@ DEFINE_ANSI_FUNC(normal,                     NORMAL);
 
 int get_ctty_devnr(pid_t pid, dev_t *d);
 int get_ctty(pid_t, dev_t *_devnr, char **r);
-
-int terminal_urlify(const char *url, const char *text, char **ret);
-int terminal_urlify_man(const char *page, const char *section, char **ret);
