@@ -66,21 +66,6 @@ struct timespec *timespec_store(struct timespec *ts, usec_t u)  {
         return ts;
 }
 
-struct timeval *timeval_store(struct timeval *tv, usec_t u) {
-        assert(tv);
-
-        if (u == USEC_INFINITY ||
-            u / USEC_PER_SEC > TIME_T_MAX) {
-                tv->tv_sec = (time_t) -1;
-                tv->tv_usec = (suseconds_t) -1;
-        } else {
-                tv->tv_sec = (time_t) (u / USEC_PER_SEC);
-                tv->tv_usec = (suseconds_t) (u % USEC_PER_SEC);
-        }
-
-        return tv;
-}
-
 static const char* extract_multiplier(const char *p, usec_t *multiplier) {
         static const struct {
                 const char *suffix;

@@ -44,7 +44,6 @@ static bool arg_show_machine = false;
 static char **arg_matches = NULL;
 static BusTransport arg_transport = BUS_TRANSPORT_LOCAL;
 static bool arg_user = false;
-static size_t arg_snaplen = 4096;
 static bool arg_list = false;
 static bool arg_quiet = false;
 static bool arg_verbose = false;
@@ -1115,10 +1114,6 @@ static int message_dump(sd_bus_message *m, FILE *f) {
         return bus_message_dump(m, f, BUS_MESSAGE_DUMP_WITH_HEADER);
 }
 
-static int message_pcap(sd_bus_message *m, FILE *f) {
-        return bus_message_pcap_frame(m, arg_snaplen, f);
-}
-
 static int monitor(int argc, char **argv, int (*dump)(sd_bus_message *m, FILE *f)) {
         _cleanup_(sd_bus_flush_close_unrefp) sd_bus *bus = NULL;
         _cleanup_(sd_bus_message_unrefp) sd_bus_message *message = NULL;
@@ -1239,27 +1234,6 @@ static int monitor(int argc, char **argv, int (*dump)(sd_bus_message *m, FILE *f
 
 static int verb_monitor(int argc, char **argv, void *userdata) {
         return monitor(argc, argv, message_dump);
-}
-
-static int verb_capture(int argc, char **argv, void *userdata) {
-        int r;
-
-        if (isatty(fileno(stdout)) > 0) {
-                log_error("Refusing to write message data to console, please redirect output to a file.");
-                return -EINVAL;
-        }
-
-        bus_pcap_header(arg_snaplen, stdout);
-
-        r = monitor(argc, argv, message_pcap);
-        if (r < 0)
-                return r;
-
-        r = fflush_and_check(stdout);
-        if (r < 0)
-                return log_error_errno(r, "Couldn't write capture file: %m");
-
-        return r;
 }
 
 static int status(int argc, char **argv, void *userdata) {
@@ -2102,7 +2076,6 @@ static int help(void) {
                "     --acquired           Only show acquired names\n"
                "     --activatable        Only show activatable names\n"
                "     --match=MATCH        Only show matching messages\n"
-               "     --size=SIZE          Maximum length of captured packet\n"
                "     --list               Don't show tree, but simple object path list\n"
                "  -q --quiet              Don't show method call reply\n"
                "     --verbose            Show result values in long format\n"
@@ -2120,7 +2093,6 @@ static int help(void) {
                "  list                    List bus names\n"
                "  status [SERVICE]        Show bus service, process or bus owner credentials\n"
                "  monitor [SERVICE...]    Show bus traffic\n"
-               "  capture [SERVICE...]    Capture bus traffic as pcap\n"
                "  tree [SERVICE...]       Show object tree of service\n"
                "  introspect SERVICE OBJECT [INTERFACE]\n"
                "  call SERVICE OBJECT INTERFACE METHOD [SIGNATURE [ARGUMENT...]]\n"
@@ -2155,7 +2127,6 @@ static int parse_argv(int argc, char *argv[]) {
                 ARG_UNIQUE,
                 ARG_ACQUIRED,
                 ARG_ACTIVATABLE,
-                ARG_SIZE,
                 ARG_LIST,
                 ARG_VERBOSE,
                 ARG_EXPECT_REPLY,
@@ -2179,7 +2150,6 @@ static int parse_argv(int argc, char *argv[]) {
                 { "acquired",                        no_argument,       NULL, ARG_ACQUIRED                        },
                 { "activatable",                     no_argument,       NULL, ARG_ACTIVATABLE                     },
                 { "match",                           required_argument, NULL, ARG_MATCH                           },
-                { "size",                            required_argument, NULL, ARG_SIZE                            },
                 { "list",                            no_argument,       NULL, ARG_LIST                            },
                 { "quiet",                           no_argument,       NULL, 'q'                                 },
                 { "verbose",                         no_argument,       NULL, ARG_VERBOSE                         },
@@ -2244,22 +2214,6 @@ static int parse_argv(int argc, char *argv[]) {
                         if (strv_extend(&arg_matches, optarg) < 0)
                                 return log_oom();
                         break;
-
-                case ARG_SIZE: {
-                        uint64_t sz;
-
-                        r = parse_size(optarg, 1024, &sz);
-                        if (r < 0)
-                                return log_error_errno(r, "Failed to parse size '%s': %m", optarg);
-
-                        if ((uint64_t) (size_t) sz !=  sz) {
-                                log_error("Size out of range.");
-                                return -E2BIG;
-                        }
-
-                        arg_snaplen = (size_t) sz;
-                        break;
-                }
 
                 case ARG_LIST:
                         arg_list = true;
@@ -2359,7 +2313,6 @@ static int busctl_main(int argc, char *argv[]) {
                 { "list",         VERB_ANY, 1,        VERB_DEFAULT, list_bus_names },
                 { "status",       VERB_ANY, 2,        0,            status         },
                 { "monitor",      VERB_ANY, VERB_ANY, 0,            verb_monitor   },
-                { "capture",      VERB_ANY, VERB_ANY, 0,            verb_capture   },
                 { "tree",         VERB_ANY, VERB_ANY, 0,            tree           },
                 { "introspect",   3,        4,        0,            introspect     },
                 { "call",         5,        VERB_ANY, 0,            call           },
