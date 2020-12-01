@@ -10,8 +10,6 @@
 int parse_boolean(const char *v) _pure_;
 int parse_pid(const char *s, pid_t* ret_pid);
 
-int parse_size(const char *t, uint64_t base, uint64_t *size);
-
 int safe_atou_full(const char *s, unsigned base, unsigned *ret_u);
 
 static inline int safe_atou(const char *s, unsigned *ret_u) {

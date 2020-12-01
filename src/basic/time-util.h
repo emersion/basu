@@ -31,8 +31,6 @@ usec_t now(clockid_t clock);
 usec_t timespec_load(const struct timespec *ts) _pure_;
 struct timespec *timespec_store(struct timespec *ts, usec_t u);
 
-struct timeval *timeval_store(struct timeval *tv, usec_t u);
-
 int parse_sec(const char *t, usec_t *usec);
 int parse_time(const char *t, usec_t *usec, usec_t default_unit);
 

@@ -14,6 +14,3 @@ enum {
 int bus_message_dump(sd_bus_message *m, FILE *f, unsigned flags);
 
 int bus_creds_dump(sd_bus_creds *c, FILE *f, bool terse);
-
-int bus_pcap_header(size_t snaplen, FILE *f);
-int bus_message_pcap_frame(sd_bus_message *m, size_t snaplen, FILE *f);
