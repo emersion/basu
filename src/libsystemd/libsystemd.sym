@@ -7,42 +7,18 @@
   (at your option) any later version.
 ***/
 
-LIBSYSTEMD_209 {
+{
 global:
-        /* sd-id128 */
+        /* LIBSYSTEMD_209 */
+
         sd_id128_to_string;
         sd_id128_from_string;
         sd_id128_randomize;
         sd_id128_get_machine;
         sd_id128_get_boot;
-local:
-       *;
-};
 
-LIBSYSTEMD_211 {
-} LIBSYSTEMD_209;
+        /* LIBSYSTEMD_221 */
 
-LIBSYSTEMD_213 {
-} LIBSYSTEMD_211;
-
-LIBSYSTEMD_214 {
-} LIBSYSTEMD_213;
-
-LIBSYSTEMD_216 {
-} LIBSYSTEMD_214;
-
-LIBSYSTEMD_217 {
-} LIBSYSTEMD_216;
-
-LIBSYSTEMD_219 {
-} LIBSYSTEMD_217;
-
-LIBSYSTEMD_220 {
-} LIBSYSTEMD_219;
-
-LIBSYSTEMD_221 {
-global:
-        /* sd-bus */
         sd_bus_default;
         sd_bus_default_user;
         sd_bus_default_system;
@@ -275,61 +251,39 @@ global:
         sd_bus_track_contains;
         sd_bus_track_first;
         sd_bus_track_next;
-} LIBSYSTEMD_220;
 
-LIBSYSTEMD_222 {
-global:
-        /* sd-bus */
+        /* LIBSYSTEMD_222 */
+
         sd_bus_emit_object_added;
         sd_bus_emit_object_removed;
         sd_bus_flush_close_unref;
-} LIBSYSTEMD_221;
 
-LIBSYSTEMD_226 {
-} LIBSYSTEMD_222;
+        /* LIBSYSTEMD_227 */
 
-LIBSYSTEMD_227 {
-global:
         sd_bus_default_flush_close;
         sd_bus_path_decode_many;
         sd_bus_path_encode_many;
-} LIBSYSTEMD_226;
 
-LIBSYSTEMD_229 {
-} LIBSYSTEMD_227;
+        /* LIBSYSTEMD_232 */
 
-LIBSYSTEMD_230 {
-} LIBSYSTEMD_229;
-
-LIBSYSTEMD_231 {
-} LIBSYSTEMD_230;
-
-LIBSYSTEMD_232 {
-global:
         sd_bus_track_set_recursive;
         sd_bus_track_get_recursive;
         sd_bus_track_count_name;
         sd_bus_track_count_sender;
         sd_bus_set_exit_on_disconnect;
         sd_bus_get_exit_on_disconnect;
-} LIBSYSTEMD_231;
 
-LIBSYSTEMD_233 {
-} LIBSYSTEMD_232;
+        /* LIBSYSTEMD_234 */
 
-LIBSYSTEMD_234 {
-global:
         sd_bus_message_appendv;
-} LIBSYSTEMD_233;
 
-LIBSYSTEMD_236 {
-global:
+        /* LIBSYSTEMD_236 */
+
         sd_bus_message_new;
         sd_bus_message_seal;
-} LIBSYSTEMD_234;
 
-LIBSYSTEMD_237 {
-global:
+        /* LIBSYSTEMD_237 */
+
         sd_bus_set_watch_bind;
         sd_bus_get_watch_bind;
         sd_bus_request_name_async;
@@ -343,16 +297,14 @@ global:
         sd_bus_set_sender;
         sd_bus_get_sender;
         sd_bus_message_set_sender;
-} LIBSYSTEMD_236;
 
-LIBSYSTEMD_238 {
-global:
+        /* LIBSYSTEMD_238 */
+
         sd_bus_get_n_queued_read;
         sd_bus_get_n_queued_write;
-} LIBSYSTEMD_237;
 
-LIBSYSTEMD_239 {
-global:
+        /* LIBSYSTEMD_239 */
+
         sd_bus_open_with_description;
         sd_bus_open_user_with_description;
         sd_bus_open_system_with_description;
@@ -362,10 +314,9 @@ global:
         sd_bus_slot_set_destroy_callback;
         sd_bus_track_get_destroy_callback;
         sd_bus_track_set_destroy_callback;
-} LIBSYSTEMD_238;
 
-LIBSYSTEMD_240 {
-global:
+        /* LIBSYSTEMD_240 */
+
         sd_bus_message_readv;
         sd_bus_set_method_call_timeout;
         sd_bus_get_method_call_timeout;
@@ -374,4 +325,4 @@ global:
 
         sd_bus_set_close_on_exit;
         sd_bus_get_close_on_exit;
-} LIBSYSTEMD_239;
+};

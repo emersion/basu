@@ -1,5 +1,5 @@
 project('basu', 'c',
-  version: '239',
+  version: '0.1.0',
   license: 'LGPLv2+',
   default_options: [
     'c_std=gnu99',
@@ -10,7 +10,7 @@ project('basu', 'c',
   meson_version: '>= 0.54',
 )
 
-libsystemd_version = '0.23.0'
+soversion = 0
 
 # We need the same data in two different formats, ugh!
 # Also, for hysterical reasons, we use different variable
@@ -442,7 +442,7 @@ endforeach
 libsystemd_sym_path = '@0@/@1@'.format(meson.current_source_dir(), libsystemd_sym)
 libsystemd = shared_library(
         'basu',
-        version : libsystemd_version,
+        soversion : soversion,
         include_directories : includes,
         link_args : ['-shared',
                      '-Wl,--version-script=' + libsystemd_sym_path],
