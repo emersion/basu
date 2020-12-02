@@ -281,9 +281,7 @@ conf.set('GPERF_LEN_TYPE', gperf_len_type,
 
 ############################################################
 
-foreach header : ['crypt.h',
-                  'linux/memfd.h',
-                  'sys/auxv.h',
+foreach header : ['sys/auxv.h',
                   'valgrind/memcheck.h',
                   'valgrind/valgrind.h',
                  ]
