@@ -13,8 +13,6 @@
 #include <sys/wait.h>
 #include <syslog.h>
 #include <unistd.h>
-#if HAVE_VALGRIND_VALGRIND_H
-#endif
 
 #include "alloc-util.h"
 #include "def.h"

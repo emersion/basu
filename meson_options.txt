@@ -12,8 +12,6 @@ option('rootprefix', type : 'string',
 
 option('debug-extra', type : 'array', choices : ['hashmap'], value : [],
        description : 'enable extra debugging')
-option('valgrind', type : 'boolean', value : false,
-       description : 'do extra operations to avoid valgrind warnings')
 
 option('pkgconfiglibdir', type : 'string', value : '',
        description : 'directory for ')
@@ -25,15 +23,8 @@ option('nobody-group', type : 'string',
        description : 'The name of the nobody group (the one with GID 65534)',
        value : 'nobody')
 
-option('polkit', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : 'polkit support')
-
 option('audit', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libaudit support')
 
 option('tests', type : 'combo', choices : ['true', 'unsafe', 'false'],
        description : 'enable extra tests with =unsafe')
-option('slow-tests', type : 'boolean', value : 'false',
-       description : 'run the slow tests by default')
-option('install-tests', type : 'boolean', value : 'false',
-       description : 'install test executables')

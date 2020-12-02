@@ -94,8 +94,6 @@ cc = meson.get_compiler('c')
 pkgconfig = import('pkgconfig')
 
 want_tests = get_option('tests')
-slow_tests = want_tests != 'false' and get_option('slow-tests')
-install_tests = get_option('install-tests')
 
 cxx_cmd = ''
 fuzzer_build = false
@@ -281,10 +279,7 @@ conf.set('GPERF_LEN_TYPE', gperf_len_type,
 
 ############################################################
 
-foreach header : ['sys/auxv.h',
-                  'valgrind/memcheck.h',
-                  'valgrind/valgrind.h',
-                 ]
+foreach header : ['sys/auxv.h']
 
         conf.set10('HAVE_' + header.underscorify().to_upper(),
                    cc.has_header(header))
@@ -357,8 +352,6 @@ foreach name : get_option('debug-extra')
 endforeach
 conf.set10('ENABLE_DEBUG_HASHMAP', enable_debug_hashmap)
 
-conf.set10('VALGRIND', get_option('valgrind'))
-
 #####################################################################
 
 threads = dependency('threads')
@@ -366,21 +359,6 @@ librt = cc.find_library('rt')
 libm = cc.find_library('m')
 
 libcap = dependency('libcap')
-
-want_polkit = get_option('polkit')
-install_polkit = false
-install_polkit_pkla = false
-if want_polkit != 'false' and not fuzzer_build
-        install_polkit = true
-
-        libpolkit = dependency('polkit-gobject-1',
-                               required : false)
-        if libpolkit.found() and libpolkit.version().version_compare('< 0.106')
-                message('Old polkit detected, will install pkla files')
-                install_polkit_pkla = true
-        endif
-endif
-conf.set10('ENABLE_POLKIT', install_polkit)
 
 want_audit = get_option('audit')
 if want_audit != 'false' and not fuzzer_build
@@ -394,8 +372,6 @@ conf.set10('HAVE_AUDIT', have)
 
 tests = []
 fuzzers = []
-
-conf.set10('SYSTEMD_SLOW_TESTS_DEFAULT', slow_tests)
 
 config_h = configure_file(
   output : 'config.h',
@@ -448,7 +424,7 @@ foreach tuple : tests
                         c_args : defs,
                         build_by_default : want_tests != 'false',
                         install_rpath : rootlibexecdir,
-                        install : install_tests,
+                        install : false,
                         install_dir : join_paths(testsdir, type))
 
                 if type == 'manual'

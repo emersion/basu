@@ -1,8 +1,5 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#if HAVE_VALGRIND_MEMCHECK_H
-#endif
-
 #include <errno.h>
 #include <stddef.h>
 
