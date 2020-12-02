@@ -4,8 +4,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#if HAVE_LINUX_MEMFD_H
-#endif
 
 #include "alloc-util.h"
 #include "memfd-util.h"
