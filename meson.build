@@ -383,8 +383,8 @@ cpp = ' '.join(cc.cmd_array()) + ' -E'
 
 includes = include_directories(
   'src/basic',
-  'src/shared',
   'src/systemd',
+  'src/test',
   'src/libsystemd/sd-bus',
   'src/libsystemd/sd-daemon',
   'src/libsystemd/sd-id128',
@@ -393,14 +393,13 @@ includes = include_directories(
 add_project_arguments('-include', meson.current_build_dir() / 'config.h', language : 'c')
 
 subdir('src/basic')
-subdir('src/shared')
 subdir('src/libsystemd')
 subdir('src/systemd')
 subdir('src/test')
 
 foreach tuple : tests
         sources = tuple[0]
-        link_with = tuple[1].length() > 0 ? tuple[1] : [libbasic, libshared_static, libsystemd_static]
+        link_with = tuple[1]
         dependencies = tuple[2]
         condition = tuple.length() >= 4 ? tuple[3] : ''
         type = tuple.length() >= 5 ? tuple[4] : ''
@@ -459,8 +458,7 @@ exe = executable('basuctl',
                  'src/busctl/busctl-introspect.c',
                  'src/busctl/busctl-introspect.h',
                  include_directories : includes,
-                 link_with : [libshared_static,
-                              libbasic,
+                 link_with : [libbasic,
                               libsystemd_static],
                  install_rpath : rootlibexecdir,
                  install : true)
