@@ -1,30 +1,12 @@
 # -*- mode: meson -*-
 # SPDX-License-Identifier: LGPL-2.1+
 
-option('split-usr', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : '''/bin, /sbin aren't symlinks into /usr''')
-option('split-bin', type : 'combo', choices : ['auto', 'true', 'false'],
-       description : '''sbin is not a symlink to bin''')
-option('rootlibdir', type : 'string',
-       description : '''[/usr]/lib/x86_64-linux-gnu or such''')
-option('rootprefix', type : 'string',
-       description : '''override the root prefix''')
-
 option('debug-extra', type : 'array', choices : ['hashmap'], value : [],
        description : 'enable extra debugging')
-
-option('pkgconfiglibdir', type : 'string', value : '',
-       description : 'directory for ')
 
 option('nobody-user', type : 'string',
        description : 'The name of the nobody user (the one with UID 65534)',
        value : 'nobody')
-option('nobody-group', type : 'string',
-       description : 'The name of the nobody group (the one with GID 65534)',
-       value : 'nobody')
 
 option('audit', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libaudit support')
-
-option('tests', type : 'combo', choices : ['true', 'unsafe', 'false'],
-       description : 'enable extra tests with =unsafe')

@@ -65,9 +65,3 @@ libsystemd_static = static_library(
 
 libsystemd_sym = 'src/libsystemd/libsystemd.sym'
 
-libsystemd_pc = configure_file(
-        input : 'basu.pc.in',
-        output : 'basu.pc',
-        configuration : substs)
-install_data(libsystemd_pc,
-             install_dir : pkgconfiglibdir)
