@@ -2894,7 +2894,6 @@ static int bus_default(int (*bus_open)(sd_bus **), sd_bus **default_bus, sd_bus 
                 return r;
 
         b->default_bus_ptr = default_bus;
-        b->tid = gettid();
         *default_bus = b;
 
         *ret = b;
@@ -2915,19 +2914,6 @@ _public_ int sd_bus_default(sd_bus **ret) {
 
         busp = bus_choose_default(&bus_open);
         return bus_default(bus_open, busp, ret);
-}
-
-_public_ int sd_bus_get_tid(sd_bus *b, pid_t *tid) {
-        assert_return(b, -EINVAL);
-        assert_return(tid, -EINVAL);
-        assert_return(!bus_pid_changed(b), -ECHILD);
-
-        if (b->tid != 0) {
-                *tid = b->tid;
-                return 0;
-        }
-
-        return -ENXIO;
 }
 
 _public_ int sd_bus_path_encode(const char *prefix, const char *external_id, char **ret_path) {
