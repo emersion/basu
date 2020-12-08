@@ -62,7 +62,6 @@ int rdrand64(uint64_t *ret) {
 }
 
 int genuine_random_bytes(void *p, size_t n, RandomFlags flags) {
-        static int have_syscall = -1;
         _cleanup_close_ int fd = -1;
         bool got_some = false;
         int r;
@@ -109,14 +108,13 @@ int genuine_random_bytes(void *p, size_t n, RandomFlags flags) {
                         got_some = true;
                 }
 
+#if HAVE_GETRANDOM
         /* Use the getrandom() syscall unless we know we don't have it. */
-        if (have_syscall != 0 && !HAS_FEATURE_MEMORY_SANITIZER) {
+        if (!HAS_FEATURE_MEMORY_SANITIZER) {
 
                 for (;;) {
                         r = getrandom(p, n, FLAGS_SET(flags, RANDOM_BLOCK) ? 0 : GRND_NONBLOCK);
                         if (r > 0) {
-                                have_syscall = true;
-
                                 if ((size_t) r == n)
                                         return 0; /* Yay, success! */
 
@@ -140,13 +138,7 @@ int genuine_random_bytes(void *p, size_t n, RandomFlags flags) {
                                 break;
 
                         } else if (r == 0) {
-                                have_syscall = true;
                                 return -EIO;
-
-                        } else if (errno == ENOSYS) {
-                                /* We lack the syscall, continue with reading from /dev/urandom. */
-                                have_syscall = false;
-                                break;
 
                         } else if (errno == EAGAIN) {
                                 /* The kernel has no entropy whatsoever. Let's remember to use the syscall the next
@@ -155,7 +147,6 @@ int genuine_random_bytes(void *p, size_t n, RandomFlags flags) {
                                  * If RANDOM_DONT_DRAIN is set, return an error so that random_bytes() can produce some
                                  * pseudo-random bytes instead. Otherwise, fall back to /dev/urandom, which we know is empty,
                                  * but the kernel will produce some bytes for us on a best-effort basis. */
-                                have_syscall = true;
 
                                 if (got_some && FLAGS_SET(flags, RANDOM_EXTEND_WITH_PSEUDO)) {
                                         /* Fill in the remaining bytes using pseudorandom values */
@@ -172,6 +163,7 @@ int genuine_random_bytes(void *p, size_t n, RandomFlags flags) {
                                 return -errno;
                 }
         }
+#endif
 
         fd = open("/dev/urandom", O_RDONLY|O_CLOEXEC|O_NOCTTY);
         if (fd < 0)
