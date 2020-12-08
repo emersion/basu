@@ -205,7 +205,6 @@ void initialize_srand(void) {
                 x = 0;
 
         x ^= (unsigned) now(CLOCK_REALTIME);
-        x ^= (unsigned) gettid();
 
         if (rdrand64(&k) >= 0)
                 x ^= (unsigned) k;
