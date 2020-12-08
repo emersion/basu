@@ -175,7 +175,6 @@ int sd_bus_is_ready(sd_bus *bus);
 
 int sd_bus_get_bus_id(sd_bus *bus, sd_id128_t *id);
 int sd_bus_get_scope(sd_bus *bus, const char **scope);
-int sd_bus_get_tid(sd_bus *bus, pid_t *tid);
 int sd_bus_get_owner_creds(sd_bus *bus, uint64_t creds_mask, sd_bus_creds **ret);
 
 int sd_bus_send(sd_bus *bus, sd_bus_message *m, uint64_t *cookie);

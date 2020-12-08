@@ -286,7 +286,6 @@ struct sd_bus {
         void *current_userdata;
 
         sd_bus **default_bus_ptr;
-        pid_t tid;
 
         char *cgroup_root;
 
