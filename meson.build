@@ -224,8 +224,6 @@ foreach ident : ['secure_getenv', '__secure_getenv']
 endforeach
 
 foreach ident : [
-        ['gettid',            '''#include <sys/types.h>
-                                 #include <unistd.h>'''],
         ['explicit_bzero' ,   '''#include <string.h>'''],
         ['reallocarray',      '''#include <stdlib.h>'''],
 ]

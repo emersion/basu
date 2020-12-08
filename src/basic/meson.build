@@ -46,7 +46,6 @@ basic_sources = files('''
         macro.h
         memfd-util.c
         memfd-util.h
-        missing_syscall.h
         parse-util.c
         parse-util.h
         path-util.c

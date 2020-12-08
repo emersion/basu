@@ -70,5 +70,3 @@
 #ifndef TASK_COMM_LEN
 #define TASK_COMM_LEN 16
 #endif
-
-#include "missing_syscall.h"
