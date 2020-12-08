@@ -232,15 +232,6 @@ foreach ident : [
         conf.set10('HAVE_' + ident[0].to_upper(), have)
 endforeach
 
-if cc.has_function('getrandom', prefix : '''#include <sys/random.h>''', args : '-D_GNU_SOURCE')
-        conf.set10('USE_SYS_RANDOM_H', true)
-        conf.set10('HAVE_GETRANDOM', true)
-else
-        have = cc.has_function('getrandom', prefix : '''#include <linux/random.h>''')
-        conf.set10('USE_SYS_RANDOM_H', false)
-        conf.set10('HAVE_GETRANDOM', have)
-endif
-
 #####################################################################
 
 sed = find_program('sed')
@@ -271,14 +262,6 @@ endif
 message('gperf len type is @0@'.format(gperf_len_type))
 conf.set('GPERF_LEN_TYPE', gperf_len_type,
          description : 'The type of gperf "len" parameter')
-
-############################################################
-
-foreach header : ['sys/auxv.h']
-
-        conf.set10('HAVE_' + header.underscorify().to_upper(),
-                   cc.has_header(header))
-endforeach
 
 ############################################################
 
