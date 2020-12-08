@@ -130,6 +130,7 @@ possible_cc_flags = [
         '-Wno-missing-field-initializers',
         '-Wno-unused-result',
         '-Wno-format-signedness',
+	'-Wno-format-nonliteral',
 
         # work-around for gcc 7.1 turning this on on its own.
         '-Wno-error=nonnull',

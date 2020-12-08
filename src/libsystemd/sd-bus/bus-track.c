@@ -7,6 +7,9 @@
 #include "bus-track.h"
 #include "string-util.h"
 
+#define ENOPKG 1
+#define EUNATCH 1
+
 struct track_item {
         unsigned n_ref;
         char *name;

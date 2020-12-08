@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <math.h>
 #include <stdarg.h>
-#include <stdio_ext.h>
+//#include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,6 +11,8 @@
 #include "float.h"
 #include "json-internal.h"
 #include "terminal-util.h"
+
+#define ELNRNG 1
 
 /* Refuse putting together variants with a larger depth than 16K by default (as a protection against overflowing stacks
  * if code processes JSON objects recursively. Note that we store the depth in an uint16_t, hence make sure this

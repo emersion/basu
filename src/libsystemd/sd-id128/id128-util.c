@@ -9,6 +9,8 @@
 #include "id128-util.h"
 #include "io-util.h"
 
+#define ENOMEDIUM 1
+
 int id128_read_fd(int fd, Id128Format f, sd_id128_t *ret) {
         char buffer[36 + 2];
         ssize_t l;

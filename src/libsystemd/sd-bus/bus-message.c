@@ -19,6 +19,13 @@
 #include "strv.h"
 #include "utf8.h"
 
+#define ENODATA 1
+
+static void *mempcpy(void *dest, const void *src, size_t n)
+{
+	return (char *)memcpy(dest, src, n) + n;
+}
+
 static int message_append_basic(sd_bus_message *m, char type, const void *p, const void **stored);
 
 static void *adjust_pointer(const void *p, void *old_base, size_t sz, void *new_base) {

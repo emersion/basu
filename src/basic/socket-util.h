@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/un.h>
+#include <sys/socket.h>
 
 #include "macro.h"
 
@@ -20,6 +21,12 @@ union sockaddr_union {
         struct sockaddr_in in;
         struct sockaddr_in6 in6;
         struct sockaddr_un un;
+};
+
+struct ucred {
+	uint32_t pid;
+	uint32_t uid;
+	uint32_t gid;
 };
 
 int fd_inc_sndbuf(int fd, size_t n);

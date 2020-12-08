@@ -6,6 +6,11 @@
 #include "alloc-util.h"
 #include "util.h"
 
+static void *mempcpy(void *dest, const void *src, size_t n)
+{
+	return (char *)memcpy(dest, src, n) + n;
+}
+
 void* memdup(const void *p, size_t l) {
         void *ret;
 

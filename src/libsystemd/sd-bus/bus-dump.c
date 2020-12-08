@@ -18,6 +18,8 @@
 #include "capability-util.h"
 #endif
 
+#define ENODATA 1
+
 static char *indent(unsigned level, unsigned flags) {
         char *p;
         unsigned n, i = 0;

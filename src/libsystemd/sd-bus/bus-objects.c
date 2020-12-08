@@ -1,6 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
+#if HAVE_LIBCAP
 #include <linux/capability.h>
+#endif
 
 #include "alloc-util.h"
 #include "bus-internal.h"
@@ -12,6 +14,8 @@
 #include "bus-type.h"
 #include "string-util.h"
 #include "strv.h"
+
+#define ENOPKG 1
 
 static int node_vtable_get_userdata(
                 sd_bus *bus,

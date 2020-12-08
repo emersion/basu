@@ -18,6 +18,9 @@
 #include "capability-util.h"
 #endif
 
+#define ENOPKG 1
+#define ENODATA 1
+
 _public_ int sd_bus_get_unique_name(sd_bus *bus, const char **unique) {
         int r;
 

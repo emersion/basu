@@ -25,6 +25,8 @@
 #include "capability-util.h"
 #endif
 
+#define ENODATA 1
+
 enum {
         CAP_OFFSET_INHERITABLE = 0,
         CAP_OFFSET_PERMITTED = 1,

@@ -1,7 +1,8 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 #pragma once
 
-#include <byteswap.h>
+//#include <byteswap.h>
+#include <sys/endian.h>
 #include <stdbool.h>
 #include <sys/socket.h>
 
@@ -124,6 +125,10 @@ struct sd_bus_message {
 static inline bool BUS_MESSAGE_NEED_BSWAP(sd_bus_message *m) {
         return m->header->endian != BUS_NATIVE_ENDIAN;
 }
+
+#define bswap_16 bswap16
+#define bswap_32 bswap32
+#define bswap_64 bswap64
 
 static inline uint16_t BUS_MESSAGE_BSWAP16(sd_bus_message *m, uint16_t u) {
         return BUS_MESSAGE_NEED_BSWAP(m) ? bswap_16(u) : u;

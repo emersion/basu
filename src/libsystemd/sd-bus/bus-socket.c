@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <endian.h>
+//#include <endian.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <unistd.h>

@@ -2,6 +2,7 @@ image: freebsd/latest
 packages:
   - gperf
   - meson
+  - python3
   # for tests
   - dbus
 sources:
