@@ -8,5 +8,9 @@ option('nobody-user', type : 'string',
        description : 'The name of the nobody user (the one with UID 65534)',
        value : 'nobody')
 
+option('system-bus-address', type : 'string',
+       description : 'The address of the sytem bus (defined at dbus compilation)',
+       value : 'unix:path=/run/dbus/system_bus_socket')
+
 option('audit', type : 'combo', choices : ['auto', 'true', 'false'],
        description : 'libaudit support')

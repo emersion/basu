@@ -212,6 +212,9 @@ if not meson.is_cross_build()
 endif
 conf.set_quoted('NOBODY_USER_NAME', nobody_user)
 
+system_bus_address = get_option('system-bus-address')
+conf.set_quoted('DEFAULT_SYSTEM_BUS_ADDRESS', system_bus_address)
+
 conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
 
 enable_debug_hashmap = false
