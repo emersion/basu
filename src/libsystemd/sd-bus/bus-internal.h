@@ -208,6 +208,7 @@ struct sd_bus {
         bool attach_timestamp:1;
         bool connected_signal:1;
         bool close_on_exit:1;
+        bool send_null_byte:1;
 
         int use_memfd;
 

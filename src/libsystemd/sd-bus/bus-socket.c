@@ -118,6 +118,52 @@ bool bus_socket_auth_needs_write(sd_bus *b) {
         return false;
 }
 
+static int bus_socket_write_null_byte(sd_bus *b) {
+#if defined(__linux__)
+#define SOCKET_CRED_OPTION SCM_CREDENTIALS
+        struct ucred creds;
+        creds.pid = getpid();
+        creds.uid = getuid();
+        creds.gid = getgid();
+
+#elif defined(__FreeBSD__)
+#define SOCKET_CRED_OPTION SCM_CREDS
+        struct cmsgcred creds = { 0 };
+#else
+#error auth not implemented for this OS
+#endif
+
+        union {
+                struct cmsghdr hdr;
+                uint8_t buf[CMSG_SPACE(sizeof(creds))];
+        } control;
+        memset(control.buf, 0, sizeof(control.buf));
+
+        struct msghdr mh;
+        zero(mh);
+
+        mh.msg_control = control.buf;
+        mh.msg_controllen = sizeof(control.buf);
+
+        struct cmsghdr *cmsgp = CMSG_FIRSTHDR(&mh);
+        cmsgp->cmsg_len = CMSG_LEN(sizeof(creds));
+        cmsgp->cmsg_level = SOL_SOCKET;
+        cmsgp->cmsg_type = SOCKET_CRED_OPTION;
+        memcpy(CMSG_DATA(cmsgp), &creds, sizeof(creds));
+
+        struct iovec iov;
+        mh.msg_iov = &iov;
+        mh.msg_iovlen = 1;
+        iov.iov_base = (void*) "\0";
+        iov.iov_len = 1;
+
+        int k = sendmsg(b->output_fd, &mh, MSG_DONTWAIT|MSG_NOSIGNAL);
+        if (k < 0)
+                return errno == EAGAIN ? 0 : -errno;
+        b->send_null_byte = false;
+        return 1;
+}
+
 static int bus_socket_write_auth(sd_bus *b) {
         ssize_t k;
 
@@ -126,6 +172,10 @@ static int bus_socket_write_auth(sd_bus *b) {
 
         if (!bus_socket_auth_needs_write(b))
                 return 0;
+
+        if (b->send_null_byte) {
+                return bus_socket_write_null_byte(b);
+        }
 
         struct msghdr mh;
         zero(mh);
@@ -465,6 +515,33 @@ static int bus_socket_auth_verify(sd_bus *b) {
                 return bus_socket_auth_verify_client(b);
 }
 
+static int bus_socket_process_creds(sd_bus *b, struct cmsghdr *cmsg) {
+#if defined(__linux__)
+        if (cmsg->cmsg_level != SOL_SOCKET ||
+            cmsg->cmsg_type != SCM_CREDENTIALS) {
+                return -ENOSYS;
+        }
+        memcpy(&b->ucred, CMSG_DATA(cmsg), sizeof(struct ucred));
+        b->ucred_valid = true;
+        return 0;
+#elif defined(__FreeBSD__)
+        if (cmsg->cmsg_level != SOL_SOCKET ||
+            cmsg->cmsg_type != SCM_CREDS) {
+                return -ENOSYS;
+        }
+        struct cmsgcred creds;
+        memcpy(&creds, CMSG_DATA(cmsg), sizeof(struct cmsgcred));
+
+        b->ucred.pid = creds.cmcred_pid;
+        b->ucred.uid = creds.cmcred_euid;
+        b->ucred.gid = creds.cmcred_gid;
+        b->ucred_valid = true;
+        return 0;
+#else
+        return -ENOSYS;
+#endif
+}
+
 static int bus_socket_read_auth(sd_bus *b) {
         struct msghdr mh;
         struct iovec iov = {};
@@ -475,6 +552,11 @@ static int bus_socket_read_auth(sd_bus *b) {
         union {
                 struct cmsghdr cmsghdr;
                 uint8_t buf[CMSG_SPACE(sizeof(int) * BUS_FDS_MAX)];
+#if defined(__linux__)
+                char creds[CMSG_SPACE(sizeof(struct ucred))];
+#elif defined(__FreeBSD__)
+                char creds[CMSG_SPACE(sizeof(struct cmsgcred))];
+#endif
         } control;
 
         assert(b);
@@ -517,7 +599,7 @@ static int bus_socket_read_auth(sd_bus *b) {
 
         struct cmsghdr *cmsg;
 
-        CMSG_FOREACH(cmsg, &mh)
+        CMSG_FOREACH(cmsg, &mh) {
                 if (cmsg->cmsg_level == SOL_SOCKET &&
                     cmsg->cmsg_type == SCM_RIGHTS) {
                         int j;
@@ -528,9 +610,15 @@ static int bus_socket_read_auth(sd_bus *b) {
                         j = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int);
                         close_many((int*) CMSG_DATA(cmsg), j);
                         return -EIO;
-                } else
+                }
+
+                r = bus_socket_process_creds(b, cmsg);
+                if (r == -ENOSYS)
                         log_debug("Got unexpected auxiliary data with level=%d and type=%d",
                                   cmsg->cmsg_level, cmsg->cmsg_type);
+                else if (r < 0)
+                        log_error_errno(r, "Could not process credentials: %m");
+        }
 
         r = bus_socket_auth_verify(b);
         if (r != 0)
@@ -558,6 +646,13 @@ static void bus_get_peercred(sd_bus *b) {
         assert(!b->label);
         assert(b->n_groups == (size_t) -1);
 
+#ifdef __linux__
+        int optval = 1;
+        r = setsockopt(b->output_fd, SOL_SOCKET, SO_PASSCRED, &optval, sizeof(optval));
+        if (r < 0)
+                log_debug_errno(r, "Failed to set SO_PASSCRED: %m");
+#endif
+
         /* Get the peer for socketpair() sockets */
         b->ucred_valid = getpeercred(b->input_fd, &b->ucred) >= 0;
 
@@ -581,7 +676,7 @@ static int bus_socket_start_auth_client(sd_bus *b) {
         assert(b);
 
         if (b->anonymous_auth) {
-                auth_prefix = "\0AUTH ANONYMOUS ";
+                auth_prefix = "AUTH ANONYMOUS ";
 
                 /* For ANONYMOUS auth we send some arbitrary "trace" string */
                 l = 9;
@@ -589,7 +684,7 @@ static int bus_socket_start_auth_client(sd_bus *b) {
         } else {
                 char text[DECIMAL_STR_MAX(uid_t) + 1];
 
-                auth_prefix = "\0AUTH EXTERNAL ";
+                auth_prefix = "AUTH EXTERNAL ";
 
                 xsprintf(text, UID_FMT, geteuid());
 
@@ -605,8 +700,9 @@ static int bus_socket_start_auth_client(sd_bus *b) {
         else
                 auth_suffix = "\r\nBEGIN\r\n";
 
+        b->send_null_byte = true;
         b->auth_iovec[0].iov_base = (void*) auth_prefix;
-        b->auth_iovec[0].iov_len = 1 + strlen(auth_prefix + 1);
+        b->auth_iovec[0].iov_len = strlen(auth_prefix);
         b->auth_iovec[1].iov_base = (void*) b->auth_buffer;
         b->auth_iovec[1].iov_len = l * 2;
         b->auth_iovec[2].iov_base = (void*) auth_suffix;
