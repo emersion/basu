@@ -127,21 +127,13 @@ static int bus_socket_write_auth(sd_bus *b) {
         if (!bus_socket_auth_needs_write(b))
                 return 0;
 
-        if (b->prefer_writev)
-                k = writev(b->output_fd, b->auth_iovec + b->auth_index, ELEMENTSOF(b->auth_iovec) - b->auth_index);
-        else {
-                struct msghdr mh;
-                zero(mh);
+        struct msghdr mh;
+        zero(mh);
 
-                mh.msg_iov = b->auth_iovec + b->auth_index;
-                mh.msg_iovlen = ELEMENTSOF(b->auth_iovec) - b->auth_index;
+        mh.msg_iov = b->auth_iovec + b->auth_index;
+        mh.msg_iovlen = ELEMENTSOF(b->auth_iovec) - b->auth_index;
 
-                k = sendmsg(b->output_fd, &mh, MSG_DONTWAIT|MSG_NOSIGNAL);
-                if (k < 0 && errno == ENOTSOCK) {
-                        b->prefer_writev = true;
-                        k = writev(b->output_fd, b->auth_iovec + b->auth_index, ELEMENTSOF(b->auth_iovec) - b->auth_index);
-                }
-        }
+        k = sendmsg(b->output_fd, &mh, MSG_DONTWAIT|MSG_NOSIGNAL);
 
         if (k < 0)
                 return errno == EAGAIN ? 0 : -errno;
@@ -484,7 +476,6 @@ static int bus_socket_read_auth(sd_bus *b) {
                 struct cmsghdr cmsghdr;
                 uint8_t buf[CMSG_SPACE(sizeof(int) * BUS_FDS_MAX)];
         } control;
-        bool handle_cmsg = false;
 
         assert(b);
         assert(b->state == BUS_AUTHENTICATING);
@@ -510,22 +501,13 @@ static int bus_socket_read_auth(sd_bus *b) {
         iov.iov_base = (uint8_t*) b->rbuffer + b->rbuffer_size;
         iov.iov_len = n - b->rbuffer_size;
 
-        if (b->prefer_readv)
-                k = readv(b->input_fd, &iov, 1);
-        else {
-                zero(mh);
-                mh.msg_iov = &iov;
-                mh.msg_iovlen = 1;
-                mh.msg_control = &control;
-                mh.msg_controllen = sizeof(control);
+        zero(mh);
+        mh.msg_iov = &iov;
+        mh.msg_iovlen = 1;
+        mh.msg_control = &control;
+        mh.msg_controllen = sizeof(control);
 
-                k = recvmsg(b->input_fd, &mh, MSG_DONTWAIT|MSG_CMSG_CLOEXEC);
-                if (k < 0 && errno == ENOTSOCK) {
-                        b->prefer_readv = true;
-                        k = readv(b->input_fd, &iov, 1);
-                } else
-                        handle_cmsg = true;
-        }
+        k = recvmsg(b->input_fd, &mh, MSG_DONTWAIT|MSG_CMSG_CLOEXEC);
         if (k < 0)
                 return errno == EAGAIN ? 0 : -errno;
         if (k == 0)
@@ -533,24 +515,22 @@ static int bus_socket_read_auth(sd_bus *b) {
 
         b->rbuffer_size += k;
 
-        if (handle_cmsg) {
-                struct cmsghdr *cmsg;
+        struct cmsghdr *cmsg;
 
-                CMSG_FOREACH(cmsg, &mh)
-                        if (cmsg->cmsg_level == SOL_SOCKET &&
-                            cmsg->cmsg_type == SCM_RIGHTS) {
-                                int j;
+        CMSG_FOREACH(cmsg, &mh)
+                if (cmsg->cmsg_level == SOL_SOCKET &&
+                    cmsg->cmsg_type == SCM_RIGHTS) {
+                        int j;
 
-                                /* Whut? We received fds during the auth
-                                 * protocol? Somebody is playing games with
-                                 * us. Close them all, and fail */
-                                j = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int);
-                                close_many((int*) CMSG_DATA(cmsg), j);
-                                return -EIO;
-                        } else
-                                log_debug("Got unexpected auxiliary data with level=%d and type=%d",
-                                          cmsg->cmsg_level, cmsg->cmsg_type);
-        }
+                        /* Whut? We received fds during the auth
+                         * protocol? Somebody is playing games with
+                         * us. Close them all, and fail */
+                        j = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int);
+                        close_many((int*) CMSG_DATA(cmsg), j);
+                        return -EIO;
+                } else
+                        log_debug("Got unexpected auxiliary data with level=%d and type=%d",
+                                  cmsg->cmsg_level, cmsg->cmsg_type);
 
         r = bus_socket_auth_verify(b);
         if (r != 0)
@@ -736,30 +716,22 @@ int bus_socket_write_message(sd_bus *bus, sd_bus_message *m, size_t *idx) {
         j = 0;
         iovec_advance(iov, &j, *idx);
 
-        if (bus->prefer_writev)
-                k = writev(bus->output_fd, iov, m->n_iovec);
-        else {
-                struct msghdr mh = {
-                        .msg_iov = iov,
-                        .msg_iovlen = m->n_iovec,
-                };
+        struct msghdr mh = {
+                .msg_iov = iov,
+                .msg_iovlen = m->n_iovec,
+        };
 
-                if (m->n_fds > 0 && *idx == 0) {
-                        struct cmsghdr *control;
+        if (m->n_fds > 0 && *idx == 0) {
+                struct cmsghdr *control;
 
-                        mh.msg_control = control = alloca(CMSG_SPACE(sizeof(int) * m->n_fds));
-                        mh.msg_controllen = control->cmsg_len = CMSG_LEN(sizeof(int) * m->n_fds);
-                        control->cmsg_level = SOL_SOCKET;
-                        control->cmsg_type = SCM_RIGHTS;
-                        memcpy(CMSG_DATA(control), m->fds, sizeof(int) * m->n_fds);
-                }
-
-                k = sendmsg(bus->output_fd, &mh, MSG_DONTWAIT|MSG_NOSIGNAL);
-                if (k < 0 && errno == ENOTSOCK) {
-                        bus->prefer_writev = true;
-                        k = writev(bus->output_fd, iov, m->n_iovec);
-                }
+                mh.msg_control = control = alloca(CMSG_SPACE(sizeof(int) * m->n_fds));
+                mh.msg_controllen = control->cmsg_len = CMSG_LEN(sizeof(int) * m->n_fds);
+                control->cmsg_level = SOL_SOCKET;
+                control->cmsg_type = SCM_RIGHTS;
+                memcpy(CMSG_DATA(control), m->fds, sizeof(int) * m->n_fds);
         }
+
+        k = sendmsg(bus->output_fd, &mh, MSG_DONTWAIT|MSG_NOSIGNAL);
 
         if (k < 0)
                 return errno == EAGAIN ? 0 : -errno;
@@ -873,7 +845,6 @@ int bus_socket_read_message(sd_bus *bus) {
                 struct cmsghdr cmsghdr;
                 uint8_t buf[CMSG_SPACE(sizeof(int) * BUS_FDS_MAX)];
         } control;
-        bool handle_cmsg = false;
 
         assert(bus);
         assert(IN_SET(bus->state, BUS_RUNNING, BUS_HELLO));
@@ -894,22 +865,13 @@ int bus_socket_read_message(sd_bus *bus) {
         iov.iov_base = (uint8_t*) bus->rbuffer + bus->rbuffer_size;
         iov.iov_len = need - bus->rbuffer_size;
 
-        if (bus->prefer_readv)
-                k = readv(bus->input_fd, &iov, 1);
-        else {
-                zero(mh);
-                mh.msg_iov = &iov;
-                mh.msg_iovlen = 1;
-                mh.msg_control = &control;
-                mh.msg_controllen = sizeof(control);
+        zero(mh);
+        mh.msg_iov = &iov;
+        mh.msg_iovlen = 1;
+        mh.msg_control = &control;
+        mh.msg_controllen = sizeof(control);
 
-                k = recvmsg(bus->input_fd, &mh, MSG_DONTWAIT|MSG_CMSG_CLOEXEC);
-                if (k < 0 && errno == ENOTSOCK) {
-                        bus->prefer_readv = true;
-                        k = readv(bus->input_fd, &iov, 1);
-                } else
-                        handle_cmsg = true;
-        }
+        k = recvmsg(bus->input_fd, &mh, MSG_DONTWAIT|MSG_CMSG_CLOEXEC);
         if (k < 0)
                 return errno == EAGAIN ? 0 : -errno;
         if (k == 0)
@@ -917,38 +879,36 @@ int bus_socket_read_message(sd_bus *bus) {
 
         bus->rbuffer_size += k;
 
-        if (handle_cmsg) {
-                struct cmsghdr *cmsg;
+        struct cmsghdr *cmsg;
 
-                CMSG_FOREACH(cmsg, &mh)
-                        if (cmsg->cmsg_level == SOL_SOCKET &&
-                            cmsg->cmsg_type == SCM_RIGHTS) {
-                                int n, *f, i;
+        CMSG_FOREACH(cmsg, &mh)
+                if (cmsg->cmsg_level == SOL_SOCKET &&
+                    cmsg->cmsg_type == SCM_RIGHTS) {
+                        int n, *f, i;
 
-                                n = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int);
+                        n = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int);
 
-                                if (!bus->can_fds) {
-                                        /* Whut? We received fds but this
-                                         * isn't actually enabled? Close them,
-                                         * and fail */
+                        if (!bus->can_fds) {
+                                /* Whut? We received fds but this
+                                 * isn't actually enabled? Close them,
+                                 * and fail */
 
-                                        close_many((int*) CMSG_DATA(cmsg), n);
-                                        return -EIO;
-                                }
+                                close_many((int*) CMSG_DATA(cmsg), n);
+                                return -EIO;
+                        }
 
-                                f = reallocarray(bus->fds, bus->n_fds + n, sizeof(int));
-                                if (!f) {
-                                        close_many((int*) CMSG_DATA(cmsg), n);
-                                        return -ENOMEM;
-                                }
+                        f = reallocarray(bus->fds, bus->n_fds + n, sizeof(int));
+                        if (!f) {
+                                close_many((int*) CMSG_DATA(cmsg), n);
+                                return -ENOMEM;
+                        }
 
-                                for (i = 0; i < n; i++)
-                                        f[bus->n_fds++] = fd_move_above_stdio(((int*) CMSG_DATA(cmsg))[i]);
-                                bus->fds = f;
-                        } else
-                                log_debug("Got unexpected auxiliary data with level=%d and type=%d",
-                                          cmsg->cmsg_level, cmsg->cmsg_type);
-        }
+                        for (i = 0; i < n; i++)
+                                f[bus->n_fds++] = fd_move_above_stdio(((int*) CMSG_DATA(cmsg))[i]);
+                        bus->fds = f;
+                } else
+                        log_debug("Got unexpected auxiliary data with level=%d and type=%d",
+                                  cmsg->cmsg_level, cmsg->cmsg_type);
 
         r = bus_socket_read_message_need(bus, &need);
         if (r < 0)

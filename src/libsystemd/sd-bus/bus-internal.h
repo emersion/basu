@@ -190,8 +190,6 @@ struct sd_bus {
         bool ucred_valid:1;
         bool is_server:1;
         bool anonymous_auth:1;
-        bool prefer_readv:1;
-        bool prefer_writev:1;
         bool match_callbacks_modified:1;
         bool filter_callbacks_modified:1;
         bool nodes_modified:1;
