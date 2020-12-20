@@ -13,10 +13,6 @@
 #include "bus-internal.h"
 #include "fd-util.h"
 
-#if HAVE_LIBCAP
-#include "capability-util.h"
-#endif
-
 void close_and_munmap(int fd, void *address, size_t size) {
         if (size > 0)
                 assert_se(munmap(address, PAGE_ALIGN(size)) >= 0);

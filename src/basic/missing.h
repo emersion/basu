@@ -5,10 +5,6 @@
 
 #include <unistd.h>
 
-#if HAVE_LIBCAP
-#include <linux/capability.h>
-#endif
-
 #if HAVE_AUDIT
 #include <libaudit.h>
 #endif

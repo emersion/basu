@@ -1,9 +1,5 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#ifdef __linux__
-#include <endian.h>
-#endif
-
 #include <netdb.h>
 #include <poll.h>
 #include <pthread.h>
