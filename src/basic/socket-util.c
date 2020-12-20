@@ -5,6 +5,11 @@
 #include "socket-util.h"
 #include "strv.h"
 
+#ifdef __FreeBSD__
+#include <sys/ucred.h>
+#include <sys/un.h>
+#endif
+
 int fd_inc_sndbuf(int fd, size_t n) {
         int r, value;
         socklen_t l = sizeof(value);
@@ -28,6 +33,25 @@ int fd_inc_rcvbuf(int fd, size_t n) {
 }
 
 int getpeercred(int fd, struct ucred *ucred) {
+#ifdef __FreeBSD__
+        struct xucred cred;
+        socklen_t len = sizeof cred;
+        if (getsockopt(fd, 0, LOCAL_PEERCRED, &cred, &len) == -1) {
+                return -errno;
+        }
+
+        struct ucred u = {
+#if __FreeBSD_version >= 1300030
+                .pid = cred.cr_pid,
+#else
+                .pid = -1,
+#endif
+                .uid = cred.cr_uid,
+                .gid = cred.cr_ngroups > 0 ? cred.cr_groups[0] : (gid_t)-1,
+        };
+
+        *ucred = u;
+#else
         socklen_t n = sizeof(struct ucred);
         struct ucred u;
         int r;
@@ -50,10 +74,14 @@ int getpeercred(int fd, struct ucred *ucred) {
          * receiving in "invalid" user/group we get the overflow UID/GID. */
 
         *ucred = u;
+#endif
         return 0;
 }
 
 int getpeersec(int fd, char **ret) {
+#ifdef __FreeBSD__
+        return -EOPNOTSUPP;
+#else
         _cleanup_free_ char *s = NULL;
         socklen_t n = 64;
 
@@ -80,6 +108,7 @@ int getpeersec(int fd, char **ret) {
         *ret = TAKE_PTR(s);
 
         return 0;
+#endif
 }
 
 int getpeergroups(int fd, gid_t **ret) {
