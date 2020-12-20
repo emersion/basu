@@ -1,0 +1,19 @@
+image: freebsd/latest
+packages:
+  - gperf
+  - meson
+  - python3
+  # for tests
+  - dbus
+sources:
+  - https://github.com/emersion/basu
+tasks:
+  - setup: |
+      cd basu
+      meson build/
+  - build: |
+      cd basu
+      ninja -C build/
+  - test: |
+      cd basu
+      dbus-run-session -- ninja -C build/ test
