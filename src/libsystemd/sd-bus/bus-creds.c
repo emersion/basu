@@ -1,14 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <linux/capability.h>
 #include <stdlib.h>
+
+#if HAVE_LIBCAP
+#include <linux/capability.h>
+#endif
 
 #include "alloc-util.h"
 #include "audit-util.h"
 #include "bus-creds.h"
 #include "bus-label.h"
 #include "bus-message.h"
-#include "capability-util.h"
 #include "def.h"
 #include "fd-util.h"
 #include "fileio.h"
@@ -18,6 +20,10 @@
 #include "strv.h"
 #include "terminal-util.h"
 #include "user-util.h"
+
+#if HAVE_LIBCAP
+#include "capability-util.h"
+#endif
 
 enum {
         CAP_OFFSET_INHERITABLE = 0,
@@ -516,6 +522,7 @@ _public_ int sd_bus_creds_get_description(sd_bus_creds *c, const char **ret) {
 }
 
 static int has_cap(sd_bus_creds *c, size_t offset, int capability) {
+#if HAVE_LIBCAP
         unsigned long lc;
         size_t sz;
 
@@ -531,6 +538,9 @@ static int has_cap(sd_bus_creds *c, size_t offset, int capability) {
         sz = DIV_ROUND_UP(lc, 32LU);
 
         return !!(c->capability[offset * sz + CAP_TO_INDEX((uint32_t) capability)] & CAP_TO_MASK_CORRECTED((uint32_t) capability));
+#else
+        return -ENOTSUP;
+#endif
 }
 
 _public_ int sd_bus_creds_has_effective_cap(sd_bus_creds *c, int capability) {
@@ -574,6 +584,7 @@ _public_ int sd_bus_creds_has_bounding_cap(sd_bus_creds *c, int capability) {
 }
 
 static int parse_caps(sd_bus_creds *c, unsigned offset, const char *p) {
+#if HAVE_LIBCAP
         size_t sz, max;
         unsigned i, j;
 
@@ -614,6 +625,9 @@ static int parse_caps(sd_bus_creds *c, unsigned offset, const char *p) {
         }
 
         return 0;
+#else
+        return -ENOTSUP;
+#endif
 }
 
 int bus_creds_add_more(sd_bus_creds *c, uint64_t mask, pid_t pid, pid_t tid) {
@@ -1114,6 +1128,7 @@ int bus_creds_extend_by_pid(sd_bus_creds *c, uint64_t mask, sd_bus_creds **ret) 
                 n->mask |= mask & (SD_BUS_CREDS_CGROUP|SD_BUS_CREDS_SESSION|SD_BUS_CREDS_UNIT|SD_BUS_CREDS_USER_UNIT|SD_BUS_CREDS_SLICE|SD_BUS_CREDS_USER_SLICE|SD_BUS_CREDS_OWNER_UID);
         }
 
+#if HAVE_LIBCAP
         if (c->mask & mask & (SD_BUS_CREDS_EFFECTIVE_CAPS|SD_BUS_CREDS_PERMITTED_CAPS|SD_BUS_CREDS_INHERITABLE_CAPS|SD_BUS_CREDS_BOUNDING_CAPS)) {
                 assert(c->capability);
 
@@ -1123,6 +1138,7 @@ int bus_creds_extend_by_pid(sd_bus_creds *c, uint64_t mask, sd_bus_creds **ret) 
 
                 n->mask |= c->mask & mask & (SD_BUS_CREDS_EFFECTIVE_CAPS|SD_BUS_CREDS_PERMITTED_CAPS|SD_BUS_CREDS_INHERITABLE_CAPS|SD_BUS_CREDS_BOUNDING_CAPS);
         }
+#endif
 
         if (c->mask & mask & SD_BUS_CREDS_SELINUX_CONTEXT) {
                 assert(c->label);
