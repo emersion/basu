@@ -1,7 +1,10 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 #pragma once
 
+#ifdef __linux__
 #include <alloca.h>
+#endif
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
