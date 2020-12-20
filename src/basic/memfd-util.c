@@ -9,6 +9,9 @@
 #include "memfd-util.h"
 
 int memfd_set_sealed(int fd) {
+#if defined(__FreeBSD__) && __FreeBSD__ < 13
+        return 0;
+#else
         int r;
 
         assert(fd >= 0);
@@ -18,6 +21,7 @@ int memfd_set_sealed(int fd) {
                 return -errno;
 
         return 0;
+#endif
 }
 
 int memfd_get_size(int fd, uint64_t *sz) {
