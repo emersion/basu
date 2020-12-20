@@ -8,12 +8,15 @@
 #include "bus-message.h"
 #include "bus-type.h"
 #include "cap-list.h"
-#include "capability-util.h"
 #include "fileio.h"
 #include "locale-util.h"
 #include "string-util.h"
 #include "strv.h"
 #include "terminal-util.h"
+
+#if HAVE_LIBCAP
+#include "capability-util.h"
+#endif
 
 static char *indent(unsigned level, unsigned flags) {
         char *p;
@@ -276,6 +279,7 @@ static void dump_capabilities(
                 bool terse,
                 int (*has)(sd_bus_creds *c, int capability)) {
 
+#if HAVE_LIBCAP
         unsigned long i, last_cap;
         unsigned n = 0;
         int r;
@@ -317,6 +321,7 @@ static void dump_capabilities(
 
         if (!terse)
                 fputs(ansi_normal(), f);
+#endif
 }
 
 int bus_creds_dump(sd_bus_creds *c, FILE *f, bool terse) {

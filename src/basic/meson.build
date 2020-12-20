@@ -7,10 +7,6 @@ basic_sources = files('''
         audit-util.h
         bus-label.c
         bus-label.h
-        cap-list.c
-        cap-list.h
-        capability-util.c
-        capability-util.h
         def.h
         env-util.c
         env-util.h
@@ -87,16 +83,29 @@ basic_sources = files('''
         xml.h
 '''.split())
 
+if have_libcap
+        basic_sources += files('''
+                cap-list.c
+                cap-list.h
+                capability-util.c
+                capability-util.h
+        '''.split())
+endif
+
 missing_h = files('missing.h')
 
 generate_gperfs = find_program('generate-gperfs.py')
 
-generate_cap_list = find_program('generate-cap-list.sh')
-cap_list_txt = custom_target(
-        'cap-list.txt',
-        output : 'cap-list.txt',
-        command : [generate_cap_list, cpp, config_h, missing_h],
-        capture : true)
+if have_libcap
+        generate_cap_list = find_program('generate-cap-list.sh')
+        cap_list_txt = custom_target(
+                'cap-list.txt',
+                output : 'cap-list.txt',
+                command : [generate_cap_list, cpp, config_h, missing_h],
+                capture : true)
+else
+        cap_list_txt = disabler()
+endif
 
 generate_errno_list = find_program('generate-errno-list.sh')
 errno_list_txt = custom_target(
@@ -108,6 +117,10 @@ errno_list_txt = custom_target(
 generated_gperf_headers = []
 foreach item : [['cap',    cap_list_txt,    'capability', ''],
                 ['errno',  errno_list_txt,  'errno',      '']]
+
+        if is_disabler(item[1])
+                continue
+        endif
 
         fname = '@0@-from-name.gperf'.format(item[0])
         gperf_file = custom_target(
