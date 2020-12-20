@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stdio_ext.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -29,8 +28,6 @@ int read_one_line_file(const char *fn, char **line) {
         f = fopen(fn, "re");
         if (!f)
                 return -errno;
-
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
 
         r = read_line(f, LONG_LINE_MAX, line);
         return r < 0 ? r : 0;
@@ -120,8 +117,6 @@ int read_full_file(const char *fn, char **contents, size_t *size) {
         if (!f)
                 return -errno;
 
-        (void) __fsetlocking(f, FSETLOCKING_BYCALLER);
-
         return read_full_stream(f, contents, size);
 }
 
@@ -174,7 +169,7 @@ int read_line(FILE *f, size_t limit, char **ret) {
                                 return -ENOBUFS;
 
                         errno = 0;
-                        c = fgetc_unlocked(f);
+                        c = fgetc(f);
                         if (c == EOF) {
                                 /* if we read an error, and have no data to return, then propagate the error */
                                 if (ferror_unlocked(f) && n == 0)
