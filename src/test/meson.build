@@ -55,10 +55,10 @@ tests += [
          [libtest, libsystemd_static],
          []],
 
-        [['src/libsystemd/sd-bus/test-bus-benchmark.c'],
-         [libtest, libsystemd_static],
-         [threads],
-         '', 'manual'],
+        #        [['src/libsystemd/sd-bus/test-bus-benchmark.c'],
+        #         [libtest, libsystemd_static],
+        #         [threads],
+        #         '', 'manual'],
 
 
         [['src/libsystemd/sd-bus/test-bus-introspect.c',
