@@ -18,6 +18,7 @@
 #include "bus-socket.h"
 #include "bus-track.h"
 #include "bus-type.h"
+#include "env-util.h"
 #include "fd-util.h"
 #include "hexdecoct.h"
 #include "parse-util.h"

@@ -7,6 +7,7 @@
 
 #include "alloc-util.h"
 #include "bus-internal.h"
+#include "env-util.h"
 #include "fd-util.h"
 #include "string-util.h"
 

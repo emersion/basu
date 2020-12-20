@@ -143,13 +143,10 @@ foreach decl : ['char16_t',
         conf.set10('HAVE_' + decl.underscorify().to_upper(), have)
 endforeach
 
-foreach ident : ['secure_getenv', '__secure_getenv']
-        conf.set10('HAVE_' + ident.to_upper(), cc.has_function(ident))
-endforeach
-
 foreach ident : [
         ['explicit_bzero' ,   '''#include <string.h>'''],
         ['reallocarray',      '''#include <stdlib.h>'''],
+        ['secure_getenv',     '''#include <stdlib.h>'''],
 ]
 
         have = cc.has_function(ident[0], prefix : ident[1], args : '-D_GNU_SOURCE')

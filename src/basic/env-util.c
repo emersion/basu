@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "env-util.h"
 #include "parse-util.h"
@@ -15,3 +16,13 @@ int getenv_bool(const char *p) {
 
         return parse_boolean(e);
 }
+
+#if !HAVE_SECURE_GETENV
+char *secure_getenv(const char *name) {
+        if (issetugid()) {
+                return NULL;
+        }
+
+        return getenv(name);
+}
+#endif
