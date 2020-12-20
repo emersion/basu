@@ -70,6 +70,10 @@
 #define ALIGN4(l) (((l) + 3) & ~3)
 #define ALIGN8(l) (((l) + 7) & ~7)
 
+#ifdef __FreeBSD__
+#undef ALIGN
+#endif
+
 #if __SIZEOF_POINTER__ == 8
 #define ALIGN(l) ALIGN8(l)
 #elif __SIZEOF_POINTER__ == 4
