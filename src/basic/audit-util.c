@@ -6,6 +6,7 @@
 #include "parse-util.h"
 #include "process-util.h"
 #include "user-util.h"
+#include "missing.h"
 
 int audit_session_from_pid(pid_t pid, uint32_t *id) {
         _cleanup_free_ char *s = NULL;

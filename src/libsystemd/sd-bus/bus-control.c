@@ -13,6 +13,7 @@
 #include "string-util.h"
 #include "strv.h"
 #include "user-util.h"
+#include "missing.h"
 
 _public_ int sd_bus_get_unique_name(sd_bus *bus, const char **unique) {
         int r;

@@ -5,6 +5,7 @@
 #include "bus-signature.h"
 #include "bus-type.h"
 #include "string-util.h"
+#include "missing.h"
 
 _public_ int sd_bus_emit_signal(
                 sd_bus *bus,

@@ -69,3 +69,11 @@
 #ifndef TASK_COMM_LEN
 #define TASK_COMM_LEN 16
 #endif
+
+#ifdef __FreeBSD__
+#define ENOMEDIUM       (INT_MAX - 1)
+#define ENOPKG          (INT_MAX - 2)
+#define EUNATCH         (INT_MAX - 3)
+#define ENODATA         (INT_MAX - 4)
+#define ELNRNG          (INT_MAX - 5)
+#endif
