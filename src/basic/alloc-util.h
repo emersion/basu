@@ -38,6 +38,10 @@ static inline void *mfree(void *memory) {
                 0;                              \
         })
 
+#ifdef __FreeBSD__
+#define mempcpy __builtin_mempcpy
+#endif
+
 void* memdup(const void *p, size_t l) _alloc_(2);
 void* memdup_suffix0(const void *p, size_t l) _alloc_(2);
 
