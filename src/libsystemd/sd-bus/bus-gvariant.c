@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
+#ifdef __FreeBSD__
+#include <sys/endian.h>
+#endif
+
 #include <errno.h>
 #include <string.h>
 
