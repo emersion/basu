@@ -225,15 +225,10 @@ static inline int __coverity_check__(int condition) {
                 log_assert_failed_unreachable(t, __FILE__, __LINE__, __PRETTY_FUNCTION__); \
         } while (false)
 
-#if defined(static_assert)
-#define assert_cc(expr)                                                 \
-        static_assert(expr, #expr);
-#else
 #define assert_cc(expr)                                                 \
         struct CONCATENATE(_assert_struct_, __COUNTER__) {              \
                 char x[(expr) ? 0 : -1];                                \
         };
-#endif
 
 #define assert_return(expr, r)                                          \
         do {                                                            \
