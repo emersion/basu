@@ -6,6 +6,10 @@
 #include "env-util.h"
 #include "tests.h"
 
+#ifdef __FreeBSD__
+const char *program_invocation_short_name = "unknown";
+#endif
+
 void test_setup_logging(int level) {
         log_set_max_level(level);
         log_parse_environment();
