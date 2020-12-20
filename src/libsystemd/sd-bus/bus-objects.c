@@ -325,7 +325,7 @@ static int check_access(sd_bus *bus, sd_bus_message *m, struct vtable_member *c,
 #if HAVE_LIBCAP
                 cap = CAP_SYS_ADMIN;
 #else
-                return -ENOTSUP;
+                cap = -1;
 #endif
         else
                 cap--;
