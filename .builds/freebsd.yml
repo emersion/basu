@@ -16,4 +16,5 @@ tasks:
       ninja -C build/
   - test: |
       cd basu
+      sudo dbus-uuidgen --ensure
       dbus-run-session -- ninja -C build/ test
