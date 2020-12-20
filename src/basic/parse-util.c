@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __FreeBSD__
+#include <xlocale.h>
+#endif
+
 #include "alloc-util.h"
 #include "locale-util.h"
 #include "parse-util.h"
