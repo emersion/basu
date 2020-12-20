@@ -6,6 +6,7 @@
 #include "bus-internal.h"
 #include "bus-track.h"
 #include "string-util.h"
+#include "missing.h"
 
 struct track_item {
         unsigned n_ref;

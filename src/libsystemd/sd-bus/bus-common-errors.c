@@ -13,7 +13,9 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_common_errors[] = {
         SD_BUS_ERROR_MAP(BUS_ERROR_UNIT_EXISTS,                  EEXIST),
         SD_BUS_ERROR_MAP(BUS_ERROR_LOAD_FAILED,                  EIO),
         SD_BUS_ERROR_MAP(BUS_ERROR_BAD_UNIT_SETTING,             ENOEXEC),
+#ifdef EREMOTEIO
         SD_BUS_ERROR_MAP(BUS_ERROR_JOB_FAILED,                   EREMOTEIO),
+#endif
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_JOB,                  ENOENT),
         SD_BUS_ERROR_MAP(BUS_ERROR_NOT_SUBSCRIBED,               EINVAL),
         SD_BUS_ERROR_MAP(BUS_ERROR_ALREADY_SUBSCRIBED,           EINVAL),
@@ -21,15 +23,23 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_common_errors[] = {
         SD_BUS_ERROR_MAP(BUS_ERROR_TRANSACTION_JOBS_CONFLICTING, EDEADLK),
         SD_BUS_ERROR_MAP(BUS_ERROR_TRANSACTION_ORDER_IS_CYCLIC,  EDEADLK),
         SD_BUS_ERROR_MAP(BUS_ERROR_TRANSACTION_IS_DESTRUCTIVE,   EDEADLK),
+#ifdef ERFKILL
         SD_BUS_ERROR_MAP(BUS_ERROR_UNIT_MASKED,                  ERFKILL),
+#endif
         SD_BUS_ERROR_MAP(BUS_ERROR_UNIT_GENERATED,               EADDRNOTAVAIL),
         SD_BUS_ERROR_MAP(BUS_ERROR_UNIT_LINKED,                  ELOOP),
+#ifdef EBADR
         SD_BUS_ERROR_MAP(BUS_ERROR_JOB_TYPE_NOT_APPLICABLE,      EBADR),
+#endif
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_ISOLATION,                 EPERM),
         SD_BUS_ERROR_MAP(BUS_ERROR_SHUTTING_DOWN,                ECANCELED),
+#ifdef EHOSTDOWN
         SD_BUS_ERROR_MAP(BUS_ERROR_SCOPE_NOT_RUNNING,            EHOSTDOWN),
+#endif
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_DYNAMIC_USER,         ESRCH),
+#ifdef EUNATCH
         SD_BUS_ERROR_MAP(BUS_ERROR_NOT_REFERENCED,               EUNATCH),
+#endif
         SD_BUS_ERROR_MAP(BUS_ERROR_DISK_FULL,                    ENOSPC),
 
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_MACHINE,              ENXIO),
@@ -41,7 +51,9 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_common_errors[] = {
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_GROUP_MAPPING,        ENXIO),
 
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_PORTABLE_IMAGE,       ENOENT),
+#ifdef EMEDIUMTYPE
         SD_BUS_ERROR_MAP(BUS_ERROR_BAD_PORTABLE_IMAGE_TYPE,      EMEDIUMTYPE),
+#endif
 
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_SESSION,              ENXIO),
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SESSION_FOR_PID,           ENXIO),
@@ -66,7 +78,9 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_common_errors[] = {
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_RR,                   ENOENT),
         SD_BUS_ERROR_MAP(BUS_ERROR_CNAME_LOOP,                   EDEADLK),
         SD_BUS_ERROR_MAP(BUS_ERROR_ABORTED,                      ECANCELED),
+#ifdef EUNATCH
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_SERVICE,              EUNATCH),
+#endif
         SD_BUS_ERROR_MAP(BUS_ERROR_DNSSEC_FAILED,                EHOSTUNREACH),
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_TRUST_ANCHOR,              EHOSTUNREACH),
         SD_BUS_ERROR_MAP(BUS_ERROR_RR_TYPE_UNSUPPORTED,          EOPNOTSUPP),
@@ -77,7 +91,9 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_common_errors[] = {
         SD_BUS_ERROR_MAP(BUS_ERROR_DNSSD_SERVICE_EXISTS,         EEXIST),
 
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "FORMERR",               EBADMSG),
+#ifdef EHOSTDOWN
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "SERVFAIL",              EHOSTDOWN),
+#endif
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "NXDOMAIN",              ENXIO),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "NOTIMP",                ENOSYS),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "REFUSED",               EACCES),
@@ -85,15 +101,21 @@ BUS_ERROR_MAP_ELF_REGISTER const sd_bus_error_map bus_common_errors[] = {
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "YRRSET",                EEXIST),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "NXRRSET",               ENOENT),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "NOTAUTH",               EACCES),
+#ifdef EREMOTE
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "NOTZONE",               EREMOTE),
+#endif
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADVERS",               EBADMSG),
+#ifdef EKEYREJECTED
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADKEY",                EKEYREJECTED),
+#endif
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADTIME",               EBADMSG),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADMODE",               EBADMSG),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADNAME",               EBADMSG),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADALG",                EBADMSG),
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADTRUNC",              EBADMSG),
+#ifdef EBADR
         SD_BUS_ERROR_MAP(_BUS_ERROR_DNS "BADCOOKIE",             EBADR),
+#endif
 
         SD_BUS_ERROR_MAP(BUS_ERROR_NO_SUCH_TRANSFER,             ENXIO),
         SD_BUS_ERROR_MAP(BUS_ERROR_TRANSFER_IN_PROGRESS,         EBUSY),

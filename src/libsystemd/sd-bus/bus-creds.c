@@ -20,6 +20,7 @@
 #include "strv.h"
 #include "terminal-util.h"
 #include "user-util.h"
+#include "missing.h"
 
 #if HAVE_LIBCAP
 #include "capability-util.h"

@@ -24,6 +24,7 @@
 #include "parse-util.h"
 #include "process-util.h"
 #include "strv.h"
+#include "missing.h"
 
 #define log_debug_bus_message(m)                                         \
         do {                                                             \
