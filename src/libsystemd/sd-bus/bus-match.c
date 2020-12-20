@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <stdio_ext.h>
-
 #include "alloc-util.h"
 #include "bus-internal.h"
 #include "bus-message.h"

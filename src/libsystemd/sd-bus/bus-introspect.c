@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: LGPL-2.1+ */
 
-#include <stdio_ext.h>
-
 #include "bus-internal.h"
 #include "bus-introspect.h"
 #include "bus-protocol.h"
@@ -19,8 +17,6 @@ int introspect_begin(struct introspect *i, bool trusted) {
         i->f = open_memstream(&i->introspection, &i->size);
         if (!i->f)
                 return -ENOMEM;
-
-        (void) __fsetlocking(i->f, FSETLOCKING_BYCALLER);
 
         fputs(BUS_INTROSPECT_DOCTYPE
               "<node>\n", i->f);
