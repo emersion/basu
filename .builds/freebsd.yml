@@ -16,5 +16,6 @@ tasks:
       ninja -C build/
   - test: |
       cd basu
-      sudo dbus-uuidgen --ensure
+      sudo mount -t linprocfs linprocfs /proc # for cred test
+      sudo dbus-uuidgen --ensure # for machine id test
       dbus-run-session -- ninja -C build/ test
