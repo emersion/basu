@@ -76,4 +76,5 @@
 #define EUNATCH         (INT_MAX - 3)
 #define ENODATA         (INT_MAX - 4)
 #define ELNRNG          (INT_MAX - 5)
+#define EUCLEAN         (INT_MAX - 6)
 #endif

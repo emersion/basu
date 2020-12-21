@@ -78,7 +78,6 @@ static void test_error(void) {
         assert_se(sd_bus_error_has_name(&second, SD_BUS_ERROR_ACCESS_DENIED));
         assert_se(sd_bus_error_is_set(&second));
 
-#ifdef __linux__
         assert_se(!sd_bus_error_is_set(&error));
         assert_se(sd_bus_error_set_const(&error, "System.Error.EUCLEAN", "Hallo") == -EUCLEAN);
         assert_se(streq(error.name, "System.Error.EUCLEAN"));
@@ -87,7 +86,6 @@ static void test_error(void) {
         assert_se(sd_bus_error_get_errno(&error) == EUCLEAN);
         assert_se(sd_bus_error_is_set(&error));
         sd_bus_error_free(&error);
-#endif
 
         assert_se(!sd_bus_error_is_set(&error));
         assert_se(sd_bus_error_set_errno(&error, EBUSY) == -EBUSY);
@@ -139,9 +137,7 @@ static void dump_mapping_table(void) {
 }
 
 static void test_errno_mapping_standard(void) {
-#ifdef __linux__
         assert_se(sd_bus_error_set(NULL, "System.Error.EUCLEAN", NULL) == -EUCLEAN);
-#endif
         assert_se(sd_bus_error_set(NULL, "System.Error.EBUSY", NULL) == -EBUSY);
         assert_se(sd_bus_error_set(NULL, "System.Error.EINVAL", NULL) == -EINVAL);
         assert_se(sd_bus_error_set(NULL, "System.Error.WHATSIT", NULL) == -EIO);
