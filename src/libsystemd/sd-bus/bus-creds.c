@@ -624,11 +624,8 @@ static int parse_caps(sd_bus_creds *c, unsigned offset, const char *p) {
 
                 c->capability[offset * max + (sz - i - 1)] = v;
         }
-
-        return 0;
-#else
-        return -ENOTSUP;
 #endif
+        return 0;
 }
 
 int bus_creds_add_more(sd_bus_creds *c, uint64_t mask, pid_t pid, pid_t tid) {
