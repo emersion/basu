@@ -7,7 +7,7 @@
 #include "tests.h"
 
 #ifdef __FreeBSD__
-const char *program_invocation_short_name = "unknown";
+#define program_invocation_short_name getprogname()
 #endif
 
 void test_setup_logging(int level) {
