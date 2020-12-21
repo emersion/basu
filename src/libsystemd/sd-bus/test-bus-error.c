@@ -8,6 +8,7 @@
 #include "errno-list.h"
 #include "string-util.h"
 #include "errno.h"
+#include "missing.h"
 
 static void test_error(void) {
         _cleanup_(sd_bus_error_free) sd_bus_error error = SD_BUS_ERROR_NULL, second = SD_BUS_ERROR_NULL;
