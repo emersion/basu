@@ -850,7 +850,10 @@ int bus_creds_add_more(sd_bus_creds *c, uint64_t mask, pid_t pid, pid_t tid) {
         if (missing & SD_BUS_CREDS_COMM) {
                 r = get_process_comm(pid, &c->comm);
                 if (r < 0) {
-                        if (!IN_SET(r, -EPERM, -EACCES))
+                        /* get_process_comm will fail with ESRCH on
+                         * FreeBSD as linprocfs does not have a comm
+                         * file, so we must also handle that here. */
+                        if (!IN_SET(r, -ESRCH, -EPERM, -EACCES))
                                 return r;
                 } else
                         c->mask |= SD_BUS_CREDS_COMM;
