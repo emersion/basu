@@ -1,7 +1,7 @@
 project(
   'basu',
   'c',
-version : '0.1.0',
+version : '0.2.0',
 license : 'LGPLv2+',
 default_options : ['c_std=gnu99', 'prefix=/usr', 'sysconfdir=/etc', 'localstatedir=/var'],
 meson_version : '>= 0.54'
