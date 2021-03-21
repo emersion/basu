@@ -41,7 +41,7 @@ int getpeercred(int fd, struct ucred *ucred) {
         }
 
         struct ucred u = {
-#if __FreeBSD_version >= 1300030
+#if __FreeBSD_version >= 1300030 || (__FreeBSD_version >= 1202506 && __FreeBSD_version < 1300000)
                 .pid = cred.cr_pid,
 #else
                 .pid = -1,
