@@ -5076,6 +5076,7 @@ int bus_message_parse_fields(sd_bus_message *m) {
                                 return -EBADMSG;
 
                         if (*p == 0) {
+                                char *k;
                                 size_t l;
 
                                 /* We found the beginning of the signature
@@ -5089,9 +5090,11 @@ int bus_message_parse_fields(sd_bus_message *m) {
                                     p[1 + l - 1] != SD_BUS_TYPE_STRUCT_END)
                                         return -EBADMSG;
 
-                                if (free_and_strndup(&m->root_container.signature,
-                                                     p + 1 + 1, l - 2) < 0)
+                                k = memdup_suffix0(p + 1 + 1, l - 2);
+                                if (!k)
                                         return -ENOMEM;
+
+                                free_and_replace(m->root_container.signature, k);
                                 break;
                         }
 
